@@ -89,7 +89,7 @@ export const galleryApi = api.injectEndpoints({
         let tags = [{ type: TagTypes.GALLERIES, id: params.galleryId }];
 
         if (result && result.org) {
-          tags.push({ type: TagTypes.GALLERIES, id: "LIST" });
+          //tags.push({ type: TagTypes.GALLERIES, id: "LIST" });
           tags.push({
             type: TagTypes.ORGS,
             id: result.org as unknown as string

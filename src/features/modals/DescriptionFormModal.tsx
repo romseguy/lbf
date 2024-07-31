@@ -1,16 +1,14 @@
-import { EditIcon, SmallAddIcon, ChatIcon } from "@chakra-ui/icons";
+import { EditIcon, SmallAddIcon } from "@chakra-ui/icons";
 import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
-  ModalProps
+  ModalCloseButton
 } from "@chakra-ui/react";
 import React from "react";
 import { Modal } from "features/common";
 import { DescriptionForm } from "features/forms/DescriptionForm";
-import { removeProps } from "utils/object";
 
 export const DescriptionFormModal = (props: {
   description?: string;
@@ -18,7 +16,7 @@ export const DescriptionFormModal = (props: {
   isOpen: boolean;
   onCancel: () => void;
   onClose: () => void;
-  onSubmit: (description?: string) => void;
+  onSubmit: (description: string) => void;
 }) => {
   return (
     <Modal {...props} closeOnOverlayClick={false}>

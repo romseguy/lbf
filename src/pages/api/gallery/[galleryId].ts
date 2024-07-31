@@ -215,26 +215,34 @@ handler.get<
     query: { galleryId }
   } = req;
 
+  let _id: string | undefined;
+
   try {
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /gallery/${galleryId} `;
     console.log(prefix);
 
     let gallery = await models.Gallery.findOne({ galleryName: galleryId });
-    if (!gallery)
-      return res
-        .status(404)
-        .json(
-          createEndpointError(
-            new Error(`La galerie ${galleryId} n'a pas pu être trouvée`)
-          )
-        );
+    if (!gallery) {
+      _id = galleryId;
+      gallery = await models.Gallery.findOne({ _id });
+      if (!gallery) {
+        return res
+          .status(404)
+          .json(
+            createEndpointError(
+              new Error(`La galerie ${galleryId} n'a pas pu être trouvée`)
+            )
+          );
+      }
+    }
 
     logEvent({
       type: ServerEventTypes.API_CALL,
       metadata: {
         method: "GET",
         ip: getClientIp(req),
-        url: `/api/${galleryId}`
+        url: `/api/${galleryId}`,
+        galleryName: gallery.galleryName
       }
     });
 
@@ -290,39 +298,41 @@ handler.put<
       body: EditGalleryPayload;
     } = req;
 
-    const galleryId = req.query.galleryId;
-    let gallery = await models.Gallery.findOne({ _id: galleryId });
+    let _id: string | undefined;
+    let gallery = await models.Gallery.findOne({
+      galleryName: req.query.galleryId
+    });
+
     if (!gallery) {
-      console.log("🚀 ~ editGallery ~ galleryId:", galleryId);
-      gallery = await models.Gallery.findOne({ galleryName: galleryId });
+      _id = req.query.galleryId;
+      gallery = await models.Gallery.findOne({ _id });
       if (!gallery)
         return res
           .status(404)
           .json(
             createEndpointError(
-              new Error(`La galerie ${galleryId} n'existe pas`)
+              new Error(`La galerie ${req.query.galleryId} n'existe pas`)
             )
           );
     }
 
-    if (body.gallery) {
-      const isCreator = equals(gallery.createdBy, session.user.userId);
+    // const isCreator = equals(gallery.createdBy, session.user.userId);
 
-      if (!isCreator && !session.user.isAdmin)
-        return res
-          .status(403)
-          .json(
-            createEndpointError(
-              new Error(
-                "Vous ne pouvez pas modifier une galerie que vous n'avez pas créé"
-              )
-            )
-          );
+    // if (!isCreator && !session.user.isAdmin)
+    //   return res
+    //     .status(403)
+    //     .json(
+    //       createEndpointError(
+    //         new Error(
+    //           "Vous ne pouvez pas modifier une galerie que vous n'avez pas créé"
+    //         )
+    //       )
+    //     );
 
-      await models.Gallery.updateOne({ _id: galleryId }, body.gallery);
-    }
-
-    const editedGallery = { ...body.gallery, _id: galleryId, org: gallery.org };
+    const editedGallery = await models.Gallery.findOneAndUpdate(
+      { _id },
+      body.gallery
+    );
     res.status(200).json(editedGallery);
   } catch (error) {
     res.status(500).json(createEndpointError(error));

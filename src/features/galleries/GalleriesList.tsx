@@ -57,9 +57,11 @@ export const GalleriesList = ({
   const isO = isOrg(entity);
 
   //#region local state
-  const [isGalleryLoading, setIsGalleryLoading] = useState<
+  const [isGalleryLoading, _setIsGalleryLoading] = useState<
     Record<string, boolean>
   >({});
+  const setIsGalleryLoading = (isLoading: boolean, gallery: IGallery) =>
+    _setIsGalleryLoading({ ...isGalleryLoading, [gallery._id]: isLoading });
 
   const defaultOrder = EGalleriesListOrder.NEWEST;
   const [selectedOrder, setSelectedOrder] =
@@ -67,16 +69,17 @@ export const GalleriesList = ({
   const galleries = [
     ...(isO
       ? entity.orgGalleries.concat(
+          //@ts-expect-error
           entity.orgEvents.map((event) => {
             return {
-              _id: "event" + event.eventUrl,
-              galleryName: event.eventName,
+              //_id: "event" + event.eventUrl,
+              galleryName: event._id,
               isPinned: true,
               createdAt: event.eventMinDate
             };
           })
         )
-      : entity.eventGalleries || [])
+      : [])
   ].sort((galleryA, galleryB) => {
     if (galleryA.isPinned && !galleryB.isPinned) return -1;
     if (!galleryA.isPinned && galleryB.isPinned) return 1;
@@ -84,8 +87,8 @@ export const GalleriesList = ({
     if (selectedOrder === EGalleriesListOrder.ALPHA)
       return galleryA.galleryName > galleryB.galleryName ? 1 : -1;
 
-    const dateA = parseISO(galleryA.createdAt);
-    const dateB = parseISO(galleryB.createdAt);
+    const dateA = parseISO(galleryA.createdAt!);
+    const dateB = parseISO(galleryB.createdAt!);
 
     if (selectedOrder === EGalleriesListOrder.OLDEST)
       return isBefore(dateA, dateB) ? -1 : 1;
@@ -95,6 +98,7 @@ export const GalleriesList = ({
   const currentGallery = galleries.find(({ galleryName }) => {
     return galleryName === currentGalleryName;
   });
+  console.log("🚀 ~ currentGallery ~ currentGallery:", currentGallery);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const galleryCategories = entity.orgGalleryCategories || [];
@@ -251,27 +255,12 @@ export const GalleriesList = ({
           </Alert>
         ) : (
           galleries.map((gallery, galleryIndex) => {
-            const isCurrent = gallery._id === currentGallery?._id;
+            const isCurrent = currentGallery
+              ? gallery._id === currentGallery._id
+              : false;
             const isLoading = isGalleryLoading[gallery._id];
             const isGalleryCreator =
               props.isCreator || getRefId(gallery) === session?.user.userId;
-
-            const onClick = async () => {
-              if (gallery._id.includes("event")) {
-                const url = `/${gallery._id.substring(5) + "/galerie"}`;
-                await router.push(url, url, { shallow: true });
-              } else {
-                let url = "/" + entity.orgUrl + "/galeries";
-
-                if (!isCurrent) {
-                  url += "/" + normalize(gallery.galleryName);
-                  await router.push(url, url, { shallow: true });
-                  //executeScroll();
-                } else {
-                  await router.push(url, url, { shallow: true });
-                }
-              }
-            };
 
             return (
               <GalleriesListItem
@@ -282,10 +271,12 @@ export const GalleriesList = ({
                 isCreator={props.isCreator}
                 isCurrent={isCurrent}
                 isLoading={isLoading}
-                setIsLoading={setIsGalleryLoading}
+                setIsLoading={(isLoading) =>
+                  setIsGalleryLoading(isLoading, gallery)
+                }
                 isGalleryCreator={isGalleryCreator}
                 mb={galleryIndex < galleries.length - 1 ? 5 : 0}
-                onClick={onClick}
+                //onClick={onClick}
                 onEditClick={() => {
                   setGalleryModalState({
                     ...galleryModalState,

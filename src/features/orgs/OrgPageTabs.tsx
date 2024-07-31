@@ -345,25 +345,6 @@ export const OrgPageTabs = ({
             </TabPanel>
           )}
 
-          {/* {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
-            <TabPanel aria-hidden>
-              <Flex alignItems="center" mb={3}>
-                <Icon as={FaTools} boxSize={6} mr={3} />
-                <AppHeading>Projets</AppHeading>
-              </Flex>
-
-              <Column {...columnProps}>
-                <ProjectsList
-                  org={org}
-                  orgQuery={orgQuery}
-                  subQuery={subQuery}
-                  isCreator={isCreator}
-                  isFollowed={isFollowed}
-                />
-              </Column>
-            </TabPanel>
-          )} */}
-
           {!!tabs.find(({ label }) => belongs(label, "Galeries")) && (
             <TabPanel aria-hidden>
               <Column bg={isDark ? "gray.700" : "lightblue"}>
@@ -374,56 +355,16 @@ export const OrgPageTabs = ({
                   onSubmit={(gallery) => {}}
                 />
               </Column>
-
-              {/* <EntityPageDocuments isCreator={isCreator} query={orgQuery} /> */}
-              {/* <AppHeading>Galeries photo des ateliers passés</AppHeading> */}
-              {/* <VStack spacing={3}>
-                {org.orgEvents.map((event) => (
-                  <Column key={event._id}>
-                    <VStack spacing={3}>
-                      <EntityButton event={event} />
-                      <Tooltip label="Aller à la galerie" hasArrow>
-                        <span>
-                          <Button
-                            //aria-hidden
-                            colorScheme="blue"
-                            cursor="pointer"
-                            height="auto"
-                            m={0}
-                            p={1}
-                            pr={2}
-                            textAlign="left"
-                            whiteSpace="normal"
-                            onClick={(e) => {
-                              router.push(
-                                "/" + event.eventUrl + "/galerie",
-                                "/" + event.eventUrl + "/galerie",
-                                { shallow: true }
-                              );
-                            }}
-                          >
-                            <Icon
-                              as={FaImages}
-                              color="green.500"
-                              mr={1}
-                              css={css`
-                                path {
-                                  fill: ${isDark ? "white" : "white"};
-                                }
-                              `}
-                            />
-                            Galerie photo
-                          </Button>
-                        </span>
-                      </Tooltip>
-                    </VStack>
-                  </Column>
-                ))}
-              </VStack> */}
             </TabPanel>
           )}
+        </TabPanels>
+      )}
+    </Tabs>
+  );
+};
 
-          {/* {session && isCreator && (
+{
+  /* {session && isCreator && (
             <TabPanel aria-hidden>
               <AppHeading mb={3}>
                 Fonctionnalités {orgTypeFull(org.orgType)}
@@ -515,9 +456,72 @@ export const OrgPageTabs = ({
                   );
                 })}
             </TabPanel>
-          )} */}
-        </TabPanels>
-      )}
-    </Tabs>
-  );
-};
+          )} */
+}
+
+{
+  /* <VStack spacing={3}>
+                {org.orgEvents.map((event) => (
+                  <Column key={event._id}>
+                    <VStack spacing={3}>
+                      <EntityButton event={event} />
+                      <Tooltip label="Aller à la galerie" hasArrow>
+                        <span>
+                          <Button
+                            //aria-hidden
+                            colorScheme="blue"
+                            cursor="pointer"
+                            height="auto"
+                            m={0}
+                            p={1}
+                            pr={2}
+                            textAlign="left"
+                            whiteSpace="normal"
+                            onClick={(e) => {
+                              router.push(
+                                "/" + event.eventUrl + "/galerie",
+                                "/" + event.eventUrl + "/galerie",
+                                { shallow: true }
+                              );
+                            }}
+                          >
+                            <Icon
+                              as={FaImages}
+                              color="green.500"
+                              mr={1}
+                              css={css`
+                                path {
+                                  fill: ${isDark ? "white" : "white"};
+                                }
+                              `}
+                            />
+                            Galerie photo
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </VStack>
+                  </Column>
+                ))}
+              </VStack> */
+}
+
+{
+  /* {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
+            <TabPanel aria-hidden>
+              <Flex alignItems="center" mb={3}>
+                <Icon as={FaTools} boxSize={6} mr={3} />
+                <AppHeading>Projets</AppHeading>
+              </Flex>
+
+              <Column {...columnProps}>
+                <ProjectsList
+                  org={org}
+                  orgQuery={orgQuery}
+                  subQuery={subQuery}
+                  isCreator={isCreator}
+                  isFollowed={isFollowed}
+                />
+              </Column>
+            </TabPanel>
+          )} */
+}

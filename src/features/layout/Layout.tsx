@@ -43,7 +43,7 @@ export const Layout = ({
   entity,
   isMobile,
   logo,
-  mainContainer = true,
+  mainContainer = false,
   noHeader,
   pageHeader,
   pageTitle,
@@ -51,6 +51,7 @@ export const Layout = ({
   tabItem,
   ...props
 }: React.PropsWithChildren<LayoutProps>) => {
+  console.log("🚀 ~ mainContainer:", mainContainer);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();

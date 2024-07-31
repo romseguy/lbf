@@ -46,8 +46,8 @@ export interface IEvent<T = string> extends IEntity {
   eventEmail?: { email: string }[];
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
-  eventGalleries: IGallery[];
-  eventGalleryCategories: IGalleryCategory[];
+  //eventGalleries: IGallery[];
+  //eventGalleryCategories: IGalleryCategory[];
   eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
   eventSubscriptions: ISubscription[];
   eventTopicCategories: IEventTopicCategory[];

@@ -9,7 +9,7 @@ export const DescriptionForm = ({
 }: {
   description?: string;
   onCancel: () => void;
-  onSubmit: (description?: string) => void;
+  onSubmit: (description: string) => void;
 }) => {
   const { data: session } = useSession();
   //const toast = useToast({ position: "top" });
@@ -17,7 +17,7 @@ export const DescriptionForm = ({
   //const user = userQuery.data;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [description, setDescription] = useState(props.description);
+  const [description, setDescription] = useState(props.description || "");
 
   const onSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>

@@ -35,8 +35,7 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, setSession, setIsSessionLoading } = useSession();
-  //const toast = useToast({ position: "top" });
-  const toast = useToast();
+  const toast = useToast({ position: "top" });
   const [editUser] = useEditUserMutation();
 
   const [isLoading, setIsLoading] = useState(false);

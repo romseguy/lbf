@@ -139,9 +139,12 @@ export const OrgPageHomeTabPanel = ({
 
   return (
     <>
-      <TabContainer
-        borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
-      >
+      <Link href={`/${org.orgUrl}/galeries`} shallow>
+        <Button colorScheme="orange" mb={5}>
+          Cliquez ici pour envoyer vos photos !
+        </Button>
+      </Link>
+      <TabContainer borderBottomRadius={isDescriptionOpen ? undefined : "lg"}>
         <TabContainerHeader
           borderBottomRadius={isDescriptionOpen ? undefined : "lg"}
           onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
@@ -186,13 +189,12 @@ export const OrgPageHomeTabPanel = ({
             p={3}
           >
             {description && description.length > 0 ? (
-              <div className="rteditor">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: sanitize(description)
-                  }}
-                />
-              </div>
+              <div
+                className="rteditor"
+                dangerouslySetInnerHTML={{
+                  __html: sanitize(description)
+                }}
+              />
             ) : isCreator ? (
               <Tooltip
                 placement="right"
@@ -220,7 +222,7 @@ export const OrgPageHomeTabPanel = ({
           </TabContainerContent>
         )}
       </TabContainer>
-      
+
       <TabContainer borderBottomRadius={isInfoOpen ? undefined : "lg"} mb={0}>
         <TabContainerHeader
           borderBottomRadius={isInfoOpen ? undefined : "lg"}

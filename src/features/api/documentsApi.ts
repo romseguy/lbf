@@ -1,4 +1,4 @@
-import { api } from "./";
+import { api, TagTypes } from "./";
 import { objectToQueryString } from "utils/query";
 import { IDocument } from "models/Document";
 
@@ -34,6 +34,19 @@ export const documentApi = api.injectEndpoints({
           method: "POST",
           body: payload
         };
+      },
+      invalidatesTags: (result, error, params) => {
+        let tags = [];
+        const galleryId = result?.gallery._id || params.gallery._id;
+
+        if (galleryId) {
+          tags.push({
+            type: TagTypes.GALLERIES,
+            id: galleryId
+          });
+        }
+
+        return tags;
       }
     }),
     getDocuments: build.query<(RemoteFile | RemoteImage)[], GetDocumentsParams>(

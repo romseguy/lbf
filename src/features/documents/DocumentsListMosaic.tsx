@@ -19,14 +19,13 @@ import {
   Text,
   useColorMode,
   UseDisclosureProps,
-  useToast,
-  VStack
+  useToast
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
-import { AppHeading, DeleteButton, EditIconButton } from "features/common";
+import { DeleteButton } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { selectScreenHeight } from "store/uiSlice";
 import { hasItems } from "utils/array";
@@ -38,13 +37,11 @@ import {
 import { IGallery } from "models/Gallery";
 import { downloadImage } from "utils/image";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
-import { getRefId } from "models/Entity";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
 import { AppQueryWithData } from "utils/types";
 
 export const DocumentsListMosaic = ({
-  gallery,
   isCreator,
   isGalleryCreator,
   isLoading,
@@ -63,7 +60,6 @@ export const DocumentsListMosaic = ({
   groupByUser?: boolean;
   onDelete?: () => void;
 }) => {
-  console.log("🚀 ~ gallery:", gallery);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
@@ -73,16 +69,16 @@ export const DocumentsListMosaic = ({
   const [marginBetween, setMarginBetween] = useState<number>(15);
 
   //#region images
-  const galleryQuery = useGetGalleryQuery({ galleryId: gallery?._id });
+  const galleryQuery = useGetGalleryQuery({ galleryId: props.gallery?._id });
+  const gallery = galleryQuery.data || props.gallery;
   useEffect(() => {
     galleryQuery.refetch();
   }, [isLoading]);
-
   const galleryDocuments =
     (galleryQuery.data || gallery || {}).galleryDocuments || [];
   const galleryByUser: Record<
     string,
-    { description?: string; images: MosaicImage[] }
+    { description?: string; images: MosaicImage[]; userName: string }
   > = {};
   const images =
     props.images ||
@@ -100,25 +96,29 @@ export const DocumentsListMosaic = ({
       if (
         doc.createdBy &&
         typeof doc.createdBy !== "string" &&
-        //"_id" in doc.createdBy &&
+        "_id" in doc.createdBy &&
         "userName" in doc.createdBy &&
         groupByUser
       ) {
         //console.log(doc.createdBy._id);
 
+        const userId = doc.createdBy._id;
         const userName = doc.createdBy.userName;
-        const userEntry = galleryByUser[userName];
-        const description = "tnlfskfd";
+        const userEntry = galleryByUser[userId];
+        const description = gallery?.galleryDescriptions[userId];
 
         if (userEntry) {
-          galleryByUser[userName] = {
+          galleryByUser[userId] = {
             ...userEntry,
-            images: userEntry.images.concat([image])
+            description,
+            images: userEntry.images.concat([image]),
+            userName
           };
         } else {
-          galleryByUser[userName] = {
+          galleryByUser[userId] = {
             description,
-            images: [image]
+            images: [image],
+            userName
           };
         }
       }
@@ -207,8 +207,9 @@ export const DocumentsListMosaic = ({
     <>
       {images.length > 0 && position === "top" && (
         <>
+          <Box as="hr" mt={5} mb={5} />
           {config}
-          <Box as="hr" mb={5} />
+          <Box as="hr" mb={5} mt={5} />
         </>
       )}
 
@@ -221,12 +222,13 @@ export const DocumentsListMosaic = ({
         </Alert>
       ) : groupByUser ? (
         <>
-          {Object.keys(galleryByUser).map((userName) => {
-            const { description, images } = galleryByUser[userName];
+          {Object.keys(galleryByUser).map((userId) => {
+            const { description, images, userName } = galleryByUser[userId];
             return (
               <UserGallery
-                key={userName}
+                key={userId}
                 query={galleryQuery as AppQueryWithData<IGallery>}
+                userId={userId}
                 userName={userName}
                 description={description}
                 images={images}
@@ -330,7 +332,8 @@ export const DocumentsListMosaic = ({
                       //await api.remove(process.env.NEXT_PUBLIC_API2, payload);
                       toast({
                         title: `L'image a été supprimée !`,
-                        status: "success"
+                        status: "success",
+                        isClosable: true
                       });
                       setModalState({ isOpen: false });
                       galleryQuery.refetch();

@@ -1,18 +1,11 @@
-import { Box, Text } from "@chakra-ui/react";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Box } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import {
-  EntityPageConfigButton,
-  EntityPageSubscribeButton,
-  Link
-} from "features/common";
-import { Forum } from "features/forum/Forum";
+import { EntityPageConfigButton } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
-import { EOrgType, EOrgVisibility, IOrg } from "models/Org";
+import { IOrg } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
@@ -50,7 +43,6 @@ export const OrgPage = ({
     session?.user.userId === getRefId(org) ||
     session?.user.isAdmin ||
     false;
-  console.log("🚀 ~ isCreator:", isCreator);
   const orgCreatedByUserName =
     typeof org.createdBy === "object"
       ? org.createdBy?.userName || org.createdBy?._id

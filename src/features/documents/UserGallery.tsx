@@ -5,9 +5,15 @@ import { Mosaic, MosaicImage } from "./Mosaic";
 import { AppQueryWithData } from "utils/types";
 import { IGallery } from "models/Gallery";
 import { DescriptionFormModal } from "features/modals/DescriptionFormModal";
+import {
+  useEditGalleryMutation,
+  EditGalleryPayload
+} from "features/api/galleriesApi";
+import { sanitize } from "utils/string";
 
 export const UserGallery = ({
   query,
+  userId,
   userName,
   description,
   images,
@@ -17,10 +23,13 @@ export const UserGallery = ({
   query: AppQueryWithData<IGallery>;
   description?: string;
   images: MosaicImage[];
+  userId: string;
   userName: string;
   marginBetween: number;
   onImageClick: (image: MosaicImage) => void;
 }) => {
+  const gallery = query.data;
+  const [editGallery] = useEditGalleryMutation();
   const [modalState, setModalState] = useState<UseDisclosureProps>({
     isOpen: false
   });
@@ -35,7 +44,7 @@ export const UserGallery = ({
   };
   return (
     <>
-      <Flex alignItems="center" ml={3}>
+      <Flex alignItems="center" mb={3}>
         <AppHeading noContainer smaller>
           {userName}
         </AppHeading>
@@ -45,10 +54,17 @@ export const UserGallery = ({
           onClick={onEditClick}
         />
       </Flex>
-      <Alert status="info" my={3}>
-        <AlertIcon />
-        {description}
-      </Alert>
+      {description && (
+        <Alert status="info" mb={3}>
+          <AlertIcon />
+          <div
+            className="rteditor"
+            dangerouslySetInnerHTML={{
+              __html: sanitize(description)
+            }}
+          />
+        </Alert>
+      )}
 
       <Mosaic
         images={images}
@@ -66,8 +82,23 @@ export const UserGallery = ({
           onClose={() => {
             onClose();
           }}
-          onSubmit={(description) => {
-            console.log("🚀 ~ description:", description);
+          onSubmit={async (description) => {
+            const payload: EditGalleryPayload = {
+              gallery: {
+                ...gallery,
+                galleryDescriptions: {
+                  ...gallery.galleryDescriptions,
+                  [userId]: description
+                }
+              }
+            };
+            await editGallery({
+              galleryId: gallery._id,
+              payload
+            }).unwrap();
+            // TODO1
+            query.refetch();
+            onClose();
           }}
         />
       )}

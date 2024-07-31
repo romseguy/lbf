@@ -4,6 +4,7 @@ import {
   HStack,
   Icon,
   Tabs,
+  Tooltip,
   useColorMode,
   useToast
 } from "@chakra-ui/react";
@@ -22,7 +23,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { TabPanel, TabPanels } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { AppHeading, Column } from "features/common";
-import { scrollbarCss } from "features/layout/theme";
+import theme, { scrollbarCss } from "features/layout/theme";
 import { useSession } from "hooks/useSession";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -111,19 +112,19 @@ export const EventPageTabs = ({
       isFitted
       isLazy
       isManual
-      lazyBehavior="keepMounted"
+      lazyBehavior="unmount"
       variant="solid-rounded"
       background={isDark ? "black" : "blackAlpha.200"}
       borderColor={isDark ? "gray.600" : "gray.200"}
-      borderRadius="lg"
+      //borderRadius="lg"
       borderWidth={1}
-      p={3}
-      pb={0}
+      //p={3}
+      //pb={0}
     >
       <EntityPageTabList
         aria-hidden
         bgColor={isDark ? "gray.700" : "blackAlpha.50"}
-        borderRadius="xl"
+        //borderRadius="xl"
         css={scrollbarCss}
         {...(isMobile
           ? {
@@ -143,9 +144,10 @@ export const EventPageTabs = ({
             })}
       >
         {Object.keys(defaultTabs).map((tabLabel, tabIndex) => {
-          const tab = defaultTabs[tabLabel];
-          const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
           const key = `event-${normalize(tabLabel)}-tab`;
+          const tab = defaultTabs[tabLabel];
+          const isCurrent = tabIndex === currentTabIndex;
+          const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
 
           return (
             <EntityPageTab
@@ -153,6 +155,27 @@ export const EventPageTabs = ({
               currentTabIndex={currentTabIndex}
               tab={tab}
               tabIndex={tabIndex}
+              css={css`
+                ${isCurrent &&
+                `
+                border: 5px solid ${
+                  isDark ? theme.colors.teal[200] : theme.colors.teal[400]
+                };
+                backgroundcolor: white;
+                  `}
+                path {
+                  fill: ${isDark && isCurrent
+                    ? "white"
+                    : isDark
+                    ? "white"
+                    : !isDark && isCurrent
+                    ? "white"
+                    : !isDark //&& url !== "/"
+                    ? "black"
+                    : "none"};
+                }
+              `}
+              {...(isMobile ? {} : {})}
               onClick={() => {
                 if (isDisabled && tabIndex > 0)
                   toast({
@@ -182,7 +205,7 @@ export const EventPageTabs = ({
       <TabPanels
         css={css`
           & > * {
-            padding: 12px 0 !important;
+            padding: 12px !important;
           }
         `}
       >
@@ -199,25 +222,34 @@ export const EventPageTabs = ({
             <HStack mb={3}>
               <Icon as={FaImages} boxSize={10} />
               <AppHeading>{eventQuery.data.eventName}</AppHeading>
-              <EditIconButton
-                aria-label="Modifier la galerie de l'événement"
-                onClick={() => {
-                  onOpen();
-                }}
-              />
+              {isCreator && (
+                <Tooltip
+                  label={
+                    !!gallery?.galleryDescription
+                      ? "Modifier la description de la galerie"
+                      : "Ajouter une description à la galerie"
+                  }
+                  placement="right"
+                >
+                  <span>
+                    <EditIconButton
+                      aria-label="Modifier la description de la galerie de l'événement"
+                      onClick={() => {
+                        onOpen();
+                      }}
+                    />
+                  </span>
+                </Tooltip>
+              )}
             </HStack>
 
             <GalleriesListItem
               query={eventQuery}
               gallery={gallery}
               galleryIndex={0}
-              isCreator={true}
-              isCurrent={true}
-              isLoading={false}
-              setIsLoading={() => {}}
+              isCreator={isCreator}
+              isCurrent
               isGalleryCreator={true}
-              onClick={() => {}}
-              onEditClick={() => {}}
               noHeader
             />
 

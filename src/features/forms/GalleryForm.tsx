@@ -196,52 +196,27 @@ export const GalleryForm = ({
         </FormControl>
       )}
 
-      {isE && (
-        <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
-          <FormLabel>Description de la galerie</FormLabel>
-          <Controller
-            name="galleryDescription"
-            control={control}
-            render={(renderProps) => {
-              return (
-                <RTEditor
-                  placeholder={`Saisir la description de la galerie`}
-                  value={renderProps.value}
-                  onChange={({ html }) => {
-                    renderProps.onChange(html);
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="galleryDescription" />
-          </FormErrorMessage>
-        </FormControl>
-      )}
-
-      {/* {!props.gallery && (
-        <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
-          <FormLabel>Message (optionnel)</FormLabel>
-          <Controller
-            name="galleryDescription"
-            control={control}
-            render={(renderProps) => {
-              return (
-                <RTEditor
-                  placeholder="Contenu de votre message"
-                  onChange={({ html }) => {
-                    renderProps.onChange(html);
-                  }}
-                />
-              );
-            }}
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="galleryDescription" />
-          </FormErrorMessage>
-        </FormControl>
-      )} */}
+      <FormControl isInvalid={!!errors["galleryDescription"]} mb={3}>
+        <FormLabel>Description de la galerie</FormLabel>
+        <Controller
+          name="galleryDescription"
+          control={control}
+          render={(renderProps) => {
+            return (
+              <RTEditor
+                placeholder={`Saisir la description de la galerie`}
+                value={renderProps.value}
+                onChange={({ html }) => {
+                  renderProps.onChange(html);
+                }}
+              />
+            );
+          }}
+        />
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name="galleryDescription" />
+        </FormErrorMessage>
+      </FormControl>
 
       {/* <FormControl isInvalid={!!errors["galleryCategory"]} mb={3}>
         <FormLabel>Catégorie (optionnel)</FormLabel>
