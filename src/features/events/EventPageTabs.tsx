@@ -13,7 +13,8 @@ import React, { useEffect, useState } from "react";
 import {
   EditIconButton,
   EntityPageTab,
-  EntityPageTabList
+  EntityPageTabList,
+  EntityPageTopics
 } from "features/common";
 import { defaultTabs, IEvent } from "models/Event";
 import { normalize } from "utils/string";
@@ -35,6 +36,7 @@ import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { hasItems } from "utils/array";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { IGallery } from "models/Gallery";
+import { ChatIcon } from "@chakra-ui/icons";
 
 export const EventPageTabs = ({
   currentItemName,
@@ -206,6 +208,20 @@ export const EventPageTabs = ({
             eventQuery={eventQuery}
             isCreator={isCreator}
             setIsEdit={setIsEdit}
+          />
+        </TabPanel>
+
+        <TabPanel aria-hidden>
+          <HStack mb={3}>
+            <Icon as={ChatIcon} boxSize={10} />
+            <AppHeading>{eventQuery.data.eventName}</AppHeading>
+          </HStack>
+          <EntityPageTopics
+            currentTopicName={currentItemName}
+            isCreator={isCreator}
+            isFollowed={isFollowed}
+            query={eventQuery}
+            subQuery={subQuery}
           />
         </TabPanel>
 

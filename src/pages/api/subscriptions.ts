@@ -155,7 +155,7 @@ handler.post<
             .json(
               createEndpointError(
                 new Error(
-                  "Vous ne pouvez pas vous abonner à une organisation inexistante"
+                  "Vous ne pouvez pas vous abonner à un atelier inexistant"
                 )
               )
             );

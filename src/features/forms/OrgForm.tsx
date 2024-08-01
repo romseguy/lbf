@@ -1078,12 +1078,12 @@ export const OrgForm = withGoogleApi({
 {
   /*
     <FormControl isInvalid={!!errors["orgType"]} mb={3}>
-      <FormLabel>Type de l'organisation</FormLabel>
+      <FormLabel>Type de l'atelier</FormLabel>
       <Select
         name="orgType"
         ref={register()}
         defaultValue={org?.orgType || orgType}
-        placeholder={`Type de l'organisation`}
+        placeholder={`Type de l'atelier`}
         color={isDark ? "whiteAlpha.400" : "gray.400"}
       >
         {Object.keys(EOrgType).map((k) => {
@@ -1150,7 +1150,7 @@ export const OrgForm = withGoogleApi({
 }
 
 {
-  /* Réseau auquel l'organisation est rattachée */
+  /* Réseau auquel l'atelier est rattachée */
 }
 
 {

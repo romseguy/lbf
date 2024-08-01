@@ -113,12 +113,12 @@ export const EventForwardForm = ({
           <Controller
             name="orgs"
             rules={{
-              required: "Veuillez sélectionner une ou plusieurs organisations"
+              required: "Veuillez sélectionner un ou plusieurs ateliers"
             }}
             as={ReactSelect}
             control={control}
             defaultValue={null}
-            placeholder="Rechercher une organisation..."
+            placeholder="Rechercher un atelier..."
             menuPlacement="bottom"
             noOptionsMessage={() => "Aucun résultat"}
             isClearable

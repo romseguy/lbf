@@ -88,7 +88,25 @@ export const TopicsList = ({
     [entity]
   );
   const topics = useMemo(() => {
-    return (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
+    return (
+      isE
+        ? entity.eventTopics
+        : isO
+        ? entity.orgTopics.concat(
+            entity.orgEvents.map((event) => ({
+              _id: event._id,
+              event,
+              isPinned: true,
+              topicName: event._id,
+              topicMessages: [],
+              topicNotifications: [],
+              topicVisibility: [],
+              createdAt: event.eventMinDate,
+              createdBy: event.createdBy
+            }))
+          )
+        : []
+    )
       .filter((topic: ITopic) => {
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;
@@ -141,6 +159,7 @@ export const TopicsList = ({
         return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
       });
   }, [entity, selectedCategories, selectedLists, selectedOrder]);
+  console.log("🚀 ~ topics ~ topics:", topics);
   const currentTopic = useMemo(() => {
     if (
       !currentTopicName ||
@@ -195,12 +214,6 @@ export const TopicsList = ({
 
     setTopicModalState({ ...topicModalState, isOpen: true });
   };
-  //#endregion
-
-  //#region notify modal state
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<ITopic>
-  >({});
   //#endregion
 
   return (
@@ -373,6 +386,8 @@ export const TopicsList = ({
           </Alert>
         ) : (
           topics.map((topic, topicIndex) => {
+            if (typeof topic === "string") return null;
+
             const isCurrent = topic._id === currentTopic?._id;
             const isTopicCreator =
               props.isCreator || getRefId(topic) === session?.user.userId;
@@ -402,8 +417,8 @@ export const TopicsList = ({
                 //setIsLoading={setIsLoading}
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
-                notifyModalState={notifyModalState}
-                setNotifyModalState={setNotifyModalState}
+                //notifyModalState={notifyModalState}
+                //setNotifyModalState={setNotifyModalState}
                 topicModalState={topicModalState}
                 setTopicModalState={setTopicModalState}
                 mb={topicIndex < topics.length - 1 ? 5 : 0}
@@ -417,16 +432,6 @@ export const TopicsList = ({
           })
         )}
       </Box>
-
-      {session && (
-        <EntityNotifModal
-          query={query}
-          mutation={addTopicNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )}
 
       {topicModalState.isOpen && (
         <TopicFormModal
@@ -451,3 +456,24 @@ export const TopicsList = ({
 };
 
 TopicsList.whyDidYouRender = false;
+
+{
+  /*
+  //#region notify modal state
+  const [notifyModalState, setNotifyModalState] = useState<
+    NotifModalState<ITopic>
+  >({});
+  //#endregion
+
+
+      {session && (
+        <EntityNotifModal
+          query={query}
+          mutation={addTopicNotifMutation}
+          setModalState={setNotifyModalState}
+          modalState={notifyModalState}
+          session={session}
+        />
+      )}
+  */
+}

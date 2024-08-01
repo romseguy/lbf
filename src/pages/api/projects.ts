@@ -95,7 +95,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
           if (admin.userSubscription) {
             try {
               const data = await api.sendPushNotification({
-                message: "Appuyez pour ouvrir la page de l'organisation",
+                message: "Appuyez pour ouvrir la page de l'atelier",
                 subscription: admin.userSubscription,
                 title: "Un projet attend votre approbation",
                 url: projectOrgs[0].orgUrl

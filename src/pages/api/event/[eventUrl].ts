@@ -102,20 +102,20 @@ handler.get<
             { path: "galleryDocuments" },
             { path: "createdBy", select: "_id userName" }
           ]
+        },
+        {
+          path: "eventTopics",
+          populate: [
+            {
+              path: "topicMessages",
+              populate: {
+                path: "createdBy",
+                select: "_id userName"
+              }
+            },
+            { path: "createdBy", select: "_id userName" }
+          ]
         }
-        // {
-        //   path: "eventTopics",
-        //   populate: [
-        //     {
-        //       path: "topicMessages",
-        //       populate: {
-        //         path: "createdBy",
-        //         select: "_id userName"
-        //       }
-        //     },
-        //     { path: "createdBy", select: "_id userName" }
-        //   ]
-        // }
       ])
       .execPopulate();
 

@@ -109,6 +109,7 @@ export const GalleriesListItem = ({
               {((isE && hasItems(gallery.galleryDocuments)) ||
                 (!isE && hasItems(gallery.galleryDocuments))) && (
                 <DocumentsListMosaic
+                  entity={entity}
                   gallery={gallery}
                   isGalleryCreator={isGalleryCreator}
                   isLoading={isAdd}

@@ -32,8 +32,10 @@ import { AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
 import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
+import { IEntity, isEvent } from "models/Entity";
 
 export const DocumentsListMosaic = ({
+  entity,
   isCreator,
   isGalleryCreator,
   isLoading,
@@ -42,6 +44,7 @@ export const DocumentsListMosaic = ({
   onDelete,
   ...props
 }: {
+  entity: IEntity;
   gallery: IGallery;
   isCreator?: boolean;
   isGalleryCreator?: boolean;
@@ -249,6 +252,7 @@ export const DocumentsListMosaic = ({
 
       {modalState.isOpen && modalState.image && (
         <MosaicItemFullscrenModal
+          entity={entity}
           images={images}
           isGalleryCreator={isGalleryCreator}
           //@ts-expect-error

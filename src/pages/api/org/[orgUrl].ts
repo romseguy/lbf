@@ -63,7 +63,7 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+            new Error(`L'atelier ${orgUrl} n'a pas pu être trouvé`)
           )
         );
 
@@ -174,6 +174,7 @@ handler.get<
           .populate({
             path: "orgEvents",
             populate: [
+              { path: "createdBy", select: "_id userName" },
               { path: "eventOrgs" },
               {
                 path: "eventTopics",
@@ -398,7 +399,7 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
+            new Error(`L'atelier ${orgUrl} n'a pas pu être trouvé`)
           )
         );
     res.status(500).json(createEndpointError(error));
@@ -429,7 +430,7 @@ handler.put<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
+            new Error(`L'atelier ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -565,7 +566,7 @@ handler.put<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être modifiée`)
+            new Error(`L'atelier ${_id} n'a pas pu être modifiée`)
           )
         );
     }
@@ -607,7 +608,7 @@ handler.delete<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
+            new Error(`L'atelier ${_id} n'a pas pu être trouvé`)
           )
         );
     }
@@ -618,7 +619,7 @@ handler.delete<
         .json(
           createEndpointError(
             new Error(
-              "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé"
+              "Vous ne pouvez pas supprimer un atelier que vous n'avez pas créé"
             )
           )
         );
@@ -631,7 +632,7 @@ handler.delete<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être supprimé`)
+            new Error(`L'atelier ${_id} n'a pas pu être supprimé`)
           )
         );
     }

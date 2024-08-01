@@ -26,8 +26,10 @@ import { FullscreenModal } from "features/modals/FullscreenModal";
 import { selectScreenHeight } from "store/uiSlice";
 import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
+import { IEntity, isEvent } from "models/Entity";
 
 export const MosaicItemFullscrenModal = ({
+  entity,
   images,
   isGalleryCreator = false,
   modalState,
@@ -36,6 +38,7 @@ export const MosaicItemFullscrenModal = ({
   onClose,
   ...props
 }: {
+  entity: IEntity;
   images: MosaicImage[];
   isGalleryCreator?: boolean;
   modalState: UseDisclosureProps & {
@@ -58,6 +61,8 @@ export const MosaicItemFullscrenModal = ({
   const [addTopic] = useAddTopicMutation();
   const [deleteDocument] = useDeleteDocumentMutation();
   const screenHeight = useSelector(selectScreenHeight);
+
+  const isE = isEvent(entity);
 
   return (
     <FullscreenModal
@@ -168,6 +173,7 @@ export const MosaicItemFullscrenModal = ({
               try {
                 const topicName = modalState.image!.name;
                 const payload: AddTopicPayload = {
+                  [isE ? "event" : "org"]: entity,
                   topic: {
                     topicName,
                     topicMessages: [
@@ -180,7 +186,11 @@ export const MosaicItemFullscrenModal = ({
                   }
                 };
                 const topic = await addTopic({ payload }).unwrap();
-                router.push("/photo/d/" + topicName);
+                router.push(
+                  `/${
+                    entity[`${isE ? "event" : "org"}Url`]
+                  }/discussions/${topicName}`
+                );
               } catch (error) {
                 toast({
                   title: "La discussion n'a pas pu être créée",

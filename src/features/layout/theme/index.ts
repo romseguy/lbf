@@ -18,6 +18,12 @@ const theme = extendTheme({
 
   config: { initialColorMode: "light" },
   components: {
+    // marche pas
+    //Alert: {
+    //baseStyle: { backgroundColor: "red" },
+    //defaultProps: { backgroundColor: "red" }
+    //},
+
     Badge: {
       baseStyle: { textTransform: "none" }
     },
@@ -27,6 +33,7 @@ const theme = extendTheme({
     //     border: "5px solid black"
     //   }
     // },
+    //
     // https://stackoverflow.com/questions/68531930/style-chakra-ui-formcontrol-and-label-at-application-theme-level
     Form: {
       // The styles all button have in common

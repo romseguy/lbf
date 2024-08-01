@@ -35,7 +35,7 @@ const OrganisationsPage = (props: PageProps) => {
         <Tooltip
           label={
             !orgsQuery.data || !orgsQuery.data.length
-              ? "Aucune organisations"
+              ? "Aucun ateliers"
               : isOffline
               ? "Vous devez être connecté à internet pour Afficher la carte des organisations"
               : ""

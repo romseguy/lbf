@@ -394,7 +394,7 @@ export const EventNotifForm = ({
                   ) : (
                     <Alert status="error">
                       <AlertIcon />
-                      L'événement n'est organisé par aucune organisations.
+                      L'événement n'est organisé par aucun atelier.
                     </Alert>
                   )}
                 </Tbody>

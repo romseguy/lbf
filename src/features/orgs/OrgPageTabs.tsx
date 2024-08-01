@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Badge,
   BadgeProps,
   TabPanel,
@@ -348,6 +350,11 @@ export const OrgPageTabs = ({
           {!!tabs.find(({ label }) => belongs(label, "Galeries")) && (
             <TabPanel aria-hidden>
               <Column bg={isDark ? "gray.700" : "lightblue"}>
+                <Alert status="info" mb={3}>
+                  <AlertIcon />
+                  Pour envoyer vos photos, ajoutez ou sélectionnez une galerie
+                  ci-dessous :
+                </Alert>
                 <GalleriesList
                   query={orgQuery}
                   currentGalleryName={currentItemName}
