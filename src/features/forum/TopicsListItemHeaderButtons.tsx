@@ -12,7 +12,12 @@ import {
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaBellSlash, FaBell } from "react-icons/fa";
-import { DeleteButton, PushPinIcon, PushPinSlashIcon } from "features/common";
+import {
+  DeleteButton,
+  EditIconButton,
+  PushPinIcon,
+  PushPinSlashIcon
+} from "features/common";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { ITopic } from "models/Topic";
 import { ServerError } from "utils/errors";
@@ -274,19 +279,15 @@ export const TopicsListItemHeaderButtons = ({
 
           {isTopicCreator && (
             <>
-              <Tooltip placement="bottom" label="Modifier la discussion">
-                <IconButton
-                  aria-label="Modifier la discussion"
-                  icon={<EditIcon />}
-                  colorScheme="green"
-                  variant="outline"
-                  mr={3}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditClick();
-                  }}
-                />
-              </Tooltip>
+              <EditIconButton
+                label="Modifier la discussion"
+                colorScheme="green"
+                mr={3}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditClick();
+                }}
+              />
 
               <DeleteButton
                 header={

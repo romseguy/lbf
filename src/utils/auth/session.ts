@@ -53,8 +53,8 @@ export const testSession =
   {
     user: {
       email: "rom.seguy@lilo.org",
-      userId: "60e340cb56ef290008d2e75d",
-      userName: "romain",
+      userId: "6686e189b1b60d78c1563209",
+      userName: "romano",
       isAdmin: true
     }
   };

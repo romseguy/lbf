@@ -285,9 +285,6 @@ handler.put<
             );
 
         await models.Topic.updateOne({ _id: topicId }, body.topic);
-
-        // if (nModified !== 1)
-        //   throw new Error("La discussion n'a pas pu être modifié");
       }
     }
 

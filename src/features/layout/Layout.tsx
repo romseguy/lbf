@@ -86,7 +86,7 @@ export const Layout = ({
       : "Merci de patienter..."
   } – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
 
-  const main = (c: ReactNode) =>
+  const main = (node: ReactNode) =>
     mainContainer ? (
       <Box
         as="main"
@@ -99,18 +99,18 @@ export const Layout = ({
         p={isMobile ? 3 : 5}
         pt={isMobile ? 4 : 5}
       >
-        {c}
+        {node}
       </Box>
     ) : (
-      c
+      node
     );
 
-  const page = (c: ReactNode) => (
+  const page = (node: ReactNode) => (
     <Box
       css={css`
         ${isMobile && !!entity
           ? `
-          margin: 3px 3px 0 3px;
+          margin: 30px 3px 0 3px;
           max-height: calc(100% - 80px);
           overflow-y: scroll;
           `
@@ -163,21 +163,22 @@ export const Layout = ({
       )} */}
 
       {/* Main */}
-      {main(c)}
+      {main(node)}
 
       {/* Footer */}
-      <Box as="footer">
-        {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
-        <Flex flexDir="column" alignItems="center" fontSize="smaller">
-          {/* <Link href="/a_propos" variant="underline">
+      {!isMobile && (
+        <Box as="footer">
+          {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
+          <Flex flexDir="column" alignItems="center" fontSize="smaller">
+            {/* <Link href="/a_propos" variant="underline">
             À propos
           </Link>
           <Delimiter /> */}
-          <DiskUsage />
-          <Link href="/contact" variant="underline">
-            Besoin de plus d'espace de stockage ?
-          </Link>
-          {/* <Delimiter />
+            <DiskUsage />
+            <Link href="/contact" variant="underline">
+              Besoin de plus d'espace de stockage ?
+            </Link>
+            {/* <Delimiter />
           <Link href="/privacy" variant="underline">
             CGU
           </Link>
@@ -185,8 +186,9 @@ export const Layout = ({
           <Link href="https://github.com/romseguy/lbf" variant="underline">
             Code
           </Link> */}
-        </Flex>
-      </Box>
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
 

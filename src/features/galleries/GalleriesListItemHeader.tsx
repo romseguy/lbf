@@ -9,6 +9,7 @@ import {
   Badge,
   Box,
   BoxProps,
+  Button,
   Flex,
   HStack,
   IconButton,
@@ -52,6 +53,7 @@ export const GalleriesListItemHeader = ({
   isLoading,
   setIsLoading,
   noHeader = false,
+  executeScroll,
   //onClick,
   onEditClick,
   ...props
@@ -65,6 +67,7 @@ export const GalleriesListItemHeader = ({
   isLoading?: boolean;
   setIsLoading?: (isLoading: boolean) => void;
   noHeader?: boolean;
+  executeScroll: () => void;
   //onClick?: () => void;
   onEditClick?: () => void;
 }) => {
@@ -116,7 +119,7 @@ export const GalleriesListItemHeader = ({
       if (!isCurrent) {
         url += "/" + normalize(gallery.galleryName);
         await router.push(url, url, { shallow: true });
-        //executeScroll();
+        executeScroll();
       } else {
         await router.push(url, url, { shallow: true });
       }
@@ -314,31 +317,14 @@ export const GalleriesListItemHeader = ({
         // pt={3}
         // pb={2}
         ml={2}
-        {...(isMobile ? { pb: 1, pt: 3 } : {})}
+        {...(isMobile ? {} : {})}
       >
         {isLoading && <Spinner mr={3} mt={1} mb={2} />}
 
         {!isLoading && session && (
-          <>
+          <Flex>
             {isCreator && (
               <>
-                {/* <Tooltip
-                    placement="bottom"
-                    label="Envoyer des invitations à la galerie"
-                  >
-                    <IconButton
-                      aria-label="Envoyer des invitations à la galerie"
-                      icon={<EmailIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      mr={3}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNotifClick();
-                      }}
-                    />
-                  </Tooltip> */}
-
                 <Tooltip placement="bottom" label="Épingler la galerie">
                   <IconButton
                     aria-label="Épingler la galerie"
@@ -417,67 +403,40 @@ export const GalleriesListItemHeader = ({
                 )}
               </>
             )}
-          </>
+          </Flex>
         )}
 
         {!isLoading && (
           <Flex>
-            {/* {session && (
-                          <Tooltip
-                            label={
-                              isSubbedToGallery
-                                ? "Se désabonner de la galerie"
-                                : "S'abonner à la galerie"
-                            }
-                          >
-                            <IconButton
-                              aria-label={
-                                isSubbedToGallery
-                                  ? "Se désabonner de la galerie"
-                                  : "S'abonner à la galerie"
-                              }
-                              icon={
-                                isSubbedToGallery ? <FaBellSlash /> : <FaBell />
-                              }
-                              variant="outline"
-                              colorScheme="blue"
-                              mr={3}
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                onSubscribeClick();
-                              }}
-                              data-cy={
-                                isSubbedToGallery
-                                  ? "gallery-list-item-unsubscribe"
-                                  : "gallery-list-item-subscribe"
-                              }
-                            />
-                          </Tooltip>
-                        )} */}
-
-            <Tooltip
-              placement="left"
-              label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
-            >
-              <IconButton
-                aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
-                icon={
-                  isCurrent ? (
-                    <ChevronUpIcon color={hoverColor} boxSize={9} />
-                  ) : (
-                    <ChevronRightIcon color={hoverColor} boxSize={9} />
-                  )
-                }
-                bg="transparent"
-                height="auto"
-                minWidth={0}
-                _hover={{
-                  background: "transparent",
-                  color: isDark ? "teal.100" : "white"
-                }}
-                onClick={onClick}
-              />
-            </Tooltip>
+            {isMobile ? (
+              <Button colorScheme="teal" onClick={onClick}>
+                Ouvrir
+              </Button>
+            ) : (
+              <Tooltip
+                placement="left"
+                label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
+              >
+                <IconButton
+                  aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la galerie`}
+                  icon={
+                    isCurrent ? (
+                      <ChevronUpIcon color={hoverColor} boxSize={9} />
+                    ) : (
+                      <ChevronRightIcon color={hoverColor} boxSize={9} />
+                    )
+                  }
+                  bg="transparent"
+                  height="auto"
+                  minWidth={0}
+                  _hover={{
+                    background: "transparent",
+                    color: isDark ? "teal.100" : "white"
+                  }}
+                  onClick={onClick}
+                />
+              </Tooltip>
+            )}
           </Flex>
         )}
       </Flex>
@@ -527,4 +486,58 @@ export const GalleriesListItemHeader = ({
                                 </Button>
                               </Tooltip>
                             )} */
+}
+
+{
+  /* {session && (
+                          <Tooltip
+                            label={
+                              isSubbedToGallery
+                                ? "Se désabonner de la galerie"
+                                : "S'abonner à la galerie"
+                            }
+                          >
+                            <IconButton
+                              aria-label={
+                                isSubbedToGallery
+                                  ? "Se désabonner de la galerie"
+                                  : "S'abonner à la galerie"
+                              }
+                              icon={
+                                isSubbedToGallery ? <FaBellSlash /> : <FaBell />
+                              }
+                              variant="outline"
+                              colorScheme="blue"
+                              mr={3}
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                onSubscribeClick();
+                              }}
+                              data-cy={
+                                isSubbedToGallery
+                                  ? "gallery-list-item-unsubscribe"
+                                  : "gallery-list-item-subscribe"
+                              }
+                            />
+                          </Tooltip>
+                        )} */
+}
+
+{
+  /* <Tooltip
+                    placement="bottom"
+                    label="Envoyer des invitations à la galerie"
+                  >
+                    <IconButton
+                      aria-label="Envoyer des invitations à la galerie"
+                      icon={<EmailIcon />}
+                      variant="outline"
+                      colorScheme="blue"
+                      mr={3}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNotifClick();
+                      }}
+                    />
+                  </Tooltip> */
 }

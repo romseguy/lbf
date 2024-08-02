@@ -263,7 +263,7 @@ export const GalleriesList = ({
 
             return (
               <GalleriesListItem
-                key={gallery._id}
+                key={gallery._id || gallery.galleryName}
                 query={query}
                 gallery={gallery}
                 galleryIndex={galleryIndex}

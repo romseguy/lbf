@@ -90,14 +90,24 @@ export const topicApi = api.injectEndpoints({
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) => {
-        if (result?.org?._id)
+        const orgId = result?.org?._id;
+        const eventId = result?.event?._id;
+        if (orgId) {
           return [
             {
               type: TagTypes.ORGS,
-              id: result?.org?._id
+              id: orgId
             }
           ];
-
+        }
+        if (eventId) {
+          return [
+            {
+              type: TagTypes.EVENTS,
+              id: eventId
+            }
+          ];
+        }
         return [{ type: TagTypes.TOPICS, id: "LIST" }];
       }
     }),

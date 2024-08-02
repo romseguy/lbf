@@ -61,7 +61,6 @@ const App = wrapper.withRedux(
     let main = <Main Component={Component} {...pageProps} />;
 
     useEffect(() => {
-      console.log("🚀 ~ _app ~ session:", session);
       if (!session && router.pathname !== "/callback")
         router.push("/login", "/login", { shallow: false });
     }, [session]);
@@ -126,23 +125,19 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let authToken: string | null = null;
 
       if (devSession && getEnv() === "development") {
-        // // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
         session = devSession;
         //@ts-ignore
         email = devSession.user.email;
       } else if (testSession && getEnv() === "test") {
-        // // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
         session = testSession;
         //@ts-ignore
         email = testSession.user.email;
       } else {
         if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
           const cookie = parse(cookies);
-          // // console.log("🚀 ~ App.getInitialProps ~ cookie map:", cookie);
           authToken = getAuthToken(cookie);
 
           if (authToken) {
-            // // console.log("🚀 ~ App.getInitialProps ~ authToken:", authToken);
             const user = await unseal(
               authToken,
               process.env.SECRET,

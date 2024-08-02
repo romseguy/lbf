@@ -48,9 +48,6 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
         ul:not([role="list"]) {
           padding-left: 40px;
         }
-        div[role="alert"] {
-          background-color: #dff3ff;
-        }
         //#endregion
 
         //#region large screens
@@ -650,3 +647,7 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
 //   }
 // }
 // //#endregion
+
+// div[role="alert"] {
+//   background-color: ${isDark ? "" : "#dff3ff"};
+// }

@@ -132,6 +132,8 @@ export const OrgPage = ({
             isEdit={isEdit}
             setIsConfig={setIsConfig}
             setIsEdit={setIsEdit}
+            m={3}
+            mb={0}
           >
             Paramètres de l'atelier
           </EntityPageConfigButton>

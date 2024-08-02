@@ -4,6 +4,7 @@ import {
   HStack,
   Icon,
   Tabs,
+  Text,
   Tooltip,
   useColorMode,
   useToast
@@ -214,7 +215,7 @@ export const EventPageTabs = ({
         <TabPanel aria-hidden>
           <HStack mb={3}>
             <Icon as={ChatIcon} boxSize={10} />
-            <AppHeading>{eventQuery.data.eventName}</AppHeading>
+            <Text fontSize="3xl">{eventQuery.data.eventName}</Text>
           </HStack>
           <EntityPageTopics
             currentTopicName={currentItemName}
@@ -226,31 +227,43 @@ export const EventPageTabs = ({
         </TabPanel>
 
         <TabPanel aria-hidden>
-          <Column bg={isDark ? "gray.700" : "lightblue"}>
-            <HStack mb={3}>
-              <Icon as={FaImages} boxSize={10} />
-              <AppHeading>{eventQuery.data.eventName}</AppHeading>
-              {isCreator && (
-                <Tooltip
-                  label={
-                    !!gallery?.galleryDescription
-                      ? "Modifier la description de la galerie"
-                      : "Ajouter une description à la galerie"
-                  }
-                  placement="right"
-                >
-                  <span>
-                    <EditIconButton
-                      aria-label="Modifier la description de la galerie de l'événement"
-                      onClick={() => {
-                        onOpen();
-                      }}
-                    />
-                  </span>
-                </Tooltip>
-              )}
-            </HStack>
+          <HStack
+            mb={3}
+            {...(isMobile
+              ? {
+                  bg: isDark ? "#63B3ED" : "#2B6CB0",
+                  borderTopRadius: "12px",
+                  p: 3
+                }
+              : {})}
+          >
+            <Icon as={FaImages} boxSize={10} />
+            <Text fontSize="3xl">{eventQuery.data.eventName}</Text>
+            {isCreator && (
+              <Tooltip
+                label={
+                  !!gallery?.galleryDescription
+                    ? "Modifier la description de la galerie"
+                    : "Ajouter une description à la galerie"
+                }
+                placement="right"
+              >
+                <span>
+                  <EditIconButton
+                    aria-label="Modifier la description de la galerie de l'événement"
+                    onClick={() => {
+                      onOpen();
+                    }}
+                  />
+                </span>
+              </Tooltip>
+            )}
+          </HStack>
 
+          <Column
+            bg={isDark ? "gray.700" : "lightblue"}
+            {...(isMobile ? { p: 0 } : {})}
+          >
             <GalleriesListItem
               query={eventQuery}
               gallery={gallery}
@@ -259,6 +272,7 @@ export const EventPageTabs = ({
               isCurrent
               isGalleryCreator={true}
               noHeader
+              {...(isMobile ? { px: 3 } : {})}
               {...(!isBefore(parseISO(event.eventMinDate), new Date())
                 ? {
                     //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)

@@ -26,13 +26,14 @@ import { useDeleteDocumentMutation } from "features/api/documentsApi";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { useAddTopicMutation } from "features/api/topicsApi";
 import { IGallery } from "models/Gallery";
-import { selectScreenHeight } from "store/uiSlice";
+import { selectIsMobile, selectScreenHeight } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
 import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
 import { IEntity, isEvent } from "models/Entity";
+import theme from "features/layout/theme";
 
 export const DocumentsListMosaic = ({
   entity,
@@ -57,6 +58,7 @@ export const DocumentsListMosaic = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const [addTopic] = useAddTopicMutation();
@@ -204,9 +206,9 @@ export const DocumentsListMosaic = ({
     <>
       {images.length > 0 && position === "top" && (
         <>
-          <Box as="hr" mt={5} mb={5} />
+          {/* <Box as="hr" mt={5} mb={5} /> */}
           {config}
-          <Box as="hr" mb={5} mt={5} />
+          <Box as="hr" />
         </>
       )}
 
@@ -219,7 +221,7 @@ export const DocumentsListMosaic = ({
         </Alert>
       ) : groupByUser ? (
         <>
-          {Object.keys(galleryByUser).map((userId) => {
+          {Object.keys(galleryByUser).map((userId, index) => {
             const { description, images, userName } = galleryByUser[userId];
             return (
               <UserGallery
@@ -231,6 +233,16 @@ export const DocumentsListMosaic = ({
                 images={images}
                 marginBetween={marginBetween}
                 onImageClick={(image) => onOpen(image)}
+                {...(index !== Object.keys(galleryByUser).length - 1
+                  ? {
+                      borderBottom: `1px solid ${
+                        isDark
+                          ? theme.colors.whiteAlpha[300]
+                          : theme.colors.gray[200]
+                      }`,
+                      pb: isMobile ? 0 : 10
+                    }
+                  : {})}
               />
             );
           })}

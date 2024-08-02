@@ -7,7 +7,6 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { isMobile } from "react-device-detect";
 import {
   FaMapMarkedAlt,
   FaFacebook,
@@ -21,12 +20,16 @@ import { CollapsibleLink, Link } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { MapModal } from "features/modals/MapModal";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 export const EntityInfo = ({
   event,
   org,
   ...props
 }: FlexProps & { org?: IOrg; event?: IEvent<string | Date> }) => {
+  const isMobile = useSelector(selectIsMobile);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [emailCollapsed, setEmailCollapsed] = useState<{
     [key: number]: boolean;

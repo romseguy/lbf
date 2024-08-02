@@ -1,4 +1,11 @@
-import { Flex, Alert, AlertIcon, UseDisclosureProps } from "@chakra-ui/react";
+import {
+  Box,
+  BoxProps,
+  Flex,
+  Alert,
+  AlertIcon,
+  UseDisclosureProps
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { AppHeading, EditIconButton } from "features/common";
 import { Mosaic, MosaicImage } from "./Mosaic";
@@ -18,8 +25,9 @@ export const UserGallery = ({
   description,
   images,
   marginBetween,
-  onImageClick
-}: {
+  onImageClick,
+  ...props
+}: BoxProps & {
   query: AppQueryWithData<IGallery>;
   description?: string;
   images: MosaicImage[];
@@ -43,8 +51,8 @@ export const UserGallery = ({
     onOpen();
   };
   return (
-    <>
-      <Flex alignItems="center" mb={3}>
+    <Box {...props}>
+      <Flex alignItems="center" my={5}>
         <AppHeading noContainer smaller>
           {userName}
         </AppHeading>
@@ -54,8 +62,9 @@ export const UserGallery = ({
           onClick={onEditClick}
         />
       </Flex>
+
       {description && (
-        <Alert status="info" mb={3}>
+        <Alert status="info" mb={!images.length ? 0 : 3}>
           <AlertIcon />
           <div
             className="rteditor"
@@ -102,7 +111,7 @@ export const UserGallery = ({
           }}
         />
       )}
-    </>
+    </Box>
   );
 };
 

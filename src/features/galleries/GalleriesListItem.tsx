@@ -7,7 +7,7 @@ import {
   useColorMode
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { Button, DiskUsage } from "features/common";
+import { Button } from "features/common";
 import { IGallery } from "models/Gallery";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
@@ -17,6 +17,7 @@ import { IEntity, isEvent, isOrg } from "models/Entity";
 import { sanitize } from "utils/string";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
 import { removeProps } from "utils/object";
+import { useScroll } from "hooks/useScroll";
 
 export const GalleriesListItem = ({
   query,
@@ -47,9 +48,12 @@ export const GalleriesListItem = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
+
   const entity = query.data;
   const isO = isOrg(entity);
   const isE = isEvent(entity);
+
   const [isAdd, setIsAdd] = useState(false);
 
   const onAddDocumentClick = () => {
@@ -59,7 +63,7 @@ export const GalleriesListItem = ({
   if (!gallery) return null;
 
   return (
-    <Box key={gallery._id} {...removeProps(props, ["onAddDocumentClick"])}>
+    <Box {...removeProps(props, ["onAddDocumentClick"])}>
       {!noHeader && (
         <GalleriesListItemHeader
           query={query}
@@ -68,6 +72,7 @@ export const GalleriesListItem = ({
           isCreator={isCreator}
           isGalleryCreator={isGalleryCreator}
           isCurrent={isCurrent}
+          executeScroll={executeScroll}
           //onClick={onClick}
           onEditClick={onEditClick}
         />
@@ -79,7 +84,8 @@ export const GalleriesListItem = ({
             ? {}
             : {
                 bg: isDark ? "#314356" : "orange.50",
-                p: 3
+                p: 3,
+                ref: elementToScrollRef
               })}
         >
           <Button
@@ -141,40 +147,4 @@ export const GalleriesListItem = ({
       )}
     </Box>
   );
-
-  {
-    /*
-  return (
-    <GalleriesListItem
-      key={gallery._id}
-      isMobile={isMobile}
-      session={session}
-      isCreator={props.isCreator}
-      query={query}
-      subQuery={subQuery}
-      currentGalleryName={currentGalleryName}
-      gallery={gallery}
-      galleryIndex={galleryIndex}
-      isSubbedToGallery={isSubbedToGallery}
-      isCurrent={isCurrent}
-      isGalleryCreator={isGalleryCreator}
-      isDark={isDark}
-      //isLoading={isLoading[gallery._id] || query.isLoading}
-      //setIsLoading && setIsLoading={setIsLoading && setIsLoading}
-      selectedCategories={selectedCategories}
-      setSelectedCategories={setSelectedCategories}
-      notifyModalState={notifyModalState}
-      setNotifyModalState={setNotifyModalState}
-      galleryModalState={galleryModalState}
-      setGalleryModalState={setGalleryModalState}
-      mb={galleryIndex < galleries.length - 1 ? 5 : 0}
-      // onClick={onClick}
-      // onDeleteClick={onDeleteClick}
-      // onEditClick={onEditClick}
-      // onNotifClick={onNotifClick}
-      // onSubscribeClick={onSubscribeClick}
-    />
-  );
-    */
-  }
 };

@@ -24,7 +24,7 @@ export * from "./IEvent";
 
 export let defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
   Présentation: { icon: CalendarIcon, url: "/" },
-  Discussions: { icon: ChatIcon, url: "/discussions" },
+  ["Discussions de l'événement"]: { icon: ChatIcon, url: "/discussions" },
   ["Galerie de l'événement"]: { icon: FaImages, url: "/galerie" }
 };
 

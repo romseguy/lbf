@@ -1,16 +1,13 @@
-import { Alert, AlertIcon, Box, Text, useColorMode } from "@chakra-ui/react";
-import { parseISO, format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { EntityPageConfigButton, Link } from "features/common";
+import { EntityPageConfigButton } from "features/common";
 import { Layout } from "features/layout";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { EventAttendingForm } from "./EventAttendingForm";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
@@ -130,7 +127,7 @@ export const EventPage = ({
           isEdit={isEdit}
           setIsConfig={setIsConfig}
           setIsEdit={setIsEdit}
-          mb={3}
+          m={3}
         >
           Paramètres de l'événement
         </EntityPageConfigButton>

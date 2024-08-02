@@ -159,7 +159,6 @@ export const TopicsList = ({
         return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
       });
   }, [entity, selectedCategories, selectedLists, selectedOrder]);
-  console.log("🚀 ~ topics ~ topics:", topics);
   const currentTopic = useMemo(() => {
     if (
       !currentTopicName ||

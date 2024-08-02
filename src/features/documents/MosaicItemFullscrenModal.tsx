@@ -20,13 +20,19 @@ import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
-import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
+import {
+  AddTopicPayload,
+  EditTopicPayload,
+  useAddTopicMutation,
+  useEditTopicMutation
+} from "features/api/topicsApi";
 import { DeleteButton } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { selectScreenHeight } from "store/uiSlice";
 import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
 import { IEntity, isEvent } from "models/Entity";
+import { ITopic } from "models/Topic";
 
 export const MosaicItemFullscrenModal = ({
   entity,
@@ -60,6 +66,7 @@ export const MosaicItemFullscrenModal = ({
   const toast = useToast({ position: "top" });
   const [addTopic] = useAddTopicMutation();
   const [deleteDocument] = useDeleteDocumentMutation();
+  const [editTopic] = useEditTopicMutation();
   const screenHeight = useSelector(selectScreenHeight);
 
   const isE = isEvent(entity);
@@ -171,26 +178,29 @@ export const MosaicItemFullscrenModal = ({
             colorScheme="green"
             onClick={async () => {
               try {
+                const key = isE ? "event" : "org";
                 const topicName = modalState.image!.name;
-                const payload: AddTopicPayload = {
-                  [isE ? "event" : "org"]: entity,
-                  topic: {
-                    topicName,
-                    topicMessages: [
-                      {
-                        message: `<img src="${
-                          modalState.image!.url
-                        }" style="max-height: 400px"/>`
-                      }
-                    ]
-                  }
+                const topicMessage = {
+                  message: `<img src="${
+                    modalState.image!.url
+                  }" style="max-height: 400px"/>`
                 };
-                const topic = await addTopic({ payload }).unwrap();
-                router.push(
-                  `/${
-                    entity[`${isE ? "event" : "org"}Url`]
-                  }/discussions/${topicName}`
+
+                const topic = entity[key + "Topics"].find(
+                  (topic: ITopic) => topic.topicName === topicName
                 );
+                if (!topic) {
+                  const payload: AddTopicPayload = {
+                    [isE ? "event" : "org"]: entity,
+                    topic: {
+                      topicName,
+                      topicMessages: [topicMessage]
+                    }
+                  };
+                  await addTopic({ payload }).unwrap();
+                }
+
+                router.push(`/${entity[key + "Url"]}/discussions/${topicName}`);
               } catch (error) {
                 toast({
                   title: "La discussion n'a pas pu être créée",
