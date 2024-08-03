@@ -2,7 +2,7 @@ import { ChatIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 import { GrWorkshop } from "react-icons/gr";
 import { FaHome, FaTools, FaImages, FaGlobeEurope } from "react-icons/fa";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
-import { EOrgSubscriptionType } from "models/Subscription";
+import { EOrgSubscriptionType, ISubscription } from "models/Subscription";
 import { AppDispatch } from "store";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -16,6 +16,8 @@ import {
   IOrgEventCategory,
   IOrgTabWithMetadata
 } from "./IOrg";
+
+export const defaultLists = ["Abonnés", "Participants"];
 
 export * from "./IOrg";
 
@@ -75,6 +77,17 @@ export const getLists = (org?: IOrg): IOrgList[] => {
       {
         listName: "Abonnés",
         subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
+      }
+    ].concat(lists);
+
+  if (
+    Array.isArray(lists) &&
+    !lists.find(({ listName }) => listName === "Participants")
+  )
+    lists = [
+      {
+        listName: "Participants",
+        subscriptions: [] as ISubscription[] // TODO1 ?
       }
     ].concat(lists);
 

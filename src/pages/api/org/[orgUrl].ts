@@ -272,34 +272,34 @@ handler.get<
         });
       }
 
-      if (modelKey === "orgProjects") {
-        org = org.populate({
-          path: "orgProjects",
-          populate: [
-            { path: "projectOrgs" },
-            { path: "createdBy", select: "_id userName" }
-          ]
-        });
+      // if (modelKey === "orgProjects") {
+      //   org = org.populate({
+      //     path: "orgProjects",
+      //     populate: [
+      //       { path: "projectOrgs" },
+      //       { path: "createdBy", select: "_id userName" }
+      //     ]
+      //   });
 
-        if (!isCreator) {
-          org = await org.execPopulate();
+      //   if (!isCreator) {
+      //     org = await org.execPopulate();
 
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
-          const isFollowed = !!getFollowerSubscription({
-            org,
-            subscription: subscription as ISubscription
-          });
+      //     const subscription = await models.Subscription.findOne({
+      //       user: session?.user.userId
+      //     });
+      //     const isFollowed = !!getFollowerSubscription({
+      //       org,
+      //       subscription: subscription as ISubscription
+      //     });
 
-          org.orgProjects = org.orgProjects.filter(
-            ({ projectVisibility }) =>
-              !projectVisibility ||
-              !hasItems(projectVisibility) ||
-              (projectVisibility.includes("Abonnés") && isFollowed)
-          );
-        }
-      }
+      //     org.orgProjects = org.orgProjects.filter(
+      //       ({ projectVisibility }) =>
+      //         !projectVisibility ||
+      //         !hasItems(projectVisibility) ||
+      //         (projectVisibility.includes("Abonnés") && isFollowed)
+      //     );
+      //   }
+      // }
 
       if (modelKey === "orgTopics") {
         org = await org
@@ -336,44 +336,44 @@ handler.get<
         //   }
         // }
 
-        if (!isCreator) {
-          org = await org.execPopulate();
+        // if (!isCreator) {
+        //   org = await org.execPopulate();
 
-          const subscription = session
-            ? await models.Subscription.findOne({
-                user: session.user.userId
-              })
-            : null;
+        //   const subscription = session
+        //     ? await models.Subscription.findOne({
+        //         user: session.user.userId
+        //       })
+        //     : null;
 
-          org.orgTopics = subscription
-            ? org.orgTopics.filter(({ topicVisibility }) => {
-                if (!hasItems(topicVisibility)) return true;
+        //   org.orgTopics = subscription
+        //     ? org.orgTopics.filter(({ topicVisibility }) => {
+        //         if (!hasItems(topicVisibility)) return true;
 
-                for (const listName of topicVisibility) {
-                  if (listName === "Abonnés") {
-                    if (
-                      getFollowerSubscription({
-                        org: org as IOrg,
-                        subscription
-                      })
-                    ) {
-                      return true;
-                    }
-                  }
+        //         for (const listName of topicVisibility) {
+        //           if (listName === "Abonnés") {
+        //             if (
+        //               getFollowerSubscription({
+        //                 org: org as IOrg,
+        //                 subscription
+        //               })
+        //             ) {
+        //               return true;
+        //             }
+        //           }
 
-                  const orgList = org?.orgLists.find(
-                    (orgList) => orgList.listName === listName
-                  );
+        //           const orgList = org?.orgLists.find(
+        //             (orgList) => orgList.listName === listName
+        //           );
 
-                  return !!orgList?.subscriptions?.find(({ _id }) =>
-                    equals(_id, subscription._id)
-                  );
-                }
-              })
-            : org.orgTopics.filter(
-                ({ topicVisibility }) => !hasItems(topicVisibility)
-              );
-        }
+        //           return !!orgList?.subscriptions?.find(({ _id }) =>
+        //             equals(_id, subscription._id)
+        //           );
+        //         }
+        //       })
+        //     : org.orgTopics.filter(
+        //         ({ topicVisibility }) => !hasItems(topicVisibility)
+        //       );
+        // }
       }
 
       if (modelKey === "orgSubscriptions") {

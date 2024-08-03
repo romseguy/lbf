@@ -74,12 +74,16 @@ export const Mosaic = ({
                 let newMW = screenWidth - marginAround;
 
                 if (screenWidth > pxBreakpoints["2xl"]) {
-                  marginAround = 2 * (5 * 12 + 20 + 84);
-                  marginAround = 0;
+                  // marginAround = 2 * (5 * 12 + 20 + 84);
+                  // marginAround = 0;
                   // newMW =
                   //   (screenWidth - marginAround - marginBetween) /
                   //   columnCount;
-                  newMW = (screenWidth - marginAround) / columnCount;
+                  newMW =
+                    (screenWidth -
+                      200 -
+                      (columnCount > 1 ? marginBetween : 0)) /
+                    columnCount;
                   // console.log(
                   //   "1",
                   //   columnCount,
@@ -98,7 +102,6 @@ export const Mosaic = ({
                 }
 
                 let width = image.width > newMW ? newMW : image.width;
-
                 // if (columnIndex / (columnCount - 1) !== 1) {
                 //   width -= marginBetween * 12;
                 // }

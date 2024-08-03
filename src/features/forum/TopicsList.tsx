@@ -73,8 +73,6 @@ export const TopicsList = ({
   const router = useRouter();
   const { data: session } = useSession();
 
-  const addTopicNotifMutation = useAddTopicNotifMutation();
-
   //#region local state
   const entity = query.data;
   const isE = isEvent(entity);

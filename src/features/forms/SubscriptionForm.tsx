@@ -107,6 +107,7 @@ export const SubscriptionForm = ({
         if (hasItems(orgLists))
           for (const { value: listName } of orgLists) {
             let type;
+            // TODO1 replace with sub.list
             if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
             if (type)
               await addSubscription({

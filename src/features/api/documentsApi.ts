@@ -1,6 +1,7 @@
 import { api, TagTypes } from "./";
 import { objectToQueryString } from "utils/query";
 import { IDocument } from "models/Document";
+import { getRefId } from "models/Entity";
 
 export type AddDocumentPayload = Omit<IDocument, "_id">;
 
@@ -66,7 +67,13 @@ export const documentApi = api.injectEndpoints({
       query: (documentId) => ({
         url: `document/${documentId}`,
         method: "DELETE"
-      })
+      }),
+      invalidatesTags: (result, error, documentId) => {
+        let tags = [{ type: TagTypes.DOCUMENTS, id: "LIST" }];
+        const galleryId = getRefId(result);
+        if (galleryId) tags.push({ type: TagTypes.GALLERIES, id: galleryId });
+        return tags;
+      }
     })
   }),
   overrideExisting: true

@@ -37,8 +37,8 @@ import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { ChevronLeftIcon } from "@chakra-ui/icons";
-import { FaHome } from "react-icons/fa";
+import { ArrowLeftIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { FaArrowLeft, FaHome } from "react-icons/fa";
 
 export const Nav = ({
   isMobile,
@@ -82,17 +82,23 @@ export const Nav = ({
             <Tr role="rowheader">
               <Td border={0} p={0}>
                 <HStack spacing={3}>
-                  {router.pathname !== "/" && (
+                  {router.pathname !== "/" && router.asPath !== "/photo" && (
                     <>
-                      <Tooltip
-                        label="Revenir à la page précédente"
-                        placement="right"
-                      >
+                      <Tooltip label="Retour" placement="right">
                         <IconButton
-                          aria-label="Revenir à la page précédente"
+                          aria-label="Retour"
                           colorScheme="purple"
-                          icon={<ChevronLeftIcon boxSize={10} />}
-                          onClick={() => window.history.back()}
+                          icon={<Icon as={FaArrowLeft} />}
+                          onClick={() => {
+                            if (
+                              window.history?.length &&
+                              window.history.length > 1
+                            ) {
+                              router.back();
+                            } else {
+                              router.replace("/");
+                            }
+                          }}
                         />
                       </Tooltip>
 

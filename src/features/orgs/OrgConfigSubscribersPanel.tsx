@@ -96,7 +96,7 @@ export const OrgConfigSubscribersPanel = ({
                 <FaFolder />
               )}
               <Heading size="sm" ml={2}>
-                {org.orgSubscriptions.length} participant
+                {org.orgSubscriptions.length} personne
                 {org.orgSubscriptions.length !== 1 ? "s" : ""}
               </Heading>
             </GridItem>
@@ -131,7 +131,7 @@ export const OrgConfigSubscribersPanel = ({
       {isAdd && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
           <AppHeading smaller mb={3}>
-            Inscrire des participants {orgTypeFull2(org.orgType)}
+            Inscrire des personnes {orgTypeFull2(org.orgType)}
           </AppHeading>
 
           <SubscriptionForm

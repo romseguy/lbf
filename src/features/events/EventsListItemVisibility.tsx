@@ -1,11 +1,8 @@
 import { EmailIcon } from "@chakra-ui/icons";
 import { IconButton, Tooltip } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import React from "react";
-import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope } from "react-icons/fa";
-import { IoMdPerson } from "react-icons/io";
 import { EEventVisibility } from "models/Event";
 
 export const EventsListItemVisibility = ({

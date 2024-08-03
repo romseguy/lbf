@@ -67,26 +67,26 @@ export const topicApi = api.injectEndpoints({
         ];
       }
     }),
-    addTopicNotif: build.mutation<
-      { notifications: ITopicNotification[] },
-      {
-        payload: AddTopicNotifPayload;
-        topicId: string;
-      }
-    >({
-      query: ({ payload, topicId }) => {
-        console.groupCollapsed("addTopicNotif");
-        console.log("addTopicNotif: topicId", topicId);
-        console.log("addTopicNotif: payload", payload);
-        console.groupEnd();
+    // addTopicNotif: build.mutation<
+    //   { notifications: ITopicNotification[] },
+    //   {
+    //     payload: AddTopicNotifPayload;
+    //     topicId: string;
+    //   }
+    // >({
+    //   query: ({ payload, topicId }) => {
+    //     console.groupCollapsed("addTopicNotif");
+    //     console.log("addTopicNotif: topicId", topicId);
+    //     console.log("addTopicNotif: payload", payload);
+    //     console.groupEnd();
 
-        return {
-          url: `topic/${topicId}`,
-          method: "POST",
-          body: payload
-        };
-      }
-    }),
+    //     return {
+    //       url: `topic/${topicId}`,
+    //       method: "POST",
+    //       body: payload
+    //     };
+    //   }
+    // }),
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) => {
@@ -165,7 +165,7 @@ export const topicApi = api.injectEndpoints({
 export const {
   useAddTopicMutation,
   // useAddTopicDetailsMutation,
-  useAddTopicNotifMutation,
+  //useAddTopicNotifMutation,
   useDeleteTopicMutation,
   useEditTopicMutation,
   useGetTopicsQuery

@@ -17,7 +17,7 @@ import useFormPersist from "hooks/useFormPersist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import { IOrg, IOrgList } from "models/Org";
+import { defaultLists, IOrg, IOrgList } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
@@ -107,7 +107,11 @@ export const EntityListForm = ({
         isInvalid={!!errors.listName}
         isRequired
         mb={3}
-        display={props.list?.listName === "Abonnés" ? "none" : "block"}
+        display={
+          props.list?.listName && defaultLists.includes(props.list.listName)
+            ? "none"
+            : "block"
+        }
       >
         <FormLabel>Nom de la liste</FormLabel>
         <Input
@@ -124,7 +128,7 @@ export const EntityListForm = ({
       </FormControl>
 
       <FormControl mb={3}>
-        <FormLabel>Participants</FormLabel>
+        <FormLabel>Personnes</FormLabel>
 
         <Controller
           name="subscriptions"

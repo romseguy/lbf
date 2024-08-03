@@ -17,181 +17,181 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
 handler.use(database);
 
-handler.post<
-  NextApiRequest & {
-    query: { topicId: string };
-    body: AddTopicNotifPayload;
-  },
-  NextApiResponse
->(async function addTopicNotif(req, res) {
-  const session = await getSession({ req });
+// handler.post<
+//   NextApiRequest & {
+//     query: { topicId: string };
+//     body: AddTopicNotifPayload;
+//   },
+//   NextApiResponse
+// >(async function addTopicNotif(req, res) {
+//   const session = await getSession({ req });
 
-  if (!session) {
-    return res
-      .status(401)
-      .json(createEndpointError(new Error("Vous devez être identifié")));
-  }
+//   if (!session) {
+//     return res
+//       .status(401)
+//       .json(createEndpointError(new Error("Vous devez être identifié")));
+//   }
 
-  try {
-    const {
-      query: { topicId },
-      body
-    }: {
-      query: { topicId: string };
-      body: AddTopicNotifPayload;
-    } = req;
+//   try {
+//     const {
+//       query: { topicId },
+//       body
+//     }: {
+//       query: { topicId: string };
+//       body: AddTopicNotifPayload;
+//     } = req;
 
-    const topic = await models.Topic.findOne({ _id: topicId });
+//     const topic = await models.Topic.findOne({ _id: topicId });
 
-    if (!topic) {
-      return res
-        .status(404)
-        .json(
-          createEndpointError(
-            new Error(`La discussion ${topicId} n'existe pas`)
-          )
-        );
-    }
+//     if (!topic) {
+//       return res
+//         .status(404)
+//         .json(
+//           createEndpointError(
+//             new Error(`La discussion ${topicId} n'existe pas`)
+//           )
+//         );
+//     }
 
-    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
-      return res
-        .status(403)
-        .json(
-          createEndpointError(
-            new Error(
-              "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé"
-            )
-          )
-        );
+//     if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
+//       return res
+//         .status(403)
+//         .json(
+//           createEndpointError(
+//             new Error(
+//               "Vous ne pouvez pas envoyer des notifications pour une discussion que vous n'avez pas créé"
+//             )
+//           )
+//         );
 
-    let notifications: ITopicNotification[] = [];
+//     let notifications: ITopicNotification[] = [];
 
-    if (typeof body.email === "string" && body.email.length > 0) {
-      let subscription = await models.Subscription.findOne({
-        email: body.email
-      });
+//     if (typeof body.email === "string" && body.email.length > 0) {
+//       let subscription = await models.Subscription.findOne({
+//         email: body.email
+//       });
 
-      if (!subscription) {
-        const user = await models.User.findOne({ email: body.email });
+//       if (!subscription) {
+//         const user = await models.User.findOne({ email: body.email });
 
-        if (user)
-          subscription = await models.Subscription.findOne({ user: user._id });
-      }
+//         if (user)
+//           subscription = await models.Subscription.findOne({ user: user._id });
+//       }
 
-      const mail = createTopicEmailNotif({
-        email: body.email,
-        event: body.event,
-        org: body.org,
-        topic,
-        subscriptionId: subscription?._id || session.user.userId
-      });
+//       const mail = createTopicEmailNotif({
+//         email: body.email,
+//         event: body.event,
+//         org: body.org,
+//         topic,
+//         subscriptionId: subscription?._id || session.user.userId
+//       });
 
-      try {
-        await sendMail(mail);
-      } catch (error: any) {
-        const { getEnv } = require("utils/env");
-        if (getEnv() === "development") {
-          if (error.command !== "CONN") {
-            throw error;
-          }
-        }
-      }
+//       try {
+//         await sendMail(mail);
+//       } catch (error: any) {
+//         const { getEnv } = require("utils/env");
+//         if (getEnv() === "development") {
+//           if (error.command !== "CONN") {
+//             throw error;
+//           }
+//         }
+//       }
 
-      notifications = [
-        {
-          email: body.email,
-          createdAt: new Date().toISOString()
-        }
-      ];
+//       notifications = [
+//         {
+//           email: body.email,
+//           createdAt: new Date().toISOString()
+//         }
+//       ];
 
-      if (body.email !== session.user.email) {
-        topic.topicNotifications =
-          topic.topicNotifications.concat(notifications);
-        await topic.save();
-      }
-    } else if (body.event) {
-      let event = await models.Event.findOne({ _id: body.event._id });
-      if (!event) return res.status(400).json("Événement introuvable");
+//       if (body.email !== session.user.email) {
+//         topic.topicNotifications =
+//           topic.topicNotifications.concat(notifications);
+//         await topic.save();
+//       }
+//     } else if (body.event) {
+//       let event = await models.Event.findOne({ _id: body.event._id });
+//       if (!event) return res.status(400).json("Événement introuvable");
 
-      event = await event
-        .populate({
-          path: "eventSubscriptions",
-          select: "+email +phone",
-          populate: { path: "user", select: "+email +phone +userSubscription" }
-        })
-        .execPopulate();
+//       event = await event
+//         .populate({
+//           path: "eventSubscriptions",
+//           select: "+email +phone",
+//           populate: { path: "user", select: "+email +phone +userSubscription" }
+//         })
+//         .execPopulate();
 
-      notifications = await sendTopicNotifications({
-        event,
-        subscriptions: event.eventSubscriptions,
-        topic
-      });
-    } else if (body.orgListsNames) {
-      //console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
+//       notifications = await sendTopicNotifications({
+//         event,
+//         subscriptions: event.eventSubscriptions,
+//         topic
+//       });
+//     } else if (body.orgListsNames) {
+//       //console.log(`POST /topic/${topicId}: orgListsNames`, body.orgListsNames);
 
-      for (const orgListName of body.orgListsNames) {
-        const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
+//       for (const orgListName of body.orgListsNames) {
+//         const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
 
-        let org: (IOrg & Document<any, IOrg>) | null | undefined;
-        org = await models.Org.findOne({ _id: orgId });
-        if (!org) return res.status(400).json("Organisation introuvable");
+//         let org: (IOrg & Document<any, IOrg>) | null | undefined;
+//         org = await models.Org.findOne({ _id: orgId });
+//         if (!org) return res.status(400).json("Organisation introuvable");
 
-        let subscriptions: ISubscription[] = [];
+//         let subscriptions: ISubscription[] = [];
 
-        if (["Abonnés"].includes(listName)) {
-          org = await org
-            .populate({
-              path: "orgSubscriptions",
-              select: "+email +phone",
-              populate: {
-                path: "user",
-                select: "+email +phone +userSubscription"
-              }
-            })
-            .execPopulate();
+//         if (["Abonnés"].includes(listName)) {
+//           org = await org
+//             .populate({
+//               path: "orgSubscriptions",
+//               select: "+email +phone",
+//               populate: {
+//                 path: "user",
+//                 select: "+email +phone +userSubscription"
+//               }
+//             })
+//             .execPopulate();
 
-          if (listName === "Abonnés") {
-            subscriptions = subscriptions.concat(
-              getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
-            );
-          }
-        } else {
-          org = await org
-            .populate({
-              path: "orgLists",
-              populate: [
-                {
-                  path: "subscriptions",
-                  select: "+email +phone",
-                  populate: {
-                    path: "user",
-                    select: "+email +phone +userSubscription"
-                  }
-                }
-              ]
-            })
-            .execPopulate();
+//           if (listName === "Abonnés") {
+//             subscriptions = subscriptions.concat(
+//               getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
+//             );
+//           }
+//         } else {
+//           org = await org
+//             .populate({
+//               path: "orgLists",
+//               populate: [
+//                 {
+//                   path: "subscriptions",
+//                   select: "+email +phone",
+//                   populate: {
+//                     path: "user",
+//                     select: "+email +phone +userSubscription"
+//                   }
+//                 }
+//               ]
+//             })
+//             .execPopulate();
 
-          const list = org.orgLists.find(
-            (orgList) => orgList.listName === listName
-          );
+//           const list = org.orgLists.find(
+//             (orgList) => orgList.listName === listName
+//           );
 
-          if (list && list.subscriptions) subscriptions = list.subscriptions;
-        }
+//           if (list && list.subscriptions) subscriptions = list.subscriptions;
+//         }
 
-        notifications = await sendTopicNotifications({
-          org,
-          subscriptions,
-          topic
-        });
-      }
-    }
+//         notifications = await sendTopicNotifications({
+//           org,
+//           subscriptions,
+//           topic
+//         });
+//       }
+//     }
 
-    res.status(200).json({ notifications });
-  } catch (error) {
-    res.status(500).json(createEndpointError(error));
-  }
-});
+//     res.status(200).json({ notifications });
+//   } catch (error) {
+//     res.status(500).json(createEndpointError(error));
+//   }
+// });
 
 handler.put<
   NextApiRequest & {

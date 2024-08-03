@@ -38,6 +38,7 @@ import { EntityListForm } from "features/forms/EntityListForm";
 import { breakpoints } from "features/layout/theme";
 import {
   addOrReplaceList,
+  defaultLists,
   editList,
   getLists,
   IOrg,
@@ -248,8 +249,12 @@ export const OrgConfigListsPanel = ({
                             }}
                             data-cy="org-list-link"
                           >
-                            {subscriptions.length} participant
-                            {subscriptions && subscriptions.length > 1 && "s"}
+                            {subscriptions.length}{" "}
+                            {listName === "Abonnés" ? "abonné" : "personne"}
+                            {subscriptions &&
+                              (!subscriptions.length ||
+                                subscriptions.length > 1) &&
+                              "s"}
                           </Link>
                         </Td>
 
@@ -269,7 +274,7 @@ export const OrgConfigListsPanel = ({
                               />
                             </Tooltip>
 
-                            {!["Abonnés"].includes(list.listName) && (
+                            {!defaultLists.includes(list.listName) && (
                               <DeleteButton
                                 header={
                                   <>

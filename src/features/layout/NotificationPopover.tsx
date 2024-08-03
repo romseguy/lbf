@@ -61,7 +61,10 @@ export const NotificationPopover = ({
           {!isLoading && data && hasItems(data!.topics) && (
             <>
               {data!.topics!.map((topicSubscription) => (
-                <EntityButton topic={topicSubscription.topic!} />
+                <EntityButton
+                  key={topicSubscription._id}
+                  topic={topicSubscription.topic!}
+                />
               ))}
             </>
           )}
