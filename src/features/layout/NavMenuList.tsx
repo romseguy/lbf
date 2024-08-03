@@ -3,12 +3,11 @@ import {
   MenuItem,
   Text,
   useColorMode,
-  Box,
-  Tooltip
+  MenuListProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { DarkModeSwitch, Link, SubscribeSwitch } from "features/common";
+import { Link } from "features/common";
 import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
@@ -18,8 +17,9 @@ const { getEnv } = require("utils/env");
 
 export const NavMenuList = ({
   email,
-  userName
-}: {
+  userName,
+  ...props
+}: MenuListProps & {
   email: string;
   userName: string;
 }) => {
@@ -32,7 +32,7 @@ export const NavMenuList = ({
   if (!session) return null;
 
   return (
-    <MenuList mr={[1, 3]}>
+    <MenuList mr={[1, 3]} {...props}>
       <MenuItem
         aria-hidden
         command={`${session.user.userName}`}
@@ -65,9 +65,9 @@ export const NavMenuList = ({
         <MenuItem>Ma page</MenuItem>
       </Link> */}
 
-      <MenuItem>
+      {/* <MenuItem>
         <SubscribeSwitch email={email} userName={userName} />
-      </MenuItem>
+      </MenuItem> */}
 
       <MenuItem>
         <Link href="/password" shallow>

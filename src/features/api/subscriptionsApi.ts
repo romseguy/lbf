@@ -27,8 +27,9 @@ export const subscriptionApi = api.injectEndpoints({
         ];
 
         if (Array.isArray(params.orgs)) {
-          for (const orgSubscription of params.orgs)
+          for (const orgSubscription of params.orgs) {
             arr.push({ type: TagTypes.ORGS, id: orgSubscription.org._id });
+          }
         }
 
         return arr;
@@ -66,7 +67,6 @@ export const subscriptionApi = api.injectEndpoints({
         if (params.orgId) arr.push({ type: "Orgs", id: params.orgId });
 
         //const email = params.email;
-        //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
         //if (email) return [{ type: TagTypes.SUBSCRIPTIONS, email }];
         const id = params.subscriptionId || result?._id;
         if (id) arr.push({ type: TagTypes.SUBSCRIPTIONS, id });

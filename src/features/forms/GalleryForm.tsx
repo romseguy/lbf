@@ -382,7 +382,7 @@ export const GalleryForm = ({
       {/*hasItems(galleryVisibility) && (
         <Alert status="warning" mb={3}>
           <AlertIcon />
-          La galerie ne sera visible que par les membres des listes
+          La galerie ne sera visible que par les participants des listes
           sélectionnées.
         </Alert>
       )*/}

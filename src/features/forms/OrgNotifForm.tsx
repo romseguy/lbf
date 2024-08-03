@@ -102,7 +102,7 @@ export const OrgNotifForm = ({
               setType("multi");
             }}
           >
-            Inviter des membres à{" "}
+            Inviter des participants à{" "}
             {isT ? "cette discussion" : isE ? "cet événement" : "ce projet"}
           </Radio>
           <Radio
@@ -223,11 +223,11 @@ export const OrgNotifForm = ({
                                 list.listName === "Abonnés" ? (
                                   "0 abonnés"
                                 ) : (
-                                  "0 membres"
+                                  "0 participants"
                                 )
                               ) : (
                                 <Text>
-                                  {i} membre{s} n'{s ? "ont" : "a"} pas été
+                                  {i} participant{s} n'{s ? "ont" : "a"} pas été
                                   invité
                                 </Text>
                               )}

@@ -98,7 +98,7 @@ export const EntityConfigStyles = ({
     <Box {...props}>
       <form onChange={onChange}>
         <Box {...formBoxProps(isDark)} mb={0}>
-          {/* <FormControl>
+          <FormControl>
             <Switch
               isChecked={
                 isE
@@ -114,7 +114,7 @@ export const EntityConfigStyles = ({
             >
               Afficher l'entête
             </Switch>
-          </FormControl> */}
+          </FormControl>
 
           {isO && (
             <FormControl mt={3}>

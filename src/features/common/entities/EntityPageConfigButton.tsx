@@ -24,37 +24,5 @@ export const EntityPageConfigButton = ({
 }: React.PropsWithChildren<EntityPageConfigButtonProps>) => {
   const isMobile = useSelector(selectIsMobile);
 
-  return (
-    <>
-      {!isConfig && !isEdit && (
-        <Flex flexDirection={isMobile ? "column" : "row"}>
-          <Button
-            colorScheme="red"
-            leftIcon={
-              <SettingsIcon boxSize={6} data-cy="org-settings-button" />
-            }
-            onClick={() => setIsConfig(true)}
-            {...props}
-          >
-            {children || "Configurer"}
-          </Button>
-        </Flex>
-      )}
-
-      {(isConfig || isEdit) && (
-        <Button
-          //canWrap
-          colorScheme="teal"
-          leftIcon={<ArrowBackIcon boxSize={6} />}
-          onClick={() => {
-            if (isEdit) setIsEdit(false);
-            else setIsConfig(false);
-          }}
-          {...props}
-        >
-          Retour
-        </Button>
-      )}
-    </>
-  );
+  return;
 };

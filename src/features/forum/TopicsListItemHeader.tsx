@@ -292,7 +292,7 @@ export const TopicsListItemHeader = ({}: {}) => null;
                       }}
                     >
                 <Text cursor="default" onClick={(e) => e.stopPropagation()}>
-                  {topic.topicNotifications.length} membre{s} invité{s}
+                  {topic.topicNotifications.length} participant{s} invité{s}
                 </Text>
                  </Link>
               </>

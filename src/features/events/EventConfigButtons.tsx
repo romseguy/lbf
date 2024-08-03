@@ -1,28 +1,31 @@
-import { ArrowBackIcon, EditIcon, Icon } from "@chakra-ui/icons";
-import { Flex, Input, Text, useToast } from "@chakra-ui/react";
+import { ArrowBackIcon, EditIcon, Icon, SettingsIcon } from "@chakra-ui/icons";
+import { Flex, FlexProps, Input, Text, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Button, DeleteButton } from "features/common";
 import { IEvent } from "models/Event";
 import { AppQueryWithData } from "utils/types";
-import {
-  useDeleteEventMutation,
-  useEditEventMutation
-} from "features/api/eventsApi";
+import { useDeleteEventMutation } from "features/api/eventsApi";
 import { EventConfigVisibility } from "./EventConfigPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
 export const EventConfigButtons = ({
-  isEdit,
   eventQuery,
+  isConfig,
+  setIsConfig,
+  isEdit,
   setIsEdit,
-  toggleVisibility
-}: EventConfigVisibility & {
-  isEdit: boolean;
-  eventQuery: AppQueryWithData<IEvent>;
-  setIsEdit: (isEdit: boolean) => void;
-}) => {
+  toggleVisibility,
+  ...props
+}: FlexProps &
+  Omit<EventConfigVisibility, "isVisible"> & {
+    eventQuery: AppQueryWithData<IEvent>;
+    isConfig: boolean;
+    setIsConfig: (isConfig: boolean) => void;
+    isEdit: boolean;
+    setIsEdit: (isEdit: boolean) => void;
+  }) => {
   const [deleteEvent, deleteQuery] = useDeleteEventMutation();
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
@@ -31,19 +34,38 @@ export const EventConfigButtons = ({
   const [isDisabled, setIsDisabled] = useState(true);
 
   return (
-    <Flex flexDirection={isMobile ? "column" : "row"}>
-      <Flex mb={isMobile ? 3 : 3}>
+    <Flex
+      flexDirection={isMobile ? "column" : "row"}
+      mb={!isMobile ? 3 : 0}
+      {...props}
+    >
+      <Flex my={isMobile ? 3 : 0}>
         <Button
           colorScheme="teal"
           leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
           mr={3}
           onClick={() => {
-            setIsEdit(true);
+            setIsConfig(false);
+            setIsEdit(!isEdit);
             toggleVisibility();
           }}
           data-cy="eventEdit"
         >
-          Modifier
+          {!isEdit ? "Modifier" : "Retour"}
+        </Button>
+      </Flex>
+
+      <Flex mb={isMobile ? 3 : 0}>
+        <Button
+          colorScheme="orange"
+          leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
+          mr={3}
+          onClick={() => {
+            setIsEdit(false);
+            setIsConfig(!isConfig);
+          }}
+        >
+          {!isConfig ? "Paramètres" : "Retour"}
         </Button>
       </Flex>
 
@@ -51,7 +73,7 @@ export const EventConfigButtons = ({
         <DeleteButton
           isDisabled={isDisabled}
           isLoading={deleteQuery.isLoading}
-          label="Supprimer l'événement"
+          label="Supprimer"
           header={
             <>
               Vous êtes sur le point de supprimer l'événement

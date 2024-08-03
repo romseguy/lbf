@@ -1,19 +1,20 @@
+import { EditIcon, SettingsIcon } from "@chakra-ui/icons";
+import { Icon, Text, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
+import { useSelector } from "react-redux";
 import {
+  AppHeading,
   Column,
   EntityConfigBannerPanel,
   EntityConfigCategoriesPanel,
-  EntityConfigLogoPanel,
-  EntityConfigStyles,
-  AppHeading
+  EntityConfigLogoPanel
 } from "features/common";
 import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
 import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";
 import { EventConfigButtons } from "./EventConfigButtons";
-import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { EEntityCategoryKey } from "models/Entity";
 
@@ -40,49 +41,73 @@ export const EventConfigPanel = ({
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (isEdit: boolean) => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const event = eventQuery.data;
 
   return (
     <>
+      {!isEdit && (
+        <>
+          <AppHeading mx={3} mb={3}>
+            <Icon
+              as={SettingsIcon}
+              color={isDark ? "white" : "black"}
+              boxSize={10}
+              mb={1}
+              mr={3}
+            />
+            Paramètres de l'événement
+          </AppHeading>
+        </>
+      )}
+
       {isEdit && (
-        <Column>
-          <EventForm
-            session={session}
-            event={event}
-            onCancel={() => {
-              setIsEdit(false);
-              setIsConfig(true);
-            }}
-            onSubmit={async (eventUrl: string) => {
-              if (eventUrl !== event.eventUrl)
-                await router.push(`/${eventUrl}`, `/${eventUrl}`, {
-                  shallow: true
-                });
-              else {
+        <>
+          <AppHeading mx={3} mb={3}>
+            <Icon
+              as={EditIcon}
+              color={isDark ? "white" : "black"}
+              boxSize={10}
+              mb={1}
+              mr={3}
+            />
+            Modifier l'événement
+          </AppHeading>
+
+          <Column mx={3}>
+            <EventForm
+              session={session}
+              event={event}
+              onCancel={() => {
                 setIsEdit(false);
-                setIsConfig(false);
-              }
-            }}
-          />
-        </Column>
+                setIsConfig(true);
+              }}
+              onSubmit={async (eventUrl: string) => {
+                if (eventUrl !== event.eventUrl)
+                  await router.push(`/${eventUrl}`, `/${eventUrl}`, {
+                    shallow: true
+                  });
+                else {
+                  setIsEdit(false);
+                  setIsConfig(false);
+                }
+              }}
+            />
+          </Column>
+        </>
       )}
 
       {!isEdit && (
         <>
-          <EventConfigButtons
-            isEdit={isEdit}
-            isVisible={isVisible}
-            eventQuery={eventQuery}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
+          <Column mx={3} mb={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Apparence
+            </Text>
 
-          <Column mb={3} pt={1}>
-            <AppHeading mb={1}>Apparence</AppHeading>
-
-            <EntityConfigStyles query={eventQuery} mb={3} />
+            {/* <EntityConfigStyles query={eventQuery} mb={3} /> */}
 
             <EntityConfigLogoPanel
               query={eventQuery}
@@ -98,8 +123,10 @@ export const EventConfigPanel = ({
             />
           </Column>
 
-          <Column pt={1}>
-            <AppHeading>Discussions</AppHeading>
+          <Column mx={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Discussions
+            </Text>
 
             <EntityConfigCategoriesPanel
               categories={event.eventTopicCategories}

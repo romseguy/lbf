@@ -41,7 +41,7 @@ export const Main = ({
   Component,
   ...props
 }: PageProps & { Component: NextPage<PageProps> }) => {
-  const { colorMode } = useColorMode();
+  const { colorMode, setColorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const isMobile = useSelector(selectIsMobile);
@@ -57,6 +57,12 @@ export const Main = ({
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    )
+      setColorMode("dark");
+
     function handleScrollButtonVisibility() {
       setShowButton(window.scrollY > 200);
     }

@@ -17,7 +17,8 @@ import {
   PasswordConfirmControl,
   AppHeading,
   Button,
-  ErrorMessageText
+  ErrorMessageText,
+  Column
 } from "features/common";
 import { Layout } from "features/layout";
 import { useSession } from "hooks/useSession";
@@ -127,50 +128,52 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
 
   return (
     <Layout {...props} pageTitle="Configurer votre compte" noHeader>
-      <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-        <FormControl
-          isRequired={!!session.user}
-          isInvalid={!!errors["userName"]}
-          mb={3}
-        >
-          <FormLabel>Votre prénom</FormLabel>
-          <Input
-            name="userName"
-            placeholder="Nom d'utilisateur"
-            ref={register({
-              required: session.user
-                ? "Veuillez saisir le nom de l'utilisateur"
-                : false
-              // pattern: {
-              //   value: /^[a-z0-9 ]+$/i,
-              //   message:
-              //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-              // }
-            })}
-            defaultValue={session.user?.userName}
-            data-cy="username-input"
-          />
-          <FormErrorMessage>
-            <ErrorMessage errors={errors} name="userName" />
-          </FormErrorMessage>
-        </FormControl>
+      <Column mx={3} maxWidth={["50%", "50%", "50%", "33%"]}>
+        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+          <FormControl
+            isRequired={!!session.user}
+            isInvalid={!!errors["userName"]}
+            mb={3}
+          >
+            <FormLabel>Votre prénom</FormLabel>
+            <Input
+              name="userName"
+              placeholder="Nom d'utilisateur"
+              ref={register({
+                required: session.user
+                  ? "Veuillez saisir le nom de l'utilisateur"
+                  : false
+                // pattern: {
+                //   value: /^[a-z0-9 ]+$/i,
+                //   message:
+                //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
+                // }
+              })}
+              defaultValue={session.user?.userName}
+              data-cy="username-input"
+            />
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="userName" />
+            </FormErrorMessage>
+          </FormControl>
 
-        <PasswordControl
-          name="password"
-          errors={errors}
-          register={register}
-          isRequired
-          mb={3}
-        />
-        <PasswordConfirmControl
-          name="passwordConfirm"
-          errors={errors}
-          register={register}
-          password={password}
-          mb={3}
-        />
-        {FooterFormControl}
-      </form>
+          <PasswordControl
+            name="password"
+            errors={errors}
+            register={register}
+            isRequired
+            mb={3}
+          />
+          <PasswordConfirmControl
+            name="passwordConfirm"
+            errors={errors}
+            register={register}
+            password={password}
+            mb={3}
+          />
+          {FooterFormControl}
+        </form>
+      </Column>
     </Layout>
   );
 };

@@ -166,11 +166,11 @@ export const EventPageTabs = ({
                   `}
                 path {
                   fill: ${isDark && isCurrent
-                    ? "white"
+                    ? theme.colors.red[400]
                     : isDark
                     ? "white"
                     : !isDark && isCurrent
-                    ? "white"
+                    ? theme.colors.red[200]
                     : !isDark //&& url !== "/"
                     ? "black"
                     : "none"};

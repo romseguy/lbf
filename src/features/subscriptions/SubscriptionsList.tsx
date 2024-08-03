@@ -6,7 +6,6 @@ import { AppQuery } from "utils/types";
 import { SubscriptionsListItem } from "./SubscriptionsListItem";
 
 export interface SubscriptionsListProps {
-  org: IOrg;
   orgQuery: AppQuery<IOrg>;
   subQuery: AppQuery<ISubscription>;
   isSubscriptionLoading: {
@@ -20,8 +19,8 @@ export interface SubscriptionsListProps {
 }
 
 export const SubscriptionsList = (props: SubscriptionsListProps) => {
-  const { org, orgQuery, isSubscriptionLoading } = props;
-
+  const { orgQuery, isSubscriptionLoading } = props;
+  const org = orgQuery.data;
   if (orgQuery.isFetching) {
     return (
       <Table data-cy="subscriptions-list">
@@ -46,7 +45,7 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
             </Td>
           </Tr>
         ) : (
-          org.orgSubscriptions.map((subscription, index) => {
+          org?.orgSubscriptions.map((subscription, index) => {
             return (
               <Fragment key={subscription._id}>
                 {isSubscriptionLoading[subscription._id] ? (

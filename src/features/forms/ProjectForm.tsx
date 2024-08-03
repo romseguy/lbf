@@ -225,7 +225,7 @@ export const ProjectForm = ({
       {/* {hasItems(projectVisibility) && (
         <Alert status="info" mb={3}>
           <AlertIcon />
-          Le projet ne sera visible que par les membres des listes
+          Le projet ne sera visible que par les participants des listes
           sélectionnées.
         </Alert>
       )} */}

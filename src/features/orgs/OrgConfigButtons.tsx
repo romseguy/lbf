@@ -1,10 +1,11 @@
-import { ArrowBackIcon, EditIcon, Icon } from "@chakra-ui/icons";
+import { ArrowBackIcon, EditIcon, Icon, SettingsIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Checkbox,
   Flex,
+  FlexProps,
   Input,
   Text,
   useToast
@@ -30,15 +31,21 @@ import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { IsEditConfig } from "./OrgPage";
 
 export const OrgConfigButtons = ({
-  isEdit,
   orgQuery,
+  isConfig,
+  setIsConfig,
+  isEdit,
   setIsEdit,
-  toggleVisibility
-}: OrgConfigVisibility & {
-  isEdit: boolean;
-  orgQuery: AppQueryWithData<IOrg>;
-  setIsEdit: (arg: boolean | IsEditConfig) => void;
-}) => {
+  toggleVisibility,
+  ...props
+}: FlexProps &
+  Omit<OrgConfigVisibility, "isVisible"> & {
+    orgQuery: AppQueryWithData<IOrg>;
+    isConfig: boolean;
+    setIsConfig: (isConfig: boolean) => void;
+    isEdit: boolean;
+    setIsEdit: (isEdit: boolean) => void;
+  }) => {
   const { showBoundary } = useErrorBoundary();
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
@@ -72,12 +79,13 @@ export const OrgConfigButtons = ({
   };
 
   const onEdit = () => {
-    setIsEdit(true);
+    setIsConfig(false);
+    setIsEdit(!isEdit);
     toggleVisibility();
   };
 
   return (
-    <Flex flexDirection={isMobile ? "column" : "row"}>
+    <Flex flexDirection={isMobile ? "column" : "row"} {...props}>
       <Flex mb={isMobile ? 3 : 3}>
         <Button
           colorScheme="teal"
@@ -86,15 +94,29 @@ export const OrgConfigButtons = ({
           onClick={onEdit}
           data-cy="orgEdit"
         >
-          Modifier
+          {!isEdit ? "Modifier" : "Retour"}
         </Button>
       </Flex>
 
-      <Flex mb={isMobile ? 3 : 0}>
+      <Flex mb={isMobile ? 3 : 3}>
+        <Button
+          colorScheme="orange"
+          leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
+          mr={3}
+          onClick={() => {
+            setIsEdit(false);
+            setIsConfig(!isConfig);
+          }}
+        >
+          {!isConfig ? "Paramètres" : "Retour"}
+        </Button>
+      </Flex>
+
+      <Flex mb={isMobile ? 3 : 3}>
         <DeleteButton
           isDisabled={isDisabled}
           isLoading={deleteQuery.isLoading}
-          label={`Supprimer ${orgTypeFull5(org.orgType)}`}
+          label={`Supprimer`}
           header={
             <>
               Vous êtes sur le point de{" "}

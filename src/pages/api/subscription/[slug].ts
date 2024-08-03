@@ -165,8 +165,12 @@ handler.delete<
   },
   NextApiResponse
 >(async function removeSubscription(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ DELETE /subscription/[slug] `;
+  console.log(prefix + "query", req.query);
+  console.log(prefix + "body", req.body);
+
   const {
-    query: { slug: subscriptionId },
+    query: { slug },
     body
   }: {
     query: { slug: string };
@@ -180,7 +184,7 @@ handler.delete<
 
   try {
     let subscription = await models.Subscription.findOne({
-      _id: subscriptionId
+      _id: slug
     });
 
     if (!subscription) {
@@ -188,14 +192,14 @@ handler.delete<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'abonnement ${subscriptionId} n'a pas pu être trouvé`)
+            new Error(`L'abonnement ${slug} n'a pas pu être trouvé`)
           )
         );
     }
 
     if (Array.isArray(body.orgs) && body.orgs.length > 0) {
       const { orgId, type } = body.orgs[0];
-      logJson(`DELETE /subscription/${subscriptionId}: orgId`, orgId);
+      logJson(`DELETE /subscription/${slug}: orgId`, orgId);
 
       const org = await models.Org.findOne({ _id: orgId }).populate(
         "orgSubscriptions"
@@ -210,10 +214,7 @@ handler.delete<
             )
           );
 
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: subscription`, subscription);
       subscription.orgs = subscription.orgs?.filter(
         (orgSubscription: IOrgSubscription) => {
           let keep = true;
@@ -227,12 +228,9 @@ handler.delete<
         }
       );
       await subscription.save();
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription saved`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: subscription saved`, subscription);
 
-      return res.status(200).json(subscription);
+      return doDelete();
     }
 
     //#region remove subscription from org
@@ -257,7 +255,7 @@ handler.delete<
 
       //log("> org.orgSubscriptions", org.orgSubscriptions);
       org.orgSubscriptions = org.orgSubscriptions.filter(
-        ({ _id }) => !equals(_id, subscriptionId)
+        ({ _id }) => !equals(_id, slug)
       );
       //log("> org.orgSubscriptions", org.orgSubscriptions);
 
@@ -265,7 +263,7 @@ handler.delete<
       org.orgLists = org.orgLists.map((orgList) => ({
         listName: orgList.listName,
         subscriptions: orgList.subscriptions?.filter(
-          ({ _id }) => !equals(_id, subscriptionId)
+          ({ _id }) => !equals(_id, slug)
         )
       }));
       //log("> org.orgLists", org.orgLists);
@@ -281,18 +279,13 @@ handler.delete<
 
       await subscription.save();
 
-      return res.status(200).json(subscription);
-      // .json(
-      //   await subscription
-      //     .populate("user", "-securityCode -password")
-      //     .execPopulate()
-      // );
+      return doDelete();
     }
     //#endregion
 
     if (Array.isArray(body.events) && body.events.length > 0) {
       const { eventId } = body.events[0];
-      logJson(`DELETE /subscription/${subscriptionId}: eventId`, eventId);
+      logJson(`DELETE /subscription/${slug}: eventId`, eventId);
 
       const event = await models.Event.findOne({ _id: eventId }).populate(
         "eventSubscriptions"
@@ -307,10 +300,7 @@ handler.delete<
             )
           );
 
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: subscription`, subscription);
       subscription.events = subscription.events?.filter(
         (eventSubscription: IEventSubscription) => {
           let keep = true;
@@ -321,13 +311,10 @@ handler.delete<
         }
       );
       await subscription.save();
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription saved`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: subscription saved`, subscription);
 
       logJson(
-        `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
+        `DELETE /subscription/${slug}: event.eventSubscriptions`,
         event.eventSubscriptions
       );
       event.eventSubscriptions = event.eventSubscriptions.filter(
@@ -335,11 +322,11 @@ handler.delete<
       );
       await event.save();
       logJson(
-        `DELETE /subscription/${subscriptionId}: event.eventSubscriptions`,
+        `DELETE /subscription/${slug}: event.eventSubscriptions`,
         event.eventSubscriptions
       );
 
-      return res.status(200).json(subscription);
+      return doDelete();
     }
 
     if (body.topicId) {
@@ -347,14 +334,8 @@ handler.delete<
         .populate("topics", "topic")
         .execPopulate();
 
-      logJson(
-        `DELETE /subscription/${subscriptionId}: body.topicId`,
-        body.topicId
-      );
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: body.topicId`, body.topicId);
+      logJson(`DELETE /subscription/${slug}: subscription`, subscription);
 
       subscription.topics = subscription.topics?.filter((topicSubscription) => {
         if (!topicSubscription.topic) return false;
@@ -362,18 +343,10 @@ handler.delete<
       });
 
       await subscription.save();
-      logJson(
-        `DELETE /subscription/${subscriptionId}: subscription saved`,
-        subscription
-      );
+      logJson(`DELETE /subscription/${slug}: subscription saved`, subscription);
 
-      return res.status(200).json(subscription);
+      return doDelete();
     }
-
-    logJson(
-      `DELETE /subscription/${subscription._id}: subscription`,
-      subscription
-    );
 
     if (subscription.events)
       for (const eventSubscription of subscription.events) {
@@ -421,30 +394,36 @@ handler.delete<
         await org.save();
       }
 
-    const { deletedCount } = await models.Subscription.deleteOne({
-      _id: subscriptionId
-    });
+    return doDelete();
 
-    if (deletedCount !== 1) {
-      subscription = await subscription
-        .populate("user", "-password")
-        .execPopulate();
+    async function doDelete() {
+      const { deletedCount } = await models.Subscription.deleteOne({
+        _id: slug
+      });
 
-      const email =
-        typeof subscription.user === "object"
-          ? subscription.user.email
-          : subscription.email;
+      if (deletedCount !== 1) {
+        if (subscription) {
+          subscription = await subscription
+            .populate("user", "-password")
+            .execPopulate();
 
-      return res
-        .status(400)
-        .json(
-          createEndpointError(
-            new Error(`L'abonnement de ${email} n'a pas pu être supprimé`)
-          )
-        );
+          const email =
+            typeof subscription.user === "object"
+              ? subscription.user.email
+              : subscription.email;
+
+          return res
+            .status(400)
+            .json(
+              createEndpointError(
+                new Error(`L'abonnement de ${email} n'a pas pu être supprimé`)
+              )
+            );
+        }
+      }
+
+      res.status(200).json(subscription);
     }
-
-    res.status(200).json(subscription);
   } catch (error) {
     res.status(500).json(createEndpointError(error));
   }

@@ -302,7 +302,7 @@ export const GalleriesListItemHeader = ({
                             cursor="default"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {gallery.galleryNotifications.length} membre{s}{" "}
+                            {gallery.galleryNotifications.length} participant{s}{" "}
                             invité
                             {s}
                           </Text>

@@ -1,7 +1,7 @@
-import { Box } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { EntityPageConfigButton } from "features/common";
+import { AppHeading } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
@@ -11,6 +11,7 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { useSession } from "hooks/useSession";
+import { OrgConfigButtons } from "./OrgConfigButtons";
 
 export interface IsEditConfig {
   isAddingChild?: boolean;
@@ -126,18 +127,18 @@ export const OrgPage = ({
       isMobile={isMobile}
     >
       {isCreator && (
-        <Box mb={5}>
-          <EntityPageConfigButton
+        <Flex ml={3}>
+          <AppHeading>Admin :</AppHeading>
+          <OrgConfigButtons
+            orgQuery={orgQuery}
             isConfig={isConfig}
-            isEdit={isEdit}
             setIsConfig={setIsConfig}
+            isEdit={isEdit}
             setIsEdit={setIsEdit}
-            m={3}
-            mb={0}
-          >
-            Paramètres de l'atelier
-          </EntityPageConfigButton>
-        </Box>
+            toggleVisibility={toggleVisibility}
+            mx={3}
+          />
+        </Flex>
       )}
 
       {!isConfig && !isEdit && (
@@ -169,51 +170,3 @@ export const OrgPage = ({
     </Layout>
   );
 };
-
-{
-  /*
-   useEffect(() => {
-     if ((router.asPath.match(/\//g) || []).length > 1) {
-       isFirstLoad = false;
-       return;
-     }
-     isFirstLoad = false;
-   }, [router.asPath]);
-*/
-}
-
-{
-  /*
-  if (org.orgUrl === "forum") {
-    return (
-      <Layout entity={org} isMobile={isMobile}>
-        {isCreator && (
-          <EntityPageConfigButton
-            isConfig={isConfig}
-            isEdit={isEdit}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-          />
-        )}
-
-        {!isConfig && !isEdit && (
-          <Forum orgQuery={orgQuery} subQuery={subQuery} tabItem={tabItem} />
-        )}
-
-        {session && isCreator && (isConfig || isEdit) && (
-          <OrgConfigPanel
-            session={session}
-            orgQuery={orgQuery}
-            subQuery={subQuery}
-            isEdit={isEdit}
-            isVisible={isVisible}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
-        )}
-      </Layout>
-    );
-  }
-*/
-}

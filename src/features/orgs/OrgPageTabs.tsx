@@ -219,11 +219,11 @@ export const OrgPageTabs = ({
                   `}
                 path {
                   fill: ${isDark && isCurrent
-                    ? "white"
+                    ? theme.colors.purple[500]
                     : isDark
                     ? "white"
                     : !isDark && isCurrent
-                    ? "white"
+                    ? theme.colors.whiteAlpha[900]
                     : !isDark //&& url !== "/"
                     ? "black"
                     : "none"};

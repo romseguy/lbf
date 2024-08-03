@@ -36,7 +36,7 @@ export const ProjectsListItemVisibility = ({
   if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [
       {
-        label: `Projet réservé aux membres ${
+        label: `Projet réservé aux participants ${
           customLists.length === 1
             ? `de la liste "${customLists[0]}"`
             : `des listes ${customLists.map(

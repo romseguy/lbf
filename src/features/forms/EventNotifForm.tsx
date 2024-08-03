@@ -377,10 +377,10 @@ export const EventNotifForm = ({
                                 </Td>
                                 <Td>
                                   {!list.subscriptions.length ? (
-                                    `Vous n'avez ajouté aucun membres à cette liste`
+                                    `Vous n'avez ajouté aucun participants à cette liste`
                                   ) : (
                                     <>
-                                      {i} membre{s} n'{s ? "ont" : "a"} pas
+                                      {i} participant{s} n'{s ? "ont" : "a"} pas
                                       encore été invité
                                     </>
                                   )}

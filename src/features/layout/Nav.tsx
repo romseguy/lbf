@@ -6,30 +6,20 @@ import {
   Icon,
   Menu,
   MenuButton,
-  useColorMode,
+  Spinner,
   Table,
   Tbody,
   Tr,
   Td,
   Tooltip,
-  IconButton
+  IconButton,
+  useColorMode
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  AppHeading,
-  DarkModeSwitch,
-  Link,
-  LinkShare,
-  LoginButton
-} from "features/common";
-import {
-  EventPopover,
-  OrgPopover,
-  NotificationPopover,
-  TopicPopover
-} from "features/layout";
+import { AppHeading, DarkModeSwitch, Link, LinkShare } from "features/common";
+import { EventPopover, OrgPopover, TopicPopover } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg } from "models/Entity";
@@ -38,7 +28,7 @@ import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { ChevronLeftIcon, SearchIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { FaHome } from "react-icons/fa";
 
 export const Nav = ({
@@ -54,7 +44,7 @@ export const Nav = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, loading: isSessionLoading } = useSession();
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
   const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
@@ -198,7 +188,7 @@ export const Nav = ({
         </LoginButton>
       )} */}
 
-      {session && userEmail && (
+      {session && userEmail ? (
         <Table
           role="navigation"
           bg={isDark ? "gray.700" : "blackAlpha.50"}
@@ -243,10 +233,11 @@ export const Nav = ({
                       email={userEmail}
                       //session={session}
                       userName={userName}
+                      zIndex={9999}
                     />
                   </Menu>
 
-                  {session.user.isAdmin && (
+                  {/* {session.user.isAdmin && (
                     <>
                       <OrgPopover
                         label="Mes ateliers"
@@ -256,12 +247,12 @@ export const Nav = ({
                         offset={[isMobile ? 95 : 140, 15]}
                         iconProps={{ ...iconProps, ...{} }}
                       />
-                      {/* <OrgPopover
+                      <OrgPopover
                         isMobile={isMobile}
                         session={session}
                         offset={[isMobile ? 20 : 140, 15]}
                         iconProps={iconProps}
-                      /> */}
+                      />
                       <EventPopover
                         isMobile={isMobile}
                         session={session}
@@ -275,7 +266,7 @@ export const Nav = ({
                         iconProps={iconProps}
                       />
                     </>
-                  )}
+                  )} */}
 
                   {/* {!isMobile && (
                     <NotificationPopover
@@ -290,7 +281,9 @@ export const Nav = ({
             </Tr>
           </Tbody>
         </Table>
-      )}
+      ) : isSessionLoading ? (
+        <Spinner />
+      ) : null}
     </Box>
   );
 };

@@ -195,7 +195,7 @@ export const OrgConfigListsPanel = ({
           </AppHeading>
 
           <EntityListForm
-            allOptionLabel="Tous les membres"
+            allOptionLabel="Tous les participants"
             org={org}
             onSubmit={onSubmit}
           />
@@ -247,7 +247,7 @@ export const OrgConfigListsPanel = ({
                             }}
                             data-cy="org-list-link"
                           >
-                            {subscriptions.length} membre
+                            {subscriptions.length} participant
                             {subscriptions && subscriptions.length > 1 && "s"}
                           </Link>
                         </Td>
@@ -340,7 +340,7 @@ export const OrgConfigListsPanel = ({
                     <ModalBody>
                       {listToEdit && (
                         <EntityListForm
-                          allOptionLabel="Tous les membres"
+                          allOptionLabel="Tous les participants"
                           list={listToEdit}
                           org={org}
                           onCancel={() => setListToEdit(undefined)}

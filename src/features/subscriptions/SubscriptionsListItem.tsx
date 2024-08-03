@@ -1,36 +1,21 @@
-import {
-  Box,
-  IconButton,
-  Spinner,
-  Tag,
-  TagLabel,
-  Td,
-  Tooltip,
-  Tr,
-  useToast
-} from "@chakra-ui/react";
+import { Spinner, Td, Tooltip, Tr, useToast } from "@chakra-ui/react";
 import { DeleteButton, Link } from "features/common";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
   getFollowerSubscription,
   IOrgSubscription,
-  ISubscription,
-  EOrgSubscriptionType
+  ISubscription
 } from "models/Subscription";
 import { useRouter } from "next/router";
 import React from "react";
-import { IoIosPerson } from "react-icons/io";
 import { useAppDispatch } from "store";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
 import { useDeleteSubscriptionMutation } from "features/api/subscriptionsApi";
 import { SubscriptionsListProps } from "./SubscriptionsList";
-import { EditIcon } from "@chakra-ui/icons";
 
 export const SubscriptionsListItem = ({
-  org,
   orgQuery,
-  subQuery,
   isSubscriptionLoading,
   setIsSubscriptionLoading,
   subscription
@@ -42,6 +27,8 @@ export const SubscriptionsListItem = ({
   const toast = useToast({ position: "top" });
   const [deleteSubscription, deleteSubscriptionMutation] =
     useDeleteSubscriptionMutation();
+
+  const org = orgQuery.data;
   const followerSubscription = getFollowerSubscription({
     org,
     subscription
@@ -170,7 +157,7 @@ export const SubscriptionsListItem = ({
                 header={
                   <>
                     Êtes-vous sûr de vouloir supprimer {phone || email}{" "}
-                    {orgTypeFull(org.orgType)} {org.orgName} ?
+                    {orgTypeFull(org?.orgType)} {org?.orgName} ?
                   </>
                 }
                 isIconOnly
@@ -184,7 +171,7 @@ export const SubscriptionsListItem = ({
 
                   await deleteSubscription({
                     subscriptionId: subscription._id,
-                    orgId: org._id
+                    orgId: org?._id
                   });
                   //dispatch(refetchEvent());
                   setIsSubscriptionLoading({

@@ -1,12 +1,11 @@
+import { Icon, Text, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import {
   Column,
   EntityConfigBannerPanel,
   EntityConfigLogoPanel,
   EntityConfigCategoriesPanel,
-  EntityConfigStyles,
   AppHeading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
@@ -17,11 +16,10 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { IsEditConfig } from "./OrgPage";
-import { OrgConfigButtons } from "./OrgConfigButtons";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { EEntityCategoryKey } from "models/Entity";
-import { useToast } from "@chakra-ui/react";
+import { EditIcon, SettingsIcon } from "@chakra-ui/icons";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
@@ -52,54 +50,75 @@ export const OrgConfigPanel = ({
   setIsConfig: (isConfig: boolean) => void;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
 }) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const org = orgQuery.data;
-  const buttons = (
-    <OrgConfigButtons
-      isEdit={isEdit}
-      isVisible={isVisible}
-      orgQuery={orgQuery}
-      setIsEdit={setIsEdit}
-      toggleVisibility={toggleVisibility}
-    />
-  );
 
   return (
     <>
-      {isEdit && (
-        <Column>
-          <OrgForm
-            isCreator={isCreator}
-            isEditConfig={isEditConfig}
-            session={session}
-            orgQuery={orgQuery as AppQuery<IOrg>}
-            onCancel={() => {
-              setIsEdit(false);
-              //setIsConfig(false);
-            }}
-            onSubmit={async (orgUrl: string) => {
-              setIsEdit(false);
-              setIsConfig(false);
+      {!isEdit && (
+        <>
+          <AppHeading mx={3} mb={3}>
+            <Icon
+              as={SettingsIcon}
+              color={isDark ? "white" : "black"}
+              boxSize={10}
+              mb={1}
+              mr={3}
+            />
+            Paramètres de l'atelier
+          </AppHeading>
+        </>
+      )}
 
-              if (orgUrl !== org.orgUrl) {
-                await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-                  shallow: true
-                });
-              }
-            }}
-          />
-        </Column>
+      {isEdit && (
+        <>
+          <AppHeading mx={3} mb={3}>
+            <Icon
+              as={EditIcon}
+              color={isDark ? "white" : "black"}
+              boxSize={10}
+              mb={1}
+              mr={3}
+            />
+            Modifier l'atelier
+          </AppHeading>
+
+          <Column mx={3}>
+            <OrgForm
+              isCreator={isCreator}
+              isEditConfig={isEditConfig}
+              session={session}
+              orgQuery={orgQuery as AppQuery<IOrg>}
+              onCancel={() => {
+                setIsEdit(false);
+                //setIsConfig(false);
+              }}
+              onSubmit={async (orgUrl: string) => {
+                setIsEdit(false);
+                setIsConfig(false);
+
+                if (orgUrl !== org.orgUrl) {
+                  await router.push(`/${orgUrl}`, `/${orgUrl}`, {
+                    shallow: true
+                  });
+                }
+              }}
+            />
+          </Column>
+        </>
       )}
 
       {!isEdit && (
         <>
-          {buttons}
+          <Column mx={3} mb={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Apparence
+            </Text>
 
-          <Column mb={3} pt={1}>
-            <AppHeading>Apparence</AppHeading>
-
-            <EntityConfigStyles query={orgQuery} mt={3} mb={2} />
+            {/* <EntityConfigStyles query={orgQuery} mt={3} mb={2} /> */}
 
             <EntityConfigLogoPanel
               query={orgQuery}
@@ -115,8 +134,11 @@ export const OrgConfigPanel = ({
             />
           </Column>
 
-          <Column mb={3} pt={1}>
-            <AppHeading mb={1}>Membres & Listes</AppHeading>
+          <Column mx={3} mb={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Participants & Listes
+            </Text>
+
             <OrgConfigSubscribersPanel
               orgQuery={orgQuery}
               subQuery={subQuery}
@@ -132,8 +154,10 @@ export const OrgConfigPanel = ({
             />
           </Column>
 
-          <Column mb={3} pt={1}>
-            <AppHeading>Discussions</AppHeading>
+          <Column mx={3} mb={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Discussions
+            </Text>
 
             <EntityConfigCategoriesPanel
               categories={org.orgTopicCategories}
@@ -144,8 +168,10 @@ export const OrgConfigPanel = ({
             />
           </Column>
 
-          <Column pt={1}>
-            <AppHeading>Événements</AppHeading>
+          <Column mx={3} pt={1}>
+            <Text fontSize="3xl" mb={3}>
+              Événements
+            </Text>
 
             <EntityConfigCategoriesPanel
               categories={getEventCategories(org)}

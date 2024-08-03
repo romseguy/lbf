@@ -55,7 +55,6 @@ export const SubscriptionForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const lists = useMemo(() => getLists(org), [org]);
   const [tags, setTags] = useState<ItemTag[]>([]);
-
   //#region form
   const {
     clearErrors,
@@ -92,7 +91,6 @@ export const SubscriptionForm = ({
       .map(({ label }) => label)
       .concat(emailList)
       .filter((email: string) => emailR.test(email));
-
     const phoneArray: string[] = (phoneList || "")
       .split(/(\s+)/)
       .filter((e: string) => e.trim().length > 0)
@@ -108,7 +106,6 @@ export const SubscriptionForm = ({
           for (const { value: listName } of orgLists) {
             let type;
             if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
-
             if (type)
               await addSubscription({
                 email,
@@ -215,7 +212,6 @@ export const SubscriptionForm = ({
           errors={errors}
           setError={setError}
           setValue={setValue}
-          isRequired
           label="Adresses e-mail séparées par un espace : "
           leftElement={
             <InputLeftElement cursor="pointer" children={<AtSignIcon />} />

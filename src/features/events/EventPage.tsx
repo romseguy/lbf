@@ -1,7 +1,6 @@
-import { useColorMode } from "@chakra-ui/react";
+import { Flex, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { EntityPageConfigButton } from "features/common";
 import { Layout } from "features/layout";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
@@ -11,6 +10,8 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
+import { EventConfigButtons } from "./EventConfigButtons";
+import { AppHeading } from "features/common";
 
 //let isFirstLoad = true;
 
@@ -122,15 +123,18 @@ export const EventPage = ({
   return (
     <Layout entity={event} isMobile={isMobile}>
       {isCreator && (
-        <EntityPageConfigButton
-          isConfig={isConfig}
-          isEdit={isEdit}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          m={3}
-        >
-          Paramètres de l'événement
-        </EntityPageConfigButton>
+        <Flex ml={3}>
+          <AppHeading>Admin :</AppHeading>
+          <EventConfigButtons
+            eventQuery={eventQuery}
+            isConfig={isConfig}
+            setIsConfig={setIsConfig}
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+            mx={3}
+          />
+        </Flex>
       )}
 
       {!isConfig && !isEdit && (
@@ -182,15 +186,17 @@ export const EventPage = ({
       )}
 
       {session && isCreator && (isConfig || isEdit) && (
-        <EventConfigPanel
-          session={session}
-          eventQuery={eventQuery}
-          isEdit={isEdit}
-          isVisible={isVisible}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          toggleVisibility={toggleVisibility}
-        />
+        <>
+          <EventConfigPanel
+            session={session}
+            eventQuery={eventQuery}
+            isEdit={isEdit}
+            isVisible={isVisible}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            toggleVisibility={toggleVisibility}
+          />
+        </>
       )}
     </Layout>
   );
