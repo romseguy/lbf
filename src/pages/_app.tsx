@@ -30,6 +30,8 @@ import {
 import { isServer } from "utils/isServer";
 import { useRouter } from "next/router";
 import { Spinner } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { SimpleLayout } from "features/layout";
 import { useSession } from "hooks/useSession";
 const { getEnv } = require("utils/env");

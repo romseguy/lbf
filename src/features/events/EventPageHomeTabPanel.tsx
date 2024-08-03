@@ -1,4 +1,6 @@
 import { Box, Flex, IconButton, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { IEvent } from "models/Event";
 import { AppQueryWithData } from "utils/types";

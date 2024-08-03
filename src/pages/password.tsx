@@ -6,9 +6,10 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Spinner,
-  useToast
+  Spinner
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { EditUserPayload, useEditUserMutation } from "features/api/usersApi";

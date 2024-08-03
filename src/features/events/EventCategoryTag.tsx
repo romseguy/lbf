@@ -1,4 +1,6 @@
 import { Tag, TagProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { getEventCategories, IOrg } from "models/Org";
 import { getCategories, IEvent } from "models/Event";

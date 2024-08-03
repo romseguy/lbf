@@ -1,4 +1,6 @@
 import { Tabs, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { FaHome, FaImages, FaTools } from "react-icons/fa";
 import { EntityPageTab, EntityPageTabList } from "features/common";

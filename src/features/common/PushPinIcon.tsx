@@ -1,4 +1,6 @@
 import { Icon, IconProps, Tooltip, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 
 export const PushPinIcon = ({ ...props }: IconProps) => {

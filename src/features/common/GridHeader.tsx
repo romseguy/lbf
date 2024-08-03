@@ -1,5 +1,7 @@
 import React from "react";
 import { GridItemProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { GridItem } from "./GridItem";
 
 export const GridHeader = ({

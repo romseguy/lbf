@@ -8,6 +8,8 @@ import {
   ModalProps,
   Icon
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Modal } from "features/common";
 import { GalleryForm } from "features/forms/GalleryForm";

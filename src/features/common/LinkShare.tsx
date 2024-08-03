@@ -1,11 +1,12 @@
 import { LinkIcon } from "@chakra-ui/icons";
 import {
-  useToast,
   Tooltip,
   IconButton,
   IconButtonProps,
   TooltipProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 
 export const LinkShare = ({

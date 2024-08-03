@@ -7,9 +7,10 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  Select,
-  useToast
+  Select
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";

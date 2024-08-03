@@ -1,4 +1,6 @@
 import { Flex, Spinner, Tag, Text } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect } from "react";
 import { useSession } from "hooks/useSession";
 import { ITopic } from "models/Topic";

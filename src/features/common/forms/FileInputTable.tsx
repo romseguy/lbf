@@ -1,4 +1,6 @@
 import { Table, TableProps, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { bytesForHuman } from "utils/string";
 

@@ -1,5 +1,7 @@
 import { QuestionIcon } from "@chakra-ui/icons";
 import { Box, BoxProps, IconButton, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { useAppDispatch } from "store";
 import { setIsContactModalOpen } from "store/modalSlice";

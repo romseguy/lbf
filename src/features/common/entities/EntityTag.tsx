@@ -7,6 +7,8 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { DeleteButton } from "features/common";
 import { useDeleteEventMutation } from "features/api/eventsApi";

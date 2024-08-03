@@ -10,9 +10,10 @@ import {
   Tbody,
   Tooltip,
   Tr,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { compareAsc, getDayOfYear } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";

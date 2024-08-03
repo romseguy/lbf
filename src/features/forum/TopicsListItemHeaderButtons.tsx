@@ -1,4 +1,4 @@
-import { ChevronRightIcon, ChevronUpIcon, EditIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   BoxProps,
   IconButton,
@@ -6,9 +6,10 @@ import {
   Flex,
   Spinner,
   Text,
-  useToast,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { FaBellSlash, FaBell } from "react-icons/fa";
@@ -78,13 +79,14 @@ export const TopicsListItemHeaderButtons = ({
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const isEventTopic = isO && topic.event;
   const baseUrl = `/${
     isE
       ? entity.eventUrl
+      : isEventTopic
+      ? topic.event!.eventUrl
       : isO
-      ? topic.event
-        ? topic.event.eventUrl
-        : entity.orgUrl
+      ? entity.orgUrl
       : entity._id
   }/discussions`;
   //#endregion
@@ -318,7 +320,7 @@ export const TopicsListItemHeaderButtons = ({
 
       {!isLoading && (
         <Flex>
-          {session && (
+          {session && !isEventTopic && (
             <Tooltip
               label={
                 isSubbedToTopic

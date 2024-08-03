@@ -1,5 +1,7 @@
 import { SettingsIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { Flex, Button, ButtonProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { useSelector } from "react-redux";
 import { IsEditConfig } from "features/orgs/OrgPage";

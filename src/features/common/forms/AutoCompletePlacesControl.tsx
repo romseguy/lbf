@@ -9,6 +9,8 @@ import {
   SpaceProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { KeyboardEvent, useEffect, useState } from "react";
 import useOnclickOutside from "react-cool-onclickoutside";
 import { FaMapMarkedAlt } from "react-icons/fa";

@@ -5,9 +5,10 @@ import {
   InputProps,
   Spinner,
   Tooltip,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect } from "react";
 import { geolocated } from "react-geolocated";
 import { FaMapMarkerAlt } from "react-icons/fa";

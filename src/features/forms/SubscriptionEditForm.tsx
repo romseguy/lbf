@@ -6,9 +6,10 @@ import {
   Switch,
   Text,
   VStack,
-  useToast,
   FormLabel
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { IEvent } from "models/Event";
 import {

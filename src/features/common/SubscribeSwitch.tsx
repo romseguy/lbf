@@ -1,4 +1,6 @@
-import { Switch, useToast } from "@chakra-ui/react";
+import { Switch } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { useEditUserMutation, useGetUserQuery } from "features/api/usersApi";
 import { base64ToUint8Array } from "utils/string";

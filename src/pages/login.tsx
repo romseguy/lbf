@@ -11,9 +11,10 @@ import {
   Spinner,
   Stack,
   Text,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { OAuthProvider } from "@magic-ext/oauth";
 import bcrypt from "bcryptjs";

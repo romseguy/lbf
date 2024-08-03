@@ -1,4 +1,6 @@
 import { Image, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import type { IEvent } from "models/Event";
 import { IEntity, isEvent, isOrg } from "models/Entity";

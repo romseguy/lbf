@@ -1,4 +1,6 @@
-import { Spinner, Td, Tooltip, Tr, useToast } from "@chakra-ui/react";
+import { Spinner, Td, Tooltip, Tr } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { DeleteButton, Link } from "features/common";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";

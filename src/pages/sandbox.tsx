@@ -1,4 +1,6 @@
 import { Spinner, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { Layout } from "features/layout";
 import { PageProps } from "main";

@@ -10,9 +10,10 @@ import {
   FormLabel,
   Progress,
   Text,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import axios from "axios";
 import React, { useState } from "react";

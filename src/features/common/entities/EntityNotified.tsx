@@ -8,6 +8,8 @@ import {
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Column, AppHeading } from "features/common";
 import { IEntity, isEvent, isProject, isTopic } from "models/Entity";

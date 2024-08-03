@@ -6,6 +6,8 @@ import {
   Tooltip,
   useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import {
   FaMapMarkedAlt,

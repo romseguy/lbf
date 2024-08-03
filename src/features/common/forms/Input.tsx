@@ -1,4 +1,6 @@
 import { Input as ChakraInput, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { styled } from "twin.macro";
 
 export const Input = styled(ChakraInput)((/* props */) => {

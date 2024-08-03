@@ -7,6 +7,8 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { FaTools } from "react-icons/fa";
 import { Modal } from "features/common";

@@ -6,6 +6,8 @@ import {
   ModalBody,
   useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Modal } from "features/common";

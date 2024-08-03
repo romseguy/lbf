@@ -1,4 +1,5 @@
 import { Select, SelectProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const EventsListDistanceSelect = ({
   city,

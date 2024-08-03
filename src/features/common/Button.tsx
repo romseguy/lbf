@@ -4,6 +4,7 @@ import {
   ButtonProps,
   useColorModeValue
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const Button = ({
   children,

@@ -20,9 +20,10 @@ import {
   Text,
   Tooltip,
   Tr,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { DeleteButton, PushPinSlashIcon, PushPinIcon } from "features/common";
 import { useSession } from "hooks/useSession";

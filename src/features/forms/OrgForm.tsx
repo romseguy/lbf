@@ -7,27 +7,21 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Icon,
   Input,
-  List,
-  ListItem,
   Select,
   Spinner,
-  Stack,
-  Switch,
   Tag,
-  Text,
   Tooltip,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/router";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
-import { FaTree } from "react-icons/fa";
 import Creatable from "react-select/creatable";
 import { Suggestion } from "use-places-autocomplete";
 import {
@@ -39,9 +33,7 @@ import {
   ErrorMessageText,
   RTEditor,
   PasswordControl,
-  PasswordConfirmControl,
-  EntityTag,
-  Link
+  PasswordConfirmControl
 } from "features/common";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
@@ -67,7 +59,6 @@ import {
   EOrgType,
   EOrgVisibility,
   OrgVisibilities,
-  orgTypeFull2,
   OrgTypes,
   getOrgDescriptionByType
 } from "models/Org";
@@ -992,88 +983,20 @@ export const OrgForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* Forêt du réseau */}
-        {orgType === EOrgType.NETWORK && ChildrenFormControl}
-
         {DescriptionFormControl}
 
         <Box {...formBoxProps(isDark)}>{InfoFormControl}</Box>
-
-        {/* Politique du réseau */}
-        {orgType === EOrgType.NETWORK && (
-          <Box {...formBoxProps(isDark)}>
-            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
-
-            <Stack flexDirection="column" spacing={3}>
-              <Switch
-                name="anyoneCanAddChildren"
-                ref={register()}
-                defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-              >
-                Tout le monde peut ajouter une discussion{" "}
-                {orgTypeFull2(orgType)}
-              </Switch>
-
-              {/*
-              <Switch
-                name="hasSelectedChildrenTypes"
-                ref={register()}
-                defaultChecked={!!org?.orgPermissions?.allowedChildrenTypes}
-                cursor="pointer"
-                display="flex"
-                alignItems="center"
-              >
-                Restreindre la forêt à un ou plusieurs type d'arbre
-              </Switch>
-
-              {hasSelectedChildrenTypes && (
-                <Select name="allowedChildrenTypes" ref={register()}>
-                  <option value={EOrgType.TREETOOLS}>
-                    {OrgTypes[EOrgType.TREETOOLS]}
-                  </option>
-                </Select>
-              )}
-              */}
-            </Stack>
-          </Box>
-        )}
-
-        {/* Visibilité du réseau */}
-        {orgType === EOrgType.NETWORK && (
-          <Box {...formBoxProps(isDark)}>
-            {VisibilityFormControl}
-
-            {orgVisibility === EOrgVisibility.PRIVATE && (
-              <>
-                {org?.orgPassword ? (
-                  <>
-                    <Link
-                      variant="underline"
-                      onClick={() => {
-                        setIsPassword(!isPassword);
-                      }}
-                    >
-                      {isPassword ? "Annuler" : "Changer le mot de passe"}
-                    </Link>
-
-                    {isPassword && PasswordFormControl}
-                  </>
-                ) : (
-                  <>{PasswordFormControl}</>
-                )}
-              </>
-            )}
-          </Box>
-        )}
 
         {FooterFormControl}
       </form>
     );
   }
 );
+
+{
+  /* Forêt du réseau */
+  /*{orgType === EOrgType.NETWORK && ChildrenFormControl}*/
+}
 
 {
   /*
@@ -1163,5 +1086,79 @@ export const OrgForm = withGoogleApi({
               })}
             </Select>
           </FormControl>
+        )} */
+}
+
+{
+  /* Politique du réseau */
+  /* {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps(isDark)}>
+            <FormLabel>Politique {orgTypeFull(orgType)} (optionnel)</FormLabel>
+
+            <Stack flexDirection="column" spacing={3}>
+              <Switch
+                name="anyoneCanAddChildren"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.anyoneCanAddChildren}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Tout le monde peut ajouter une discussion{" "}
+                {orgTypeFull2(orgType)}
+              </Switch>
+
+              
+              <Switch
+                name="hasSelectedChildrenTypes"
+                ref={register()}
+                defaultChecked={!!org?.orgPermissions?.allowedChildrenTypes}
+                cursor="pointer"
+                display="flex"
+                alignItems="center"
+              >
+                Restreindre la forêt à un ou plusieurs type d'arbre
+              </Switch>
+
+              {hasSelectedChildrenTypes && (
+                <Select name="allowedChildrenTypes" ref={register()}>
+                  <option value={EOrgType.TREETOOLS}>
+                    {OrgTypes[EOrgType.TREETOOLS]}
+                  </option>
+                </Select>
+              )}
+             
+            </Stack>
+          </Box>
+        )} */
+}
+
+{
+  /* Visibilité du réseau */
+  /* {orgType === EOrgType.NETWORK && (
+          <Box {...formBoxProps(isDark)}>
+            {VisibilityFormControl}
+
+            {orgVisibility === EOrgVisibility.PRIVATE && (
+              <>
+                {org?.orgPassword ? (
+                  <>
+                    <Link
+                      variant="underline"
+                      onClick={() => {
+                        setIsPassword(!isPassword);
+                      }}
+                    >
+                      {isPassword ? "Annuler" : "Changer le mot de passe"}
+                    </Link>
+
+                    {isPassword && PasswordFormControl}
+                  </>
+                ) : (
+                  <>{PasswordFormControl}</>
+                )}
+              </>
+            )}
+          </Box>
         )} */
 }

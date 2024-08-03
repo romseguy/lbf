@@ -5,6 +5,8 @@ import {
   HeadingProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { css } from "twin.macro";
 import { rainbowTextCss } from "features/layout/theme";
 import theme from "features/layout/theme";

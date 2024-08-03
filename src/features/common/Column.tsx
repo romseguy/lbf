@@ -1,4 +1,6 @@
 import { Flex, FlexProps, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";

@@ -12,6 +12,8 @@ import {
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { DeleteButton } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";

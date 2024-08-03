@@ -15,6 +15,8 @@ import {
   Text,
   Tooltip
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React, { useState } from "react";

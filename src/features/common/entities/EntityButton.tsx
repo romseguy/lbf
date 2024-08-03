@@ -7,6 +7,8 @@ import {
   TooltipProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { GrWorkshop } from "react-icons/gr";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
@@ -23,6 +25,7 @@ import {
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
 import { useRouter } from "next/router";
+import { getRefId } from "models/Entity";
 
 export const EntityButton = ({
   children,
@@ -55,8 +58,11 @@ export const EntityButton = ({
     ? user.userName
     : "";
 
+  console.log("🚀 ~ topic:", topic);
   if (topic) {
-    entityUrl = `${entityUrl}/discussions/${topic.topicName}`;
+    entityUrl = `${
+      entityUrl || getRefId(topic.org) || getRefId(topic.event)
+    }/discussions/${topic.topicName}`;
   }
   const hasLink = entityUrl !== "" && onClick !== null;
 

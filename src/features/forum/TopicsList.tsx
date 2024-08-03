@@ -12,6 +12,8 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";

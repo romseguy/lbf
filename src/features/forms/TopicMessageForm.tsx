@@ -3,11 +3,12 @@ import {
   Button,
   FormControl,
   FormErrorMessage,
-  useToast,
   Flex,
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
 import React from "react";

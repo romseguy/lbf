@@ -8,6 +8,8 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { format, getDay, parseISO, setDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React from "react";

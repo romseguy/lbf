@@ -4,6 +4,8 @@ import {
   IconButtonProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import Toggle, { ToggleProps } from "react-toggle";

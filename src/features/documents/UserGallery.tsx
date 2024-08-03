@@ -6,6 +6,8 @@ import {
   AlertIcon,
   UseDisclosureProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useState } from "react";
 import { AppHeading, EditIconButton } from "features/common";
 import { Mosaic, MosaicImage } from "./Mosaic";

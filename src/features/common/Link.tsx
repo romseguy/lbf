@@ -3,6 +3,8 @@ import {
   Link as ChakraLink,
   LinkProps as ChakraLinkProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import NextLink, { LinkProps as NextLinkProps } from "next/link";
 import { css } from "twin.macro";
 

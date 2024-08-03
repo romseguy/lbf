@@ -6,6 +6,8 @@ import {
   BoxProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { IGallery } from "models/Gallery";

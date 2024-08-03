@@ -7,10 +7,11 @@ import {
   TabPanel,
   TabPanels,
   Tooltip,
-  useToast,
   FormControl,
   FormLabel
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useState } from "react";

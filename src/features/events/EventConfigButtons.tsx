@@ -1,5 +1,7 @@
 import { ArrowBackIcon, EditIcon, Icon, SettingsIcon } from "@chakra-ui/icons";
-import { Flex, FlexProps, Input, Text, useToast } from "@chakra-ui/react";
+import { Flex, FlexProps, Input, Text } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Button, DeleteButton } from "features/common";

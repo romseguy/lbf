@@ -9,9 +9,10 @@ import {
   Flex,
   IconButton,
   useColorMode,
-  useDisclosure,
-  useToast
+  useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ChevronUpIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { NextPage } from "next";
 import React, { useEffect, useState } from "react";

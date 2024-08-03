@@ -8,6 +8,8 @@ import {
   ModalBody,
   ModalBodyProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 
 export const FullscreenModal = ({

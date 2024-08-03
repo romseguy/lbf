@@ -79,6 +79,9 @@ handler.get<
 
 handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
   async function addTopic(req, res) {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /topics `;
+    console.log(prefix + "body", req.body);
+
     const session = await getSession({ req });
 
     if (!session) {
@@ -152,8 +155,6 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             );
         }
 
-        logJson(`POST /topics: adding message to topic`, topic);
-
         const newMessage = {
           ...body.topic.topicMessages[0],
           createdBy: session.user.userId
@@ -165,11 +166,6 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           "topics.topic": body.topic._id,
           user: { $ne: session.user.userId }
         }).populate({ path: "user", select: "email phone userSubscription" });
-
-        logJson(
-          `POST /topics: topic subscriptions`,
-          subscriptions.map(({ _id, user, email }) => ({ _id, user, email }))
-        );
 
         sendTopicMessageNotifications({
           event: event ? event : undefined,

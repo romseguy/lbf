@@ -14,6 +14,8 @@ import {
   ButtonProps,
   useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { SubscriptionEditForm } from "features/forms/SubscriptionEditForm";

@@ -1,5 +1,7 @@
 import { Icon, QuestionIcon } from "@chakra-ui/icons";
 import { Alert, AlertProps, Box } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 
 export const DidYouKnow = ({

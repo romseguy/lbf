@@ -8,9 +8,10 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalOverlay,
-  useToast
+  ModalOverlay
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import {
   EmailPreview,

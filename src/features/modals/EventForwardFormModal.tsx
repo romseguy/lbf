@@ -7,6 +7,8 @@ import {
   ModalCloseButton,
   useDisclosure
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Modal } from "features/common";
 import { EventForwardForm } from "features/forms/EventForwardForm";

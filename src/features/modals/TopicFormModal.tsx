@@ -6,6 +6,8 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";

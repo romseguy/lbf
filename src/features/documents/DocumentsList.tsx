@@ -13,9 +13,10 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  UseDisclosureProps,
-  useToast
+  UseDisclosureProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaImage, FaFile } from "react-icons/fa";

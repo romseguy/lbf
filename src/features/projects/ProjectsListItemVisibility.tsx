@@ -6,6 +6,8 @@ import {
   Box,
   ComponentWithAs
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { IconType } from "react-icons";
 import { GrWorkshop } from "react-icons/gr";

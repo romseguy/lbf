@@ -1,5 +1,7 @@
 import { SmallAddIcon } from "@chakra-ui/icons";
 import { IconButton, Text, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { FaNewspaper } from "react-icons/fa";
 import { IEvent } from "models/Event";

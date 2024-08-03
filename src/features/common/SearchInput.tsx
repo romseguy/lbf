@@ -1,4 +1,6 @@
 import { Input, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { styled } from "twin.macro";
 
 export const SearchInput = styled(Input)((/* props */) => {

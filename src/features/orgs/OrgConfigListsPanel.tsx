@@ -19,9 +19,10 @@ import {
   Th,
   Thead,
   Tr,
-  Tooltip,
-  useToast
+  Tooltip
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";

@@ -13,6 +13,8 @@ import {
   useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
 import { EntityCategoriesList, Column } from "features/common";

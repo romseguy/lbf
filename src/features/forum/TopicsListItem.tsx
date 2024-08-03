@@ -1,24 +1,15 @@
-import { BoxProps, Button, Box, Flex, useToast } from "@chakra-ui/react";
+import { BoxProps, Button, Box, Flex } from "@chakra-ui/react";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { useScroll } from "hooks/useScroll";
-import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { ITopic, isEdit } from "models/Topic";
 import { Session } from "utils/auth";
-import * as dateUtils from "utils/date";
-import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicMessagesList } from "./TopicMessagesList";
-import {
-  useAddSubscriptionMutation,
-  useDeleteSubscriptionMutation
-} from "features/api/subscriptionsApi";
-import {
-  useEditTopicMutation,
-  useDeleteTopicMutation
-} from "features/api/topicsApi";
 import { ISubscription } from "models/Subscription";
 import { TopicModalState } from "./TopicsList";
 import {
@@ -38,25 +29,14 @@ interface TopicsListItemProps {
   isDark: boolean;
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
-  //isLoading: boolean;
-  //setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;
   topic: ITopic;
   topicIndex: number;
-  // notifyModalState: NotifModalState<ITopic>;
-  // setNotifyModalState: React.Dispatch<
-  //   React.SetStateAction<NotifModalState<ITopic>>
-  // >;
   topicModalState: TopicModalState;
   setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
-  // onClick: (topic: ITopic, isCurrent: boolean) => void;
-  // onDeleteClick: (topic: ITopic, isCurrent: boolean) => void;
-  // onEditClick: (topic: ITopic) => void;
-  // onNotifClick: (topic: ITopic) => void;
-  // onSubscribeClick: (topic: ITopic, isSubbedToTopic: boolean) => void;
 }
 
 export const TopicsListItem = ({
@@ -70,30 +50,16 @@ export const TopicsListItem = ({
   isTopicCreator,
   query,
   subQuery,
-  //isLoading,
-  //setIsLoading,
   selectedCategories,
   setSelectedCategories,
   topic,
   topicIndex,
-  //notifyModalState,
-  //setNotifyModalState,
   topicModalState,
   setTopicModalState,
-  // onClick,
-  // onDeleteClick,
-  // onEditClick,
-  // onNotifClick,
-  // onSubscribeClick,
   ...props
 }: Omit<BoxProps, "onClick"> & TopicsListItemProps) => {
   const router = useRouter();
-  const toast = useToast({ position: "top" });
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
-  const [addSubscription] = useAddSubscriptionMutation();
-  const [deleteSubscription] = useDeleteSubscriptionMutation();
-  const [editTopic, editTopicMutation] = useEditTopicMutation();
-  const [deleteTopic] = useDeleteTopicMutation();
 
   //#region entity
   const entity = query.data;
@@ -115,25 +81,6 @@ export const TopicsListItem = ({
     : [];
   //#endregion
 
-  //#region topic
-  const hasCategorySelected = !!selectedCategories?.find(
-    (category) => category === topic.topicCategory
-  );
-  const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
-  const topicCategoryLabel =
-    typeof topic.topicCategory === "string"
-      ? getCategoryLabel(topicCategories, topic.topicCategory)
-      : "";
-  const topicCreatedByUserName =
-    typeof topic.createdBy === "object"
-      ? topic.createdBy.userName || topic.createdBy.email?.replace(/@.+/, "")
-      : "";
-  // const s =
-  //   !topic.topicNotifications.length || topic.topicNotifications.length > 1
-  //     ? "s"
-  //     : "";
-  //#endregion
-
   //#region local
   const [isAnswering, setIsAnswering] = useState(false);
   const [isEdit, setIsEdit] = useState<isEdit>({});
@@ -146,7 +93,6 @@ export const TopicsListItem = ({
   const isLoading = _isLoading[topic._id];
   //#endregion
 
-  //#region handlers
   const onClick = async () => {
     if (!isCurrent) {
       //const url = `${baseUrl}/${normalize(topic.topicName)}`;
@@ -160,107 +106,6 @@ export const TopicsListItem = ({
       await router.push(url, url, { shallow: true });
     }
   };
-  const onDeleteClick = async () => {
-    try {
-      setIsLoading({
-        [topic._id]: true
-      });
-      const deletedTopic = await deleteTopic(topic._id).unwrap();
-      toast({
-        title: `${deletedTopic.topicName} a été supprimé !`,
-        status: "success"
-      });
-      router.push(baseUrl, baseUrl, { shallow: true });
-    } catch (error: ServerError | any) {
-      toast({
-        title:
-          error.data.message ||
-          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
-        status: "error"
-      });
-    } finally {
-      setIsLoading({
-        [topic._id]: false
-      });
-    }
-  };
-  const onEditClick = () => {
-    setTopicModalState({
-      ...topicModalState,
-      isOpen: true,
-      topic
-    });
-  };
-  // const onNotifClick = () => {
-  //   setNotifyModalState({
-  //     ...notifyModalState,
-  //     entity: topic
-  //   });
-  // };
-  const onSubscribeClick = async () => {
-    if (!subQuery.data || !isSubbedToTopic) {
-      try {
-        setIsLoading({
-          [topic._id]: true
-        });
-        await addSubscription({
-          topics: [
-            {
-              topic: topic,
-              emailNotif: true,
-              pushNotif: true
-            }
-          ],
-          user: session?.user.userId
-        });
-        toast({
-          title: `Vous êtes abonné à la discussion ${topic.topicName}`,
-          status: "success"
-        });
-      } catch (error) {
-        console.error(error);
-        toast({
-          title: `Vous n'avez pas pu être abonné à la discussion ${topic.topicName}`,
-          status: "error"
-        });
-      } finally {
-        setIsLoading({
-          [topic._id]: false
-        });
-      }
-    } else if (isSubbedToTopic) {
-      const unsubscribe = confirm(
-        `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-      );
-
-      if (unsubscribe) {
-        try {
-          setIsLoading({
-            [topic._id]: true
-          });
-          await deleteSubscription({
-            subscriptionId: subQuery.data._id,
-            topicId: topic._id
-          });
-          toast({
-            title: `Vous êtes désabonné de ${topic.topicName}`,
-            status: "success"
-          });
-        } catch (error) {
-          console.error(error);
-          toast({
-            title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-            status: "error"
-          });
-        } finally {
-          setIsLoading({
-            [topic._id]: false
-          });
-        }
-      }
-    }
-  };
-  //#endregion
 
   useEffect(() => {
     if (isCurrent) {
@@ -347,7 +192,7 @@ export const TopicsListItem = ({
             setIsEdit={setIsEdit}
             topic={topic}
             px={3}
-            pb={3}
+            pt={3}
           />
 
           {!isEditing && (

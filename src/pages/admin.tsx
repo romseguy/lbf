@@ -15,11 +15,18 @@ import {
   Tooltip,
   useColorMode,
   useDisclosure,
-  useToast,
   HStack,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { useGetSettingsQuery } from "features/api/settingsApi";
 import { useGetUsersQuery } from "features/api/usersApi";
@@ -32,7 +39,6 @@ import {
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 
-import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import { css } from "twin.macro";
 import { scrollbarCss } from "features/layout/theme";
 import { selectIsMobile } from "store/uiSlice";

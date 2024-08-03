@@ -1,4 +1,6 @@
 import { Button, Flex } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { RTEditor } from "features/common";
 import { isEdit, ITopic } from "models/Topic";

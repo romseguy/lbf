@@ -14,6 +14,8 @@ import {
   AlertDialogOverlay,
   Button
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";

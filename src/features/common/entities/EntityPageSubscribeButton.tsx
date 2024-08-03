@@ -1,4 +1,6 @@
 import { Flex, Box } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { useSession } from "hooks/useSession";
 import { IOrg } from "models/Org";

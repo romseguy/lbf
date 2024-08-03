@@ -10,6 +10,8 @@ import {
   Spinner,
   Text
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useRef, useState } from "react";
 import { LatLon } from "use-places-autocomplete";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";

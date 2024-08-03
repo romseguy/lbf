@@ -4,11 +4,12 @@ import {
   Flex,
   useColorMode,
   useDisclosure,
-  useToast,
   InputGroup,
   InputLeftAddon,
   Icon
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { GrWorkshop } from "react-icons/gr";

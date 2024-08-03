@@ -1,4 +1,6 @@
 import { Flex, HStack, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Column } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";

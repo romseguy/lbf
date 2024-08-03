@@ -8,6 +8,7 @@ import {
   Box,
   useColorModeValue
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const Spacer = ({
   light = { borderColor: "black" },

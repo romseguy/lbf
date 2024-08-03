@@ -1,5 +1,7 @@
 import { EditIcon } from "@chakra-ui/icons";
 import { Avatar, Box, Flex, Tooltip, Text } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React from "react";
 import { useSelector } from "react-redux";

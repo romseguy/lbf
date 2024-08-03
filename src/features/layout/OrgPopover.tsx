@@ -15,6 +15,8 @@ import {
   IconButtonProps,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { GrWorkshop } from "react-icons/gr";

@@ -11,6 +11,8 @@ import {
   Tr,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
 import { GrWorkshop } from "react-icons/gr";

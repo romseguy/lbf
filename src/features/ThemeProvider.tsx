@@ -1,4 +1,6 @@
 import { ChakraProvider, cookieStorageManager } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { PropsWithChildren } from "react";
 import { GlobalStyles } from "features/layout";
 import theme from "features/layout/theme";

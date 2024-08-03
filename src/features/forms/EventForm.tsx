@@ -5,7 +5,6 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  useToast,
   Select,
   Flex,
   useColorMode,
@@ -17,6 +16,8 @@ import {
   IconButton,
   InputGroup
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import {
   addHours,
@@ -637,42 +638,6 @@ export const EventForm = withGoogleApi({
           </FormErrorMessage>
         </FormControl>
 
-        {/* repeat */}
-        {canRepeat && !hasMonthRepeat && (
-          <FormControl isInvalid={!!errors["repeat"]} mb={3}>
-            <FormLabel>Fréquence</FormLabel>
-            <Select
-              name="repeat"
-              ref={register()}
-              placeholder="Ne pas répéter"
-              css={css`
-                ${isDark
-                  ? `
-                color: white;
-              `
-                  : `
-                color: black;
-              `}
-              `}
-            >
-              <option key="all" value={99}>
-                Toutes les semaines
-              </option>
-              {/* {repeatOptions.map(
-                (i) =>
-                  i > 1 && (
-                    <option key={`${i}w`} value={i}>
-                      {`Toutes les ${i} semaines`}
-                    </option>
-                  )
-              )} */}
-            </Select>
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="repeat" />
-            </FormErrorMessage>
-          </FormControl>
-        )}
-
         {/* eventDescription */}
         <FormControl
           ref={refs.eventDescription}
@@ -791,7 +756,7 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
 
-        <Box {...formBoxProps(isDark)}>
+        <Box {...formBoxProps(isDark)} mt={-20}>
           <FormLabel>Coordonnées de l'événement (optionnel)</FormLabel>
 
           <AddressControl
@@ -1242,4 +1207,44 @@ export const EventForm = withGoogleApi({
   )}
 
 */
+}
+
+{
+  /* repeat */
+  /* 
+        {canRepeat && !hasMonthRepeat && (
+          <FormControl isInvalid={!!errors["repeat"]} mb={3}>
+            <FormLabel>Fréquence</FormLabel>
+            <Select
+              name="repeat"
+              ref={register()}
+              placeholder="Ne pas répéter"
+              css={css`
+                ${isDark
+                  ? `
+                color: white;
+              `
+                  : `
+                color: black;
+              `}
+              `}
+            >
+              <option key="all" value={99}>
+                Toutes les semaines
+              </option>
+               {repeatOptions.map(
+                (i) =>
+                  i > 1 && (
+                    <option key={`${i}w`} value={i}>
+                      {`Toutes les ${i} semaines`}
+                    </option>
+                  )
+              )} 
+            </Select>
+            <FormErrorMessage>
+              <ErrorMessage errors={errors} name="repeat" />
+            </FormErrorMessage>
+          </FormControl>
+        )}
+ */
 }

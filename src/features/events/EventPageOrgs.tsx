@@ -1,4 +1,6 @@
 import { VStack, Flex } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { EntityButton } from "features/common";
 import { IEvent } from "models/Event";

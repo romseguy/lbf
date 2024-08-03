@@ -1,4 +1,6 @@
 import { Textarea as ChakraTextarea, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { styled } from "twin.macro";
 
 export const Textarea = styled(ChakraTextarea)((/* props */) => {

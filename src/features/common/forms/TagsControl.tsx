@@ -7,6 +7,8 @@ import {
   InputGroup,
   InputRightElement
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import {
   AutoComplete,
   AutoCompleteInput,

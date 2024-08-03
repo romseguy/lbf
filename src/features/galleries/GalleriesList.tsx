@@ -12,6 +12,8 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { Button, AppHeading, CategoryTag } from "features/common";
 import { useSession } from "hooks/useSession";

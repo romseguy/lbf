@@ -1,4 +1,6 @@
 import { Tag, TagProps, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { ReactNodeArray } from "react";
 
 export const CategoryTag = ({

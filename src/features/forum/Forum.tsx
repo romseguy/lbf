@@ -1,4 +1,6 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { useSession } from "hooks/useSession";

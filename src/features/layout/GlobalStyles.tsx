@@ -1,4 +1,6 @@
 import { useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { Global, css } from "@emotion/react";
 import theme, { breakpoints } from "features/layout/theme";
 import { zIndex } from "utils/string";

@@ -1,4 +1,6 @@
 import { Box, useColorMode, FlexProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { useEditTopicMutation } from "features/api/topicsApi";
 import { useSession } from "hooks/useSession";

@@ -1,4 +1,6 @@
-import { Spinner, useColorMode, useToast } from "@chakra-ui/react";
+import { Spinner, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { Editor, IAllProps } from "@tinymce/tinymce-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";

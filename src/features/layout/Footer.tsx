@@ -1,4 +1,5 @@
 import { Box, BoxProps, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const Footer = ({
   children,

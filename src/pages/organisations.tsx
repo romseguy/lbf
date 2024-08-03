@@ -1,4 +1,6 @@
 import { Button, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useState, useEffect } from "react";
 import { FaRegMap } from "react-icons/fa";
 import { Column } from "features/common";

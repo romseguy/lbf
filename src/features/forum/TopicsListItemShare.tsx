@@ -6,9 +6,10 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  Tooltip,
-  useToast
+  Tooltip
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { FaShare } from "react-icons/fa";
 import { LinkShare } from "features/common";

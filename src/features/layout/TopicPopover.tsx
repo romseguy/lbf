@@ -13,10 +13,11 @@ import {
   VStack,
   useColorMode,
   useDisclosure,
-  useToast,
   PopoverFooter,
   IconButtonProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";

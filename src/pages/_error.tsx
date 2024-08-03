@@ -2,6 +2,8 @@ import { NextPageContext } from "next";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { Alert, AlertIcon, Box } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { Column, ContactLink } from "features/common";
 import { IEntity } from "models/Entity";
 import { getEnv } from "utils/env";

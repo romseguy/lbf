@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import { Button } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const FullscreenControl = ({
   onClick

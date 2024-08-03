@@ -622,9 +622,21 @@ export const sendTopicMessageNotifications = async ({
 
     if (!email) continue;
 
-    const html = `<h1>${subject}</h1><p><a href="${url}">Lire la réponse</a></p>
-    <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de la discussion</a></p>
-    <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
+    // const html = `<h1>${subject}</h1><p><a href="${url}">Lire la réponse</a></p>
+    // <p><a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${topic._id}">Se désabonner de la discussion</a></p>
+    // <a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}">Se désabonner de ${entityName}</a>
+    // `;
+    const html = `<h1>${subject}</h1>
+    
+    <p>${topic.topicMessages[topic.topicMessages.length - 1].message}</p>
+    
+    <p><a href="${url}">Aller à la discussion</a></p>
+
+    <p><a href="${
+      process.env.NEXT_PUBLIC_URL
+    }/unsubscribe/${entityUrl}?subscriptionId=${subscription._id}&topicId=${
+      topic._id
+    }">Se désabonner de la discussion</a></p>
     `;
 
     const mail = {

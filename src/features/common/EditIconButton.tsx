@@ -5,6 +5,8 @@ import {
   Tooltip,
   TooltipProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";

@@ -1,4 +1,6 @@
-import { Alert, AlertIcon, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Spinner } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";

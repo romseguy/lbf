@@ -1,4 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { getStyleObjectFromString } from "utils/string";
 import { breakpoints } from "./breakpoints";
 import { rainbowTextCss } from "./css";

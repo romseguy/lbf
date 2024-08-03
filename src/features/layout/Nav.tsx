@@ -13,13 +13,22 @@ import {
   Td,
   Tooltip,
   IconButton,
-  useColorMode
+  useColorMode,
+  Text,
+  HStack
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppHeading, DarkModeSwitch, Link, LinkShare } from "features/common";
-import { EventPopover, OrgPopover, TopicPopover } from "features/layout";
+import {
+  EventPopover,
+  NotificationPopover,
+  OrgPopover,
+  TopicPopover
+} from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg } from "models/Entity";
@@ -72,41 +81,51 @@ export const Nav = ({
           <Tbody role="rowgroup">
             <Tr role="rowheader">
               <Td border={0} p={0}>
-                <Flex>
+                <HStack spacing={3}>
                   {router.pathname !== "/" && (
                     <>
-                      <IconButton
-                        aria-label="Revenir à la page précédente"
-                        colorScheme="purple"
-                        icon={<ChevronLeftIcon boxSize={10} />}
-                        mr={2}
-                        onClick={() => window.history.back()}
-                      />
-                      {isE && (
+                      <Tooltip
+                        label="Revenir à la page précédente"
+                        placement="right"
+                      >
                         <IconButton
-                          aria-label="Revenir à l'atelier"
+                          aria-label="Revenir à la page précédente"
                           colorScheme="purple"
-                          icon={<Icon as={FaHome} boxSize={8} />}
-                          mr={2}
-                          onClick={() =>
-                            router.push(
-                              `/${entity.eventOrgs[0].orgUrl}`,
-                              `/${entity.eventOrgs[0].orgUrl}`,
-                              { shallow: true }
-                            )
-                          }
+                          icon={<ChevronLeftIcon boxSize={10} />}
+                          onClick={() => window.history.back()}
                         />
+                      </Tooltip>
+
+                      {isE && (
+                        <Tooltip label="Revenir à l'atelier" placement="right">
+                          <IconButton
+                            aria-label="Revenir à l'atelier"
+                            colorScheme="purple"
+                            icon={<Icon as={FaHome} boxSize={8} />}
+                            onClick={() =>
+                              router.push(
+                                `/${entity.eventOrgs[0].orgUrl}`,
+                                `/${entity.eventOrgs[0].orgUrl}`,
+                                { shallow: true }
+                              )
+                            }
+                          />
+                        </Tooltip>
                       )}
                     </>
                   )}
 
-                  <AppHeading mb={0}>
+                  {isO && (
+                    <Text fontSize="4xl">{OrgTypes[entity.orgType]} :</Text>
+                  )}
+
+                  <AppHeading noContainer>
                     <Link href="/photo" shallow>
                       {pageTitle
                         ? pageTitle
                         : entity
                         ? isO
-                          ? `${OrgTypes[entity.orgType]} ${entity.orgName}`
+                          ? `${entity.orgName}`
                           : isE
                           ? entity.eventName
                           : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
@@ -125,12 +144,11 @@ export const Nav = ({
                           ? orgTypeFull(entity.orgType)
                           : "de l'utilisateur"
                       }`}
-                      ml={2}
                       tooltipProps={{ placement: "right" }}
                       variant="outline"
                     />
                   )}
-                </Flex>
+                </HStack>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
                 {/* <Tooltip label={`Rechercher`} hasArrow>
@@ -236,6 +254,13 @@ export const Nav = ({
                       zIndex={9999}
                     />
                   </Menu>
+
+                  <NotificationPopover
+                    isMobile={isMobile}
+                    session={session}
+                    offset={[isMobile ? -141 : 140, 15]}
+                    iconProps={{ ...iconProps, ...{ mr: 0 } }}
+                  />
 
                   {/* {session.user.isAdmin && (
                     <>

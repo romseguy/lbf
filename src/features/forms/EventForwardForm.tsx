@@ -7,9 +7,10 @@ import {
   Flex,
   Alert,
   AlertIcon,
-  useToast,
   FormLabel
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import ReactSelect from "react-select";

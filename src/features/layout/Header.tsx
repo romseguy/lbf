@@ -1,4 +1,6 @@
 import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";

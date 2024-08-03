@@ -1,5 +1,7 @@
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Flex, Icon, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useState } from "react";
 import { Link } from "features/common";
 import { AppIcon } from "utils/types";

@@ -7,9 +7,10 @@ import {
   Flex,
   Icon,
   Spinner,
-  Text,
-  useToast
+  Text
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Button } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";

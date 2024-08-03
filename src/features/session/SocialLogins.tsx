@@ -1,4 +1,6 @@
 import { Flex, FlexProps, Button } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { OAuthProvider } from "@magic-ext/oauth";
 import React, { useState } from "react";
 import { FaFacebook, FaGoogle } from "react-icons/fa";

@@ -8,9 +8,10 @@ import {
   Spinner,
   Stack,
   Text,
-  useColorMode,
-  useToast
+  useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { OAuthProvider } from "@magic-ext/oauth";
 import bcrypt from "bcryptjs";
 import { FaPowerOff } from "react-icons/fa";

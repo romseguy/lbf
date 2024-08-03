@@ -6,6 +6,8 @@ import {
   Tag,
   useColorMode
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { EProjectStatus, ProjectStatuses } from "models/Project";
 import React from "react";
 

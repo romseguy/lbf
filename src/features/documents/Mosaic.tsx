@@ -1,4 +1,6 @@
 import { Badge, Box, BoxProps, Button, Flex, Image } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RemoteImage } from "features/api/documentsApi";

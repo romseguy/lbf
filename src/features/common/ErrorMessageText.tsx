@@ -1,4 +1,6 @@
 import { Text } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import tw, { css } from "twin.macro";
 

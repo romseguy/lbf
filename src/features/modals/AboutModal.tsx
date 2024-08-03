@@ -5,6 +5,8 @@ import {
   ModalBody,
   ModalCloseButton
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { AboutPage } from "pages/a_propos";
 import { PageProps } from "main";

@@ -17,9 +17,10 @@ import {
   PopoverContent,
   PopoverBody,
   PopoverFooter,
-  Tooltip,
-  useToast
+  Tooltip
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
 import React, { useState } from "react";

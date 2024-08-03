@@ -8,6 +8,8 @@ import {
   ModalCloseButton,
   ModalProps
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { Modal } from "features/common";
 import { UserForm, UserFormProps } from "features/forms/UserForm";

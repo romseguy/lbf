@@ -1,11 +1,6 @@
-import {
-  Box,
-  BoxProps,
-  Flex,
-  FlexProps,
-  useColorMode,
-  useToast
-} from "@chakra-ui/react";
+import { Box, BoxProps, Flex, FlexProps, useColorMode } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -148,19 +143,6 @@ export const Layout = ({
         p={isMobile ? undefined : 3}
         pageTitle={pageTitle}
       />
-
-      {/* Header */}
-      {/* {!noHeader && router.pathname !== "/" && (
-        <Header
-          entity={entity}
-          defaultTitle="Merci de patienter..."
-          pageHeader={pageHeader}
-          pageTitle={pageTitle}
-          m={isMobile ? 0 : 3}
-          mb={isMobile ? 3 : undefined}
-          mt={0}
-        />
-      )} */}
 
       {/* Main */}
       {main(node)}

@@ -1,4 +1,6 @@
 import { Box } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { SimpleLayout } from "features/layout";
 import { PageProps } from "main";

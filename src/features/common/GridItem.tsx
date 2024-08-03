@@ -4,6 +4,7 @@ import {
   GridItemProps,
   useColorModeValue
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
 
 export const GridItem = ({
   children,

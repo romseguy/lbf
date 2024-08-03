@@ -1,5 +1,7 @@
 import { SmallAddIcon } from "@chakra-ui/icons";
 import { IconButton, Text, Tooltip } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import React from "react";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { EntityInfo } from "features/common";

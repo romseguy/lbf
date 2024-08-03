@@ -1,14 +1,16 @@
 import {
   Badge,
-  BadgeProps,
   HStack,
   Icon,
   Tabs,
   Text,
   Tooltip,
   useColorMode,
-  useToast
+  TabPanel,
+  TabPanels
 } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,11 +24,9 @@ import { normalize } from "utils/string";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
-import { TabPanel, TabPanels } from "@chakra-ui/react";
 import { css } from "twin.macro";
-import { AppHeading, Column } from "features/common";
+import { Column } from "features/common";
 import theme, { scrollbarCss } from "features/layout/theme";
-import { useSession } from "hooks/useSession";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
@@ -36,7 +36,6 @@ import { FaImages } from "react-icons/fa";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { hasItems } from "utils/array";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
-import { IGallery } from "models/Gallery";
 import { ChatIcon } from "@chakra-ui/icons";
 
 export const EventPageTabs = ({

@@ -1,4 +1,6 @@
 import { FlexProps } from "@chakra-ui/react";
+import { useToast } from "hooks/useToast";
+
 import { Column } from "features/common";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
