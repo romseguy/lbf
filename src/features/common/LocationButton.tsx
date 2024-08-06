@@ -12,7 +12,7 @@ import { useToast } from "hooks/useToast";
 import React, { useEffect } from "react";
 import { geolocated } from "react-geolocated";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import { getCity, unwrapSuggestion } from "utils/maps";
 import { LatLon, Suggestion } from "use-places-autocomplete";
 import { AddressControl } from ".";

@@ -1,7 +1,7 @@
 import { api, TagTypes } from "./";
 import { objectToQueryString } from "utils/query";
 import { IDocument } from "models/Document";
-import { getRefId } from "models/Entity";
+import { getRefId, isDocument } from "models/Entity";
 
 export type AddDocumentPayload = Omit<IDocument, "_id">;
 
@@ -26,7 +26,10 @@ export type GetDocumentsParams = Record<string, string | undefined>;
 
 export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
-    addDocument: build.mutation<IDocument, AddDocumentPayload>({
+    addDocument: build.mutation<
+      { documentId: string; orgId?: string; galleryId?: string },
+      AddDocumentPayload
+    >({
       query: (payload) => {
         console.log("addDocument: payload", payload);
 
@@ -36,17 +39,18 @@ export const documentApi = api.injectEndpoints({
           body: payload
         };
       },
-      invalidatesTags: (result, error, params) => {
-        let tags = [];
-        const galleryId = result?.gallery._id || params.gallery._id;
+      invalidatesTags: (result, error, doc) => {
+        if (error || !result) return [];
 
-        if (galleryId) {
-          tags.push({
-            type: TagTypes.GALLERIES,
-            id: galleryId
-          });
+        let tags = [{ type: TagTypes.DOCUMENTS, id: "LIST" }];
+
+        if (result.orgId) {
+          tags.push({ type: TagTypes.ORGS, id: result.orgId });
+        } else if (result.galleryId) {
+          tags.push({ type: TagTypes.GALLERIES, id: result.galleryId });
         }
 
+        console.log("🚀 addDocument ~ tags:", tags);
         return tags;
       }
     }),
@@ -63,15 +67,34 @@ export const documentApi = api.injectEndpoints({
         }
       }
     ),
-    deleteDocument: build.mutation<IDocument, string>({
+    deleteDocument: build.mutation<
+      IDocument | { orgId?: string; galleryId?: string },
+      string
+    >({
       query: (documentId) => ({
         url: `document/${documentId}`,
         method: "DELETE"
       }),
       invalidatesTags: (result, error, documentId) => {
+        if (error || !result) return [];
+
         let tags = [{ type: TagTypes.DOCUMENTS, id: "LIST" }];
-        const galleryId = getRefId(result);
-        if (galleryId) tags.push({ type: TagTypes.GALLERIES, id: galleryId });
+
+        if (isDocument(result)) {
+          console.log("🚀 ~ result is a doc:", result);
+          tags.push({
+            type: TagTypes.GALLERIES,
+            id: getRefId(result.gallery, "_id")
+          });
+        } else if (result.orgId) {
+          console.log("🚀 ~ result is a orgId:", result);
+          tags.push({ type: TagTypes.ORGS, id: result.orgId });
+        } else if (result.galleryId) {
+          console.log("🚀 ~ result is a galleryId:", result);
+          tags.push({ type: TagTypes.GALLERIES, id: result.galleryId });
+        }
+
+        console.log("🚀 deleteDocument ~ tags:", tags);
         return tags;
       }
     })

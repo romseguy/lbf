@@ -53,10 +53,10 @@ import {
 } from "features/api/projectsApi";
 import { ProjectsListFilters } from "./ProjectsListFilters";
 import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
-import {
-  EntityNotifModal,
-  NotifModalState
-} from "features/modals/EntityNotifModal";
+// import {
+//   EntityNotifModal,
+//   NotifModalState
+// } from "features/modals/EntityNotifModal";
 import { getRefId } from "models/Entity";
 
 export const ProjectsList = ({
@@ -90,9 +90,9 @@ export const ProjectsList = ({
   //#region local state
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<IProject>
-  >({});
+  // const [notifyModalState, setNotifyModalState] = useState<
+  //   NotifModalState<IProject>
+  // >({});
   const [projectModalState, setProjectModalState] = useState<{
     isOpen: boolean;
     project?: IProject;
@@ -178,12 +178,12 @@ export const ProjectsList = ({
     });
   };
 
-  const onNotifClick = (project: IProject) => {
-    setNotifyModalState({
-      ...notifyModalState,
-      entity: project
-    });
-  };
+  // const onNotifClick = (project: IProject) => {
+  //   setNotifyModalState({
+  //     ...notifyModalState,
+  //     entity: project
+  //   });
+  // };
 
   return (
     <>
@@ -364,7 +364,7 @@ export const ProjectsList = ({
 
                         {/* <ProjectsListItemShare aria-label="Partager" project={project} /> */}
 
-                        {isCreator && (
+                        {/* {isCreator && (
                           <>
                             <Box as="span" aria-hidden mx={1}>
                               ·
@@ -384,7 +384,7 @@ export const ProjectsList = ({
                               invitées
                             </Link>
                           </>
-                        )}
+                        )} */}
                       </Flex>
                     </Flex>
 
@@ -393,7 +393,7 @@ export const ProjectsList = ({
 
                       {!isLoading[project._id] && (
                         <>
-                          {org && isCreator && (
+                          {/* {org && isCreator && (
                             <Tooltip
                               placement="bottom"
                               label="Envoyer des invitations"
@@ -410,7 +410,7 @@ export const ProjectsList = ({
                                 }}
                               />
                             </Tooltip>
-                          )}
+                          )} */}
 
                           {isProjectCreator && (
                             <>
@@ -605,7 +605,7 @@ export const ProjectsList = ({
         />
       )}
 
-      {session && org && (
+      {/* {session && org && (
         <EntityNotifModal
           query={query as AppQueryWithData<IOrg>}
           mutation={addProjectNotifMutation}
@@ -613,7 +613,7 @@ export const ProjectsList = ({
           modalState={notifyModalState}
           session={session}
         />
-      )}
+      )} */}
     </>
   );
 };

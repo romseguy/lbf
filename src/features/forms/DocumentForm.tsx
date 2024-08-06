@@ -105,11 +105,11 @@ export const DocumentForm = ({
           documentBytes: file.size,
           gallery
         };
-        const doc = await addDocument(payload).unwrap();
+        const { documentId } = await addDocument(payload).unwrap();
 
         //API2
         const data = new FormData();
-        data.append("fileId", doc._id);
+        data.append("fileId", documentId);
         data.append("file", file, file.name);
         await axios.post(process.env.NEXT_PUBLIC_API2, data, {
           onUploadProgress: (ProgressEvent) => {

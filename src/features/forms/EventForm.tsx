@@ -51,7 +51,7 @@ import {
   useEditEventMutation
 } from "features/api/eventsApi";
 import { formBoxProps } from "features/layout/theme";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import { useGetOrgQuery, useGetOrgsQuery } from "features/api/orgsApi";
 import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";

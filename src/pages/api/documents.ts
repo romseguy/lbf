@@ -10,6 +10,7 @@ import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { IGallery } from "models/Gallery";
 import mongoose, { Document } from "mongoose";
+import { getRefId } from "models/Entity";
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -45,37 +46,47 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
     } = req;
 
     try {
-      let gallery: (IGallery & Document<any, any, IGallery>) | null | undefined;
-
-      if (body.gallery?._id) {
-        gallery = await models.Gallery.findOne({ _id: body.gallery._id });
-
-        if (!gallery) {
-          gallery = await models.Gallery.create({
-            ...body.gallery
-          });
-        }
-      }
-
-      // if (!gallery) {
-      //   return res
-      //     .status(401)
-      //     .json(createEndpointError(new Error("Galerie introuvable")));
-      // }
-
       const document = await models.Document.create({
         ...body,
         createdBy: session.user.userId
       });
 
       if (body.gallery?._id) {
-        await models.Gallery.updateOne(
-          { _id: body.gallery._id },
-          { $push: { galleryDocuments: document._id } }
-        );
+        //let gallery: (IGallery & Document<any, any, IGallery>) | null | undefined;
+        const gallery = await models.Gallery.findOne({ _id: body.gallery._id });
+
+        // if (!gallery) {
+        //   gallery = await models.Gallery.create({
+        //     ...body.gallery
+        //   });
+        // }
+
+        // if (!gallery) {
+        //   return res
+        //     .status(401)
+        //     .json(createEndpointError(new Error("Galerie introuvable")));
+        // }
+
+        if (gallery) {
+          await models.Gallery.updateOne(
+            { _id: gallery._id },
+            { $push: { galleryDocuments: document._id } }
+          );
+
+          if (gallery.org) {
+            return res.status(200).json({
+              documentId: document._id,
+              orgId: getRefId(gallery.org, "_id")
+            });
+          }
+
+          return res
+            .status(200)
+            .json({ documentId: document._id, galleryId: gallery._id });
+        }
       }
 
-      res.status(200).json(document);
+      res.status(200).json({ documentId: document._id });
     } catch (error: any) {
       logEvent({
         type: ServerEventTypes.API_ERROR,

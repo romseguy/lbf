@@ -4,7 +4,7 @@ import { useToast } from "hooks/useToast";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import { LatLon } from "use-places-autocomplete";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import { Map } from "features/map/Map";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";

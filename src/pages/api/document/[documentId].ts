@@ -42,6 +42,7 @@ handler.delete<
 
   try {
     const _id = req.query.documentId;
+
     let doc = await models.Document.findOne({ _id });
     if (!doc) {
       return res
@@ -52,7 +53,7 @@ handler.delete<
     }
 
     const isDocumentCreator = equals(getRefId(doc), session.user.userId);
-    if (!isDocumentCreator && !session.user.isAdmin)
+    if (!isDocumentCreator && !session.user.isAdmin) {
       return res
         .status(403)
         .json(
@@ -62,6 +63,7 @@ handler.delete<
             )
           )
         );
+    }
 
     const { deletedCount } = await models.Document.deleteOne({
       _id
@@ -77,21 +79,24 @@ handler.delete<
         );
     }
 
+    //#region references
     await client.delete(`/?fileId=${_id}`);
 
-    //#region references
-    if (doc.gallery) {
-      const galleryId = getRefId(doc.gallery);
+    const galleryId = getRefId(doc.gallery, "_id");
+    const gallery = await models.Gallery.findOne({ _id: galleryId });
 
-      if (galleryId) {
-        console.log(prefix + "deleting document from gallery", galleryId);
-        await models.Gallery.updateOne(
-          { _id: galleryId },
-          {
-            $pull: { galleryDocuments: _id }
-          }
-        );
-      }
+    if (gallery) {
+      await models.Gallery.updateOne(
+        { _id: galleryId },
+        {
+          $pull: { galleryDocuments: _id }
+        }
+      );
+
+      if (gallery.org)
+        return res.status(200).json({ orgId: getRefId(gallery.org, "_id") });
+
+      return res.status(200).json({ galleryId: galleryId });
     }
     //#endregion
 

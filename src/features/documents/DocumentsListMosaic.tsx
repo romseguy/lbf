@@ -17,27 +17,24 @@ import {
   useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useDeleteDocumentMutation } from "features/api/documentsApi";
-import { useGetGalleryQuery } from "features/api/galleriesApi";
-import { useAddTopicMutation } from "features/api/topicsApi";
 import { IGallery } from "models/Gallery";
-import { selectIsMobile, selectScreenHeight } from "store/uiSlice";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
-import { AppQueryWithData } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
 import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
-import { IEntity, isEvent } from "models/Entity";
+import { IEntity } from "models/Entity";
 import theme from "features/layout/theme";
 
 export const DocumentsListMosaic = ({
   entity,
+  gallery,
+  //galleryQuery,
   isCreator,
   isGalleryCreator,
   isLoading,
@@ -48,9 +45,9 @@ export const DocumentsListMosaic = ({
 }: {
   entity: IEntity;
   gallery: IGallery;
+  //galleryQuery: AppQuery<IGallery>;
   isCreator?: boolean;
   isGalleryCreator?: boolean;
-  images?: MosaicImage[];
   imagesSize?: number;
   isLoading: boolean;
   position?: "top" | "bottom";
@@ -60,29 +57,15 @@ export const DocumentsListMosaic = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
-  const router = useRouter();
-  const toast = useToast({ position: "top" });
-  const [addTopic] = useAddTopicMutation();
-  const [deleteDocument] = useDeleteDocumentMutation();
-  const screenHeight = useSelector(selectScreenHeight);
-
   const [marginBetween, setMarginBetween] = useState<number>(15);
 
   //#region images
-  const galleryQuery = useGetGalleryQuery({ galleryId: props.gallery._id });
-  const gallery = galleryQuery.data || props.gallery;
-  useEffect(() => {
-    galleryQuery.refetch();
-  }, [isLoading]);
-  const galleryDocuments =
-    (galleryQuery.data || gallery || {}).galleryDocuments || [];
   const galleryByUser: Record<
     string,
     { description?: string; images: MosaicImage[]; userName: string }
   > = {};
   const images =
-    props.images ||
-    galleryDocuments.map((doc, index) => {
+    gallery?.galleryDocuments?.map((doc, index) => {
       let image: MosaicImage = {
         index,
         name: doc.documentName,
@@ -124,8 +107,7 @@ export const DocumentsListMosaic = ({
       }
 
       return image;
-    }) ||
-    [];
+    }) || [];
   const imagesSize =
     props.imagesSize || images.reduce((total, image) => image.bytes, 0);
   //#endregion
@@ -227,7 +209,8 @@ export const DocumentsListMosaic = ({
             return (
               <UserGallery
                 key={userId}
-                query={galleryQuery as AppQueryWithData<IGallery>}
+                gallery={gallery}
+                //query={galleryQuery}
                 userId={userId}
                 userName={userName}
                 description={description}

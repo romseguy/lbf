@@ -26,10 +26,10 @@ import {
 } from "features/api/eventsApi";
 import { AppHeading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import {
-  NotifModalState,
-  EntityNotifModal
-} from "features/modals/EntityNotifModal";
+// import {
+//   NotifModalState,
+//   EntityNotifModal
+// } from "features/modals/EntityNotifModal";
 import { EntityModal } from "features/modals/EntityModal";
 import { EventForwardFormModal } from "features/modals/EventForwardFormModal";
 import { MapModal } from "features/modals/MapModal";
@@ -67,8 +67,8 @@ const EventsListTable = ({
   setEventToShow,
   eventToShowOnMap,
   setEventToShowOnMap,
-  notifyModalState,
-  setNotifyModalState,
+  // notifyModalState,
+  // setNotifyModalState,
   ...props
 }: EventsListProps & {
   city: string | null;
@@ -90,10 +90,10 @@ const EventsListTable = ({
   setEventToShowOnMap: React.Dispatch<
     React.SetStateAction<IEvent<string | Date> | null>
   >;
-  notifyModalState: NotifModalState<IEvent<string | Date>>;
-  setNotifyModalState: React.Dispatch<
-    React.SetStateAction<NotifModalState<IEvent<string | Date>>>
-  >;
+  // notifyModalState: NotifModalState<IEvent<string | Date>>;
+  // setNotifyModalState: React.Dispatch<
+  //   React.SetStateAction<NotifModalState<IEvent<string | Date>>>
+  // >;
 }) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -178,9 +178,9 @@ const EventsListTable = ({
     eventToShow,
     setEventToShow,
     eventToShowOnMap,
-    setEventToShowOnMap,
-    notifyModalState,
-    setNotifyModalState
+    setEventToShowOnMap
+    // notifyModalState,
+    // setNotifyModalState
   };
 
   return (
@@ -562,16 +562,16 @@ export const EventsList = ({
   const [eventToForward, setEventToForward] = useState<IEvent<Date> | null>(
     null
   );
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<IEvent<string | Date>>
-  >({});
-  useEffect(() => {
-    if (notifyModalState.entity) {
-      setNotifyModalState({
-        entity: events.find(({ _id }) => _id === notifyModalState.entity!._id)
-      });
-    }
-  }, [events]);
+  // const [notifyModalState, setNotifyModalState] = useState<
+  //   NotifModalState<IEvent<string | Date>>
+  // >({});
+  // useEffect(() => {
+  //   if (notifyModalState.entity) {
+  //     setNotifyModalState({
+  //       entity: events.find(({ _id }) => _id === notifyModalState.entity!._id)
+  //     });
+  //   }
+  // }, [events]);
   //#endregion
 
   return (
@@ -632,8 +632,8 @@ export const EventsList = ({
         setEventToShow={setEventToShow}
         eventToShowOnMap={eventToShowOnMap}
         setEventToShowOnMap={setEventToShowOnMap}
-        notifyModalState={notifyModalState}
-        setNotifyModalState={setNotifyModalState}
+        // notifyModalState={notifyModalState}
+        // setNotifyModalState={setNotifyModalState}
         {...props}
       />
 

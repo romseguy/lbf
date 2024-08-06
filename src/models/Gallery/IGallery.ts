@@ -7,7 +7,7 @@ export interface IGallery extends IEntity {
   galleryDesciption?: string;
   galleryDescriptions: Record<string, string>;
   galleryName: string;
-  galleryDocuments?: IDocument[];
+  galleryDocuments: IDocument[];
   isPinned?: boolean;
   org?: IOrg;
 }

@@ -6,24 +6,25 @@ import {
   BoxProps,
   useColorMode
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { IGallery } from "models/Gallery";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
-import { AppQueryWithData } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { hasItems } from "utils/array";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { sanitize } from "utils/string";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
 import { removeProps } from "utils/object";
 import { useScroll } from "hooks/useScroll";
+import { event } from "d3";
+import { useGetGalleryQuery } from "features/api/galleriesApi";
 
 export const GalleriesListItem = ({
-  query,
   gallery,
+  query,
   galleryIndex,
   isCreator,
   isGalleryCreator,
@@ -35,8 +36,8 @@ export const GalleriesListItem = ({
   onEditClick,
   ...props
 }: BoxProps & {
+  gallery: IGallery;
   query: AppQueryWithData<IEntity>;
-  gallery?: IGallery;
   galleryIndex: number;
   isCreator: boolean;
   isGalleryCreator: boolean;
@@ -55,7 +56,11 @@ export const GalleriesListItem = ({
   const entity = query.data;
   const isO = isOrg(entity);
   const isE = isEvent(entity);
-
+  // const galleryId = entity._id;
+  // const galleryQuery = useGetGalleryQuery({
+  //   galleryId
+  // }) as AppQuery<IGallery>;
+  // const gallery = props.gallery || galleryQuery.data;
   const [isAdd, setIsAdd] = useState(false);
 
   const onAddDocumentClick = () => {

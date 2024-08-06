@@ -14,7 +14,7 @@ import { useToast } from "hooks/useToast";
 
 import React, { useRef, useState } from "react";
 import { LatLon } from "use-places-autocomplete";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import { Map, MapProps, defaultZoomLevel } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
 import { IEvent } from "models/Event";

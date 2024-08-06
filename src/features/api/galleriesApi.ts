@@ -86,15 +86,17 @@ export const galleryApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        let tags = [{ type: TagTypes.GALLERIES, id: params.galleryId }];
+        if (error || !result) return [];
 
-        if (result && result.org) {
-          //tags.push({ type: TagTypes.GALLERIES, id: "LIST" });
+        let tags = [{ type: TagTypes.GALLERIES, id: result._id }];
+
+        if (result.org) {
           tags.push({
             type: TagTypes.ORGS,
             id: result.org as unknown as string
           });
         }
+
         return tags;
       }
     }),
@@ -111,7 +113,10 @@ export const galleryApi = api.injectEndpoints({
               : ""
           }`
         };
-      }
+      },
+      providesTags: (result, error, params) => [
+        { type: TagTypes.GALLERIES, id: result?._id }
+      ]
     })
   }),
   overrideExisting: true

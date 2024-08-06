@@ -1,3 +1,4 @@
+import { IDocument } from "models/Document";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
@@ -20,23 +21,25 @@ export const getRefId = (
   entity?: string | Record<string, any> | null,
   key?: string
 ) => {
-  if (entity) {
-    if (typeof entity === "string") return entity;
+  if (!entity) return "";
 
-    if (typeof entity === "object") {
-      //if (typeof entity.toString === "function") return entity.toString();
+  if (typeof entity === "string") return entity;
 
-      const value = entity[key || "createdBy"];
+  if (typeof entity === "object") {
+    const value = entity[key || "createdBy"];
 
-      if (value) {
-        if (typeof value === "string") return value;
+    if (value) {
+      if (typeof value === "string") return value;
 
-        if (typeof value === "object") return value._id;
-      }
+      if (typeof value === "object") return value._id;
     }
   }
 
   return "";
+};
+
+export const isDocument = (entity?: any): entity is IDocument => {
+  return !!entity && (entity as IDocument).documentName !== undefined;
 };
 
 export const isEvent = (entity?: any): entity is IEvent => {

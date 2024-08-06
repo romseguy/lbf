@@ -11,7 +11,7 @@ import { useToast } from "hooks/useToast";
 import { useState } from "react";
 import { AppHeading, EditIconButton } from "features/common";
 import { Mosaic, MosaicImage } from "./Mosaic";
-import { AppQueryWithData } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { IGallery } from "models/Gallery";
 import { DescriptionFormModal } from "features/modals/DescriptionFormModal";
 import {
@@ -21,7 +21,8 @@ import {
 import { sanitize } from "utils/string";
 
 export const UserGallery = ({
-  query,
+  gallery,
+  //query,
   userId,
   userName,
   description,
@@ -30,7 +31,8 @@ export const UserGallery = ({
   onImageClick,
   ...props
 }: BoxProps & {
-  query: AppQueryWithData<IGallery>;
+  gallery: IGallery;
+  //query: AppQuery<IGallery>;
   description?: string;
   images: MosaicImage[];
   userId: string;
@@ -38,7 +40,6 @@ export const UserGallery = ({
   marginBetween: number;
   onImageClick: (image: MosaicImage) => void;
 }) => {
-  const gallery = query.data;
   const [editGallery] = useEditGalleryMutation();
   const [modalState, setModalState] = useState<UseDisclosureProps>({
     isOpen: false
@@ -108,7 +109,7 @@ export const UserGallery = ({
               payload
             }).unwrap();
             // TODO1
-            query.refetch();
+            //query.refetch();
             onClose();
           }}
         />

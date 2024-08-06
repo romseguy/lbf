@@ -17,27 +17,20 @@ import {
   Text,
   HStack
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppHeading, DarkModeSwitch, Link, LinkShare } from "features/common";
-import {
-  EventPopover,
-  NotificationPopover,
-  OrgPopover,
-  TopicPopover
-} from "features/layout";
+import { NotificationPopover } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity, isEvent, isOrg } from "models/Entity";
-import { EOrgType, orgTypeFull, OrgTypes } from "models/Org";
+import { orgTypeFull, OrgTypes } from "models/Org";
 import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { ArrowLeftIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { FaArrowLeft, FaHome } from "react-icons/fa";
 
 export const Nav = ({
@@ -254,6 +247,7 @@ export const Nav = ({
                     </MenuButton>
 
                     <NavMenuList
+                      entity={entity}
                       email={userEmail}
                       //session={session}
                       userName={userName}

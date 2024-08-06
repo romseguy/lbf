@@ -1,14 +1,12 @@
 import { Box, BoxProps, Flex, FlexProps, useColorMode } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
-import { GoogleAnalytics } from "@next/third-parties/google";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { ReactNode } from "react";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { css } from "twin.macro";
 import { AppHeading, ContactLink, DiskUsage, Link } from "features/common";
-import { Header, Nav } from "features/layout";
+import { Nav } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
 import { EEntityTab, IEntity, isEvent, isOrg, isUser } from "models/Entity";
@@ -16,9 +14,7 @@ import { OrgTypes } from "models/Org";
 import { Base64Image } from "utils/image";
 import { capitalize, normalize } from "utils/string";
 import { IUser } from "models/User";
-import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
-import { getEnv } from "utils/env";
 
 export interface LayoutProps extends PageProps, BoxProps {
   banner?: Base64Image & { mode: "dark" | "light" };
@@ -197,8 +193,6 @@ export const Layout = ({
         />
         <title>{title}</title>
       </Head>
-
-      {getEnv() === "production" && <GoogleAnalytics gaId="G-ZHN2GV5YB9" />}
 
       <ErrorBoundary fallbackRender={Fallback}>{page(children)}</ErrorBoundary>
     </>

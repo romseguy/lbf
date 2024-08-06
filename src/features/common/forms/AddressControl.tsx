@@ -19,7 +19,7 @@ import React from "react";
 import { Control, Controller, useFieldArray } from "react-hook-form";
 import { Suggestion } from "use-places-autocomplete";
 import { AutoCompletePlacesControl, Link } from "features/common";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 
 import { zIndex } from "utils/string";
 const { getEnv } = require("utils/env");

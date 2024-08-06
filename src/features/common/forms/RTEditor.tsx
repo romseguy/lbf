@@ -241,12 +241,12 @@ export const RTEditor = ({
         documentTime: new Date().getTime(),
         documentBytes: file.size
       };
-      const doc = await addDocument(payload).unwrap();
+      const { documentId } = await addDocument(payload).unwrap();
 
-      if (doc._id) {
+      if (documentId) {
         const formData = new FormData();
         formData.append("file", file, blobInfo.filename());
-        formData.append("fileId", doc._id);
+        formData.append("fileId", documentId);
         const xhr = new XMLHttpRequest();
         xhr.overrideMimeType("application/json");
         //xhr.responseType = "json";

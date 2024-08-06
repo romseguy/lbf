@@ -35,7 +35,7 @@ import {
   PasswordControl,
   PasswordConfirmControl
 } from "features/common";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import {
   AddOrgPayload,
   useAddOrgMutation,

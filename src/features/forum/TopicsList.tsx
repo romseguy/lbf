@@ -17,12 +17,12 @@ import { useToast } from "hooks/useToast";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { useAddTopicNotifMutation } from "features/api/topicsApi";
 import { Button, AppHeading, CategoryTag } from "features/common";
-import {
-  NotifModalState,
-  EntityNotifModal
-} from "features/modals/EntityNotifModal";
+// import { useAddTopicNotifMutation } from "features/api/topicsApi";
+// import {
+//   NotifModalState,
+//   EntityNotifModal
+// } from "features/modals/EntityNotifModal";
 import { TopicFormModal } from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
 import {

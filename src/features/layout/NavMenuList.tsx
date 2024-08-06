@@ -15,13 +15,17 @@ import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
+import { IEntity } from "models/Entity";
+import { IUser } from "models/User";
 const { getEnv } = require("utils/env");
 
 export const NavMenuList = ({
+  entity,
   email,
   userName,
   ...props
 }: MenuListProps & {
+  entity?: IEntity | IUser;
   email: string;
   userName: string;
 }) => {
@@ -51,7 +55,7 @@ export const NavMenuList = ({
         <>
           <MenuItem
             aria-hidden
-            command={`${session.user.userId}`}
+            command={`${entity ? entity._id : session.user.userId}`}
             cursor="default"
             _hover={{ bg: isDark ? "gray.700" : "white" }}
           />

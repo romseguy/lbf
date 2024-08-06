@@ -22,7 +22,7 @@ import { fr } from "date-fns/locale";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
-import { NotifModalState } from "features/modals/EntityNotifModal";
+// import { NotifModalState } from "features/modals/EntityNotifModal";
 import { getCategories, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
@@ -49,8 +49,8 @@ export const EventsListItem = ({
   setEventToShowOnMap,
   isLoading,
   setIsLoading,
-  notifyModalState,
-  setNotifyModalState,
+  // notifyModalState,
+  // setNotifyModalState,
   selectedCategories,
   setSelectedCategories,
   city,
@@ -75,10 +75,10 @@ export const EventsListItem = ({
   setEventToShowOnMap: (event: IEvent<string | Date> | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  notifyModalState: NotifModalState<IEvent<string | Date>>;
-  setNotifyModalState: (
-    modalState: NotifModalState<IEvent<string | Date>>
-  ) => void;
+  // notifyModalState: NotifModalState<IEvent<string | Date>>;
+  // setNotifyModalState: (
+  //   modalState: NotifModalState<IEvent<string | Date>>
+  // ) => void;
   selectedCategories: string[];
   setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
   session: Session | null;

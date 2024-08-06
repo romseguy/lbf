@@ -7,7 +7,8 @@ import {
   Tooltip,
   useColorMode,
   TabPanel,
-  TabPanels
+  TabPanels,
+  Spinner
 } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
@@ -37,6 +38,7 @@ import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { hasItems } from "utils/array";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { ChatIcon } from "@chakra-ui/icons";
+import { IGallery } from "models/Gallery";
 
 export const EventPageTabs = ({
   currentItemName,
@@ -82,11 +84,11 @@ export const EventPageTabs = ({
   //#endregion
 
   //#region gallery
-  const galleryQuery = useGetGalleryQuery({ galleryId: event._id });
-  const [gallery, setGallery] = useState(galleryQuery.data);
-  useEffect(() => {
-    if (galleryQuery.isSuccess) setGallery(galleryQuery.data);
-  }, [galleryQuery.isSuccess, galleryQuery.data]);
+  const galleryQuery = useGetGalleryQuery({
+    galleryId: event._id
+  }) as AppQuery<IGallery>;
+  const gallery = galleryQuery.data;
+  console.log("🚀 ~event  gallery:", gallery);
   //#endregion
 
   //#region gallery modal
@@ -263,27 +265,31 @@ export const EventPageTabs = ({
             bg={isDark ? "gray.700" : "lightblue"}
             {...(isMobile ? { p: 0 } : {})}
           >
-            <GalleriesListItem
-              query={eventQuery}
-              gallery={gallery}
-              galleryIndex={0}
-              isCreator={isCreator}
-              isCurrent
-              isGalleryCreator={true}
-              noHeader
-              {...(isMobile ? { px: 3 } : {})}
-              {...(!isBefore(parseISO(event.eventMinDate), new Date())
-                ? {
-                    //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
-                    onAddDocumentClick: () => {
-                      toast({
-                        title:
-                          "Vous pourrez ajouter des photos seulement après avoir participé à l'atelier"
-                      });
+            {gallery ? (
+              <GalleriesListItem
+                gallery={gallery}
+                query={eventQuery}
+                galleryIndex={0}
+                isCreator={isCreator}
+                isCurrent
+                isGalleryCreator={true}
+                noHeader
+                {...(isMobile ? { px: 3 } : {})}
+                {...(!isBefore(parseISO(event.eventMinDate), new Date())
+                  ? {
+                      //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
+                      onAddDocumentClick: () => {
+                        toast({
+                          title:
+                            "Vous pourrez ajouter des photos seulement après avoir participé à l'atelier"
+                        });
+                      }
                     }
-                  }
-                : {})}
-            />
+                  : {})}
+              />
+            ) : (
+              <Spinner />
+            )}
 
             <GalleryFormModal
               query={eventQuery}
@@ -294,7 +300,6 @@ export const EventPageTabs = ({
               }}
               onClose={onClose}
               onSubmit={(gallery) => {
-                setGallery(gallery);
                 onClose();
               }}
             />

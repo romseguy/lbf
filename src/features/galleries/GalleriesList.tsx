@@ -18,7 +18,7 @@ import React, { useState } from "react";
 import { Button, AppHeading, CategoryTag } from "features/common";
 import { useSession } from "hooks/useSession";
 import { getCategoryLabel, getRefId, IEntity, isOrg } from "models/Entity";
-import { AppQueryWithData } from "utils/types";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { IGallery } from "models/Gallery";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { useSelector } from "react-redux";
@@ -99,8 +99,6 @@ export const GalleriesList = ({
   const currentGallery = galleries.find(({ galleryName }) => {
     return galleryName === currentGalleryName;
   });
-  console.log("🚀 ~ currentGallery ~ currentGallery:", currentGallery);
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const galleryCategories = entity.orgGalleryCategories || [];
 
@@ -256,6 +254,7 @@ export const GalleriesList = ({
           </Alert>
         ) : (
           galleries.map((gallery, galleryIndex) => {
+            const galleryId = gallery._id || gallery.galleryName;
             const isCurrent = currentGallery
               ? gallery._id === currentGallery._id
               : false;
@@ -265,9 +264,9 @@ export const GalleriesList = ({
 
             return (
               <GalleriesListItem
-                key={gallery._id || gallery.galleryName}
-                query={query}
+                key={galleryId}
                 gallery={gallery}
+                query={query}
                 galleryIndex={galleryIndex}
                 isCreator={props.isCreator}
                 isCurrent={isCurrent}

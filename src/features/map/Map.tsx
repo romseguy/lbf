@@ -8,7 +8,7 @@ import { LatLon } from "use-places-autocomplete";
 import { IEvent } from "models/Event";
 import { EOrgType, IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
-import { withGoogleApi } from "./GoogleApiWrapper";
+import { withGoogleApi } from "hocs/withGoogleApi";
 import { Marker } from "./Marker";
 import { getMarkerUrl, SizeMap } from "utils/maps";
 import { EntityModal } from "features/modals/EntityModal";
