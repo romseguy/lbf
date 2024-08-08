@@ -25,6 +25,7 @@ export const ListsControl = ({
   control,
   errors,
   setError,
+  isMultiple = true,
   isRequired = false,
   label = "Visibilité",
   lists,
@@ -35,6 +36,7 @@ export const ListsControl = ({
   control: Control<FieldValues>;
   errors: DeepMap<FieldValues, FieldError>;
   setError?: UseFormMethods["setError"];
+  isMultiple?: boolean;
   isRequired?: boolean;
   label?: string;
   lists?: IOrgList[];
@@ -48,6 +50,69 @@ export const ListsControl = ({
       setError(name, { message: "" });
     }
   }, [value]);
+
+  if (!isMultiple) {
+    return (
+      <FormControl
+        isInvalid={!!errors[name]}
+        isRequired={isRequired}
+        {...props}
+      >
+        <FormLabel>{label}</FormLabel>
+
+        <Controller
+          name={name}
+          control={control}
+          defaultValue={[]}
+          render={(renderProps) => {
+            return (
+              <MultiSelect
+                isMulti={false}
+                value={renderProps.value}
+                onChange={(...args) => {
+                  renderProps.onChange(...args);
+                  onChange && onChange();
+                }}
+                options={
+                  lists
+                    ? lists.map((list) => ({
+                        label: list.listName,
+                        value: list.listName
+                      }))
+                    : []
+                }
+                allOptionLabel="Toutes les listes"
+                placeholder="Sélectionner une liste"
+                noOptionsMessage={() => "Aucun résultat"}
+                isClearable
+                isSearchable={false}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (defaultStyles: any) => {
+                    return {
+                      ...defaultStyles,
+                      borderColor: "#e2e8f0",
+                      paddingLeft: "8px"
+                    };
+                  },
+                  placeholder: () => {
+                    return {
+                      color: "#A0AEC0"
+                    };
+                  }
+                }}
+              />
+            );
+          }}
+        />
+
+        <FormErrorMessage>
+          <ErrorMessage errors={errors} name={name} />
+        </FormErrorMessage>
+      </FormControl>
+    );
+  }
 
   return (
     <FormControl isInvalid={!!errors[name]} isRequired={isRequired} {...props}>

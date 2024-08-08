@@ -104,72 +104,73 @@ export const SubscriptionForm = ({
       }
 
       for (const email of emailArray) {
-        if (hasItems(orgLists))
-          for (const { value: listName } of orgLists) {
-            let type;
-            // TODO1 replace with sub.list
-            if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
-            if (type)
-              await addSubscription({
-                email,
-                orgs: [
-                  {
-                    org,
-                    orgId: org._id,
-                    type,
-                    tagTypes: [
-                      { type: "Events", emailNotif: true, pushNotif: true },
-                      { type: "Projects", emailNotif: true, pushNotif: true },
-                      { type: "Topics", emailNotif: true, pushNotif: true }
-                    ]
-                  }
-                ]
-              });
-            else {
-              const subscription = await addSubscription({
-                email,
-                orgs: [
-                  {
-                    org,
-                    orgId: org._id
-                  }
-                ]
-              }).unwrap();
-              const payload: EditOrgPayload = {
-                orgLists: org.orgLists.map((orgList) => {
-                  if (orgList.listName === listName) {
-                    if (!orgList.subscriptions.length)
-                      return {
-                        ...orgList,
-                        subscriptions: [subscription]
-                      };
+        // if (hasItems(orgLists)) {
+        //   for (const { value: listName } of orgLists) {
+        //     let type;
+        //     // TODO1 replace with sub.list
+        //     if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
+        //     if (type) {
+        //       await addSubscription({
+        //         email,
+        //         orgs: [
+        //           {
+        //             org,
+        //             orgId: org._id,
+        //             type,
+        //             tagTypes: [
+        //               { type: "Events", emailNotif: true, pushNotif: true },
+        //               { type: "Projects", emailNotif: true, pushNotif: true },
+        //               { type: "Topics", emailNotif: true, pushNotif: true }
+        //             ]
+        //           }
+        //         ]
+        //       });
+        //     } else {
+        //       const subscription = await addSubscription({
+        //         email,
+        //         orgs: [
+        //           {
+        //             org,
+        //             orgId: org._id
+        //           }
+        //         ]
+        //       }).unwrap();
+        //     }
+        //   }
 
-                    return {
-                      ...orgList,
-                      subscriptions: !orgList.subscriptions.find(
-                        ({ _id }) => _id === subscription._id
-                      )
-                        ? [...orgList.subscriptions, subscription]
-                        : orgList.subscriptions
-                    };
-                  }
+        //   const payload: EditOrgPayload = {
+        //     orgLists: org.orgLists.map((orgList) => {
+        //       if (orgList.listName === listName) {
+        //         if (!orgList.subscriptions.length)
+        //           return {
+        //             ...orgList,
+        //             subscriptions: [subscription]
+        //           };
 
-                  return orgList;
-                })
-              };
-              await editOrg({ orgId: org._id, payload });
+        //         return {
+        //           ...orgList,
+        //           subscriptions: !orgList.subscriptions.find(
+        //             ({ _id }) => _id === subscription._id
+        //           )
+        //             ? [...orgList.subscriptions, subscription]
+        //             : orgList.subscriptions
+        //         };
+        //       }
+
+        //       return orgList;
+        //     })
+        //   };
+        //   await editOrg({ orgId: org._id, payload });
+        // } else
+        await addSubscription({
+          email,
+          orgs: [
+            {
+              org,
+              orgId: org._id
             }
-          }
-        else
-          await addSubscription({
-            email,
-            orgs: [
-              {
-                org,
-                orgId: org._id
-              }
-            ]
-          });
+          ]
+        });
       }
 
       // for (const phone of phoneArray) {
@@ -215,6 +216,7 @@ export const SubscriptionForm = ({
           errors={errors}
           setError={setError}
           setValue={setValue}
+          //isRequired
           label="Adresses e-mail séparées par un espace : "
           leftElement={
             <InputLeftElement cursor="pointer" children={<AtSignIcon />} />
@@ -231,8 +233,9 @@ export const SubscriptionForm = ({
           control={control}
           errors={errors}
           setError={setError}
+          isMultiple={false}
           isRequired
-          label="Liste(s) :"
+          label="Liste :"
           lists={lists}
           mb={3}
           onChange={onChange}

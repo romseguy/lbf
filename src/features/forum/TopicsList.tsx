@@ -259,7 +259,7 @@ export const TopicsList = ({
           ? {}
           : { display: "flex", justifyContent: "space-between" })}
       >
-        {(props.isCreator || topicCategories.length > 0) && (
+        {((isO && props.isCreator) || topicCategories.length > 0) && (
           <Flex flexDirection="column" mb={3}>
             <AppHeading smaller>Catégories</AppHeading>
 
@@ -272,7 +272,7 @@ export const TopicsList = ({
           </Flex>
         )}
 
-        {isO &&
+        {/* {isO &&
           entity.orgUrl !== "forum" &&
           session &&
           hasItems(entity.orgLists) && (
@@ -287,7 +287,7 @@ export const TopicsList = ({
                 subQuery={subQuery}
               />
             </Flex>
-          )}
+          )} */}
       </Box>
 
       <Box data-cy="topic-list">

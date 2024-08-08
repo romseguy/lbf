@@ -58,11 +58,11 @@ export const Main = ({
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
-    if (
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    )
-      setColorMode("dark");
+    // if (
+    //   window.matchMedia &&
+    //   window.matchMedia("(prefers-color-scheme: dark)").matches
+    // )
+    //   setColorMode("dark");
 
     function handleScrollButtonVisibility() {
       setShowButton(window.scrollY > 200);

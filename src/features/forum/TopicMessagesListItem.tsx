@@ -14,6 +14,7 @@ import { sanitize } from "utils/string";
 import { AppQuery } from "utils/types";
 import { IEntity, isUser } from "models/Entity";
 import { selectIsMobile } from "store/uiSlice";
+import { EditTopicPayload } from "features/api/topicsApi";
 
 export const TopicMessagesListItem = ({
   index,
@@ -122,7 +123,7 @@ export const TopicMessagesListItem = ({
                 typeof _id === "string" && setIsLoading({ [_id]: true });
                 _id && setIsLoading({ [_id]: true });
 
-                const payload = {
+                const payload: EditTopicPayload = {
                   topic: {
                     ...topic,
                     topicMessages:

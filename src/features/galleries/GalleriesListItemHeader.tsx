@@ -42,7 +42,6 @@ import { AppQueryWithData } from "utils/types";
 import { hasItems } from "utils/array";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IOrg } from "models/Org";
-import { normalize } from "utils/string";
 
 export const GalleriesListItemHeader = ({
   query,
@@ -68,7 +67,7 @@ export const GalleriesListItemHeader = ({
   isLoading?: boolean;
   setIsLoading?: (isLoading: boolean) => void;
   noHeader?: boolean;
-  executeScroll: () => void;
+  executeScroll?: () => void;
   //onClick?: () => void;
   onEditClick?: () => void;
 }) => {
@@ -94,7 +93,7 @@ export const GalleriesListItemHeader = ({
       setIsLoading && setIsLoading(true);
       const deletedGallery = await deleteGallery(gallery!._id).unwrap();
       toast({
-        title: `${deletedGallery.galleryName} a été supprimé !`,
+        title: `La galerie « ${deletedGallery.galleryName} » a été supprimée !`,
         status: "success"
       });
       router.push(baseUrl, baseUrl, { shallow: true });
@@ -102,7 +101,7 @@ export const GalleriesListItemHeader = ({
       toast({
         title:
           error.data.message ||
-          `La galerie ${gallery!.galleryName} n'a pas pu être supprimée`,
+          `La galerie « ${gallery!.galleryName} » n'a pas pu être supprimée`,
         status: "error"
       });
     } finally {
@@ -111,20 +110,16 @@ export const GalleriesListItemHeader = ({
   };
 
   const onClick = async () => {
-    if (isEventGallery) {
-      const url = `/${event.eventUrl}/galerie`;
-      await router.push(url, url, { shallow: true });
-    } else {
-      let url = "/" + org.orgUrl + "/galeries";
+    let url = isEventGallery
+      ? `/${event.eventUrl}/galerie`
+      : "/" + org.orgUrl + "/galeries";
 
-      if (!isCurrent) {
-        url += "/" + normalize(gallery.galleryName);
-        await router.push(url, url, { shallow: true });
-        executeScroll();
-      } else {
-        await router.push(url, url, { shallow: true });
-      }
+    if (!isEventGallery && !isCurrent) {
+      url += "/" + gallery.galleryName;
     }
+
+    await router.push(url, url, { shallow: true });
+    //if (!isEventGallery) executeScroll();
   };
 
   return (

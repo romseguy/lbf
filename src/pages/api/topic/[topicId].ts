@@ -200,6 +200,10 @@ handler.put<
   },
   NextApiResponse
 >(async function editTopic(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /topic/[topicId] `;
+  console.log(prefix + "query", req.query);
+  console.log(prefix + "body", req.body);
+
   const session = await getSession({ req });
   if (!session) {
     return res
@@ -269,6 +273,10 @@ handler.put<
         });
         await topic.save();
       } else if (body.topic.topicMessages) {
+        // console.log(
+        //   prefix + "body.topic.topicMessages",
+        //   body.topic.topicMessages
+        // );
         topic.topicMessages = body.topic.topicMessages;
         await topic.save();
       } else {

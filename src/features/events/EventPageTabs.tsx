@@ -88,7 +88,6 @@ export const EventPageTabs = ({
     galleryId: event._id
   }) as AppQuery<IGallery>;
   const gallery = galleryQuery.data;
-  console.log("🚀 ~event  gallery:", gallery);
   //#endregion
 
   //#region gallery modal

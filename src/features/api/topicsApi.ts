@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
+import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
@@ -43,7 +44,7 @@ export const topicApi = api.injectEndpoints({
       }
     >({
       query: ({ payload }) => {
-        console.log("addTopic: payload", payload);
+        //console.log("addTopic: payload", payload);
 
         return {
           url: `topics`,
@@ -52,19 +53,26 @@ export const topicApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        if (params.payload.org?._id)
-          return [
-            {
-              type: TagTypes.ORGS,
-              id: params.payload.org?._id
-            },
-            { type: TagTypes.SUBSCRIPTIONS, id: globalEmail }
-          ];
+        if (error) return [];
 
-        return [
-          { type: TagTypes.TOPICS, id: "LIST" }
+        let tags = [
+          { type: TagTypes.TOPICS, id: "LIST" },
           //{ type: TagTypes.SUBSCRIPTIONS, id: params.payload.email || "LIST" }
+          { type: TagTypes.SUBSCRIPTIONS, id: globalEmail }
         ];
+
+        if (params.payload.org?._id)
+          tags.push({
+            type: TagTypes.ORGS,
+            id: params.payload.org?._id
+          });
+
+        if (params.payload.event?._id)
+          tags.push({
+            type: TagTypes.EVENTS,
+            id: params.payload.event?._id
+          });
+        return tags;
       }
     }),
     // addTopicNotif: build.mutation<
@@ -75,10 +83,10 @@ export const topicApi = api.injectEndpoints({
     //   }
     // >({
     //   query: ({ payload, topicId }) => {
-    //     console.groupCollapsed("addTopicNotif");
-    //     console.log("addTopicNotif: topicId", topicId);
-    //     console.log("addTopicNotif: payload", payload);
-    //     console.groupEnd();
+    //     //console.groupCollapsed("addTopicNotif");
+    //     //console.log("addTopicNotif: topicId", topicId);
+    //     //console.log("addTopicNotif: payload", payload);
+    //     //console.groupEnd();
 
     //     return {
     //       url: `topic/${topicId}`,
@@ -119,10 +127,10 @@ export const topicApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, topicId }) => {
-        console.groupCollapsed("editTopic");
-        console.log("editTopic: topicId", topicId);
-        console.log("editTopic: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("editTopic");
+        //console.log("editTopic: topicId", topicId);
+        //console.log("editTopic: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,
@@ -131,15 +139,23 @@ export const topicApi = api.injectEndpoints({
         };
       },
       invalidatesTags: (result, error, params) => {
-        if (params.payload.topic.org?._id)
-          return [
-            {
-              type: TagTypes.ORGS,
-              id: params.payload.topic.org?._id
-            }
-          ];
+        if (error) return [];
 
-        return [{ type: TagTypes.TOPICS, id: "LIST" }];
+        let tags = [{ type: TagTypes.TOPICS, id: "LIST" }];
+
+        if (params.payload.topic.org)
+          tags.push({
+            type: TagTypes.ORGS,
+            id: getRefId(params.payload.topic.org)
+          });
+
+        if (params.payload.topic.event)
+          tags.push({
+            type: TagTypes.EVENTS,
+            id: getRefId(params.payload.topic.event)
+          });
+
+        return tags;
       }
     }),
     getTopics: build.query<
@@ -147,11 +163,11 @@ export const topicApi = api.injectEndpoints({
       { createdBy?: string; populate?: string } | void
     >({
       query: (query) => {
-        console.groupCollapsed("getTopics");
+        //console.groupCollapsed("getTopics");
         if (query) {
-          console.log("query", query);
+          //console.log("query", query);
         }
-        console.groupEnd();
+        //console.groupEnd();
 
         return {
           url: `topics${query ? `?${objectToQueryString(query)}` : ""}`

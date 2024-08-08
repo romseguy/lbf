@@ -5,6 +5,7 @@ export const MultiSelect = ({
   value,
   options,
   allOptionLabel = "Tous",
+  isMulti = true,
   onChange,
   ...props
 }: Props & {
@@ -22,14 +23,19 @@ export const MultiSelect = ({
     label: allOptionLabel
   };
 
-  const isSelectAllSelected = () => valueRef.current.length === options.length;
+  const isSelectAllSelected = () =>
+    Array.isArray(valueRef.current)
+      ? valueRef.current.length === options.length
+      : false;
 
   const isOptionSelected = (option: any) =>
-    valueRef.current.some(
-      ({ value }: { value: any }) => value === option.value
-    ) || isSelectAllSelected();
+    Array.isArray(valueRef.current)
+      ? valueRef.current.some(
+          ({ value }: { value: any }) => value === option.value
+        ) || isSelectAllSelected()
+      : valueRef.current === option.value;
 
-  const getOptions = () => [selectAllOption, ...options];
+  const getOptions = () => (isMulti ? [selectAllOption, ...options] : options);
 
   const getValue = () => (isSelectAllSelected() ? [selectAllOption] : value);
 
@@ -64,7 +70,7 @@ export const MultiSelect = ({
           }
         } else onChange(newValue || [], actionMeta);
       }}
-      isMulti
+      isMulti={isMulti}
       {...props}
     />
   );

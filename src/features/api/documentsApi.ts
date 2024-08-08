@@ -31,7 +31,7 @@ export const documentApi = api.injectEndpoints({
       AddDocumentPayload
     >({
       query: (payload) => {
-        console.log("addDocument: payload", payload);
+        //console.log("addDocument: payload", payload);
 
         return {
           url: `documents`,
@@ -50,16 +50,16 @@ export const documentApi = api.injectEndpoints({
           tags.push({ type: TagTypes.GALLERIES, id: result.galleryId });
         }
 
-        console.log("🚀 addDocument ~ tags:", tags);
+        //console.log("🚀 addDocument ~ tags:", tags);
         return tags;
       }
     }),
     getDocuments: build.query<(RemoteFile | RemoteImage)[], GetDocumentsParams>(
       {
         query: (query) => {
-          console.groupCollapsed("getDocuments");
-          console.log("query", query);
-          console.groupEnd();
+          //console.groupCollapsed("getDocuments");
+          //console.log("query", query);
+          //console.groupEnd();
 
           return {
             url: `documents?${objectToQueryString(query)}`
@@ -81,20 +81,20 @@ export const documentApi = api.injectEndpoints({
         let tags = [{ type: TagTypes.DOCUMENTS, id: "LIST" }];
 
         if (isDocument(result)) {
-          console.log("🚀 ~ result is a doc:", result);
+          //console.log("🚀 ~ result is a doc:", result);
           tags.push({
             type: TagTypes.GALLERIES,
             id: getRefId(result.gallery, "_id")
           });
         } else if (result.orgId) {
-          console.log("🚀 ~ result is a orgId:", result);
+          //console.log("🚀 ~ result is a orgId:", result);
           tags.push({ type: TagTypes.ORGS, id: result.orgId });
         } else if (result.galleryId) {
-          console.log("🚀 ~ result is a galleryId:", result);
+          //console.log("🚀 ~ result is a galleryId:", result);
           tags.push({ type: TagTypes.GALLERIES, id: result.galleryId });
         }
 
-        console.log("🚀 deleteDocument ~ tags:", tags);
+        //console.log("🚀 deleteDocument ~ tags:", tags);
         return tags;
       }
     })

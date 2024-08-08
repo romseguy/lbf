@@ -185,7 +185,7 @@ export const GalleryForm = ({
           <Input
             name="galleryName"
             ref={register({
-              required: "Veuillez saisir l'nom de la galerie"
+              required: "Veuillez saisir le nom de la galerie"
             })}
             autoComplete="off"
             placeholder="Nom"

@@ -59,6 +59,11 @@ const theme = extendTheme({
         ...getStyleObjectFromString("font-weight: 900;")
       }
     },
+    Heading: {
+      baseStyle: {
+        ...getStyleObjectFromString("font-weight: normal;")
+      }
+    },
     Input: {
       // baseStyle: {
       //   field: {

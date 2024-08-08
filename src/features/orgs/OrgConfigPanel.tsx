@@ -93,7 +93,7 @@ export const OrgConfigPanel = ({
               isCreator={isCreator}
               isEditConfig={isEditConfig}
               session={session}
-              orgQuery={orgQuery as AppQuery<IOrg>}
+              orgQuery={orgQuery}
               onCancel={() => {
                 setIsEdit(false);
                 //setIsConfig(false);
@@ -138,7 +138,7 @@ export const OrgConfigPanel = ({
 
           <Column mx={3} mb={3} pt={1}>
             <Text fontSize="3xl" mb={3}>
-              Participants & Listes
+              Personnes & Listes
             </Text>
 
             <OrgConfigSubscribersPanel

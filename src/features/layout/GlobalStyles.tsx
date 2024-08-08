@@ -136,9 +136,11 @@ export const GlobalStyles = ({ isMobile }: { isMobile: boolean }) => {
                   : theme.colors.orange[400]};
                 border-radius: 12px;
                 .react-select__multi-value__label {
-                  color: ${isDark ? "white" : "black"};
+                  /*color: ${isDark ? "white" : "black"};*/
+                  color: white;
                 }
                 .react-select__multi-value__remove {
+                  color: white;
                   :hover {
                     background-color: transparent;
                     color: red;

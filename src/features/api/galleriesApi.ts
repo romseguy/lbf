@@ -27,7 +27,7 @@ export const galleryApi = api.injectEndpoints({
       }
     >({
       query: ({ payload }) => {
-        console.log("addGallery: payload", payload);
+        //console.log("addGallery: payload", payload);
 
         return {
           url: `galleries`,
@@ -74,10 +74,10 @@ export const galleryApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, galleryId }) => {
-        console.groupCollapsed("editGallery");
-        console.log("editGallery: galleryId", galleryId);
-        console.log("editGallery: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("editGallery");
+        //console.log("editGallery: galleryId", galleryId);
+        //console.log("editGallery: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `gallery/${galleryId ? galleryId : payload.gallery._id}`,
@@ -102,9 +102,9 @@ export const galleryApi = api.injectEndpoints({
     }),
     getGallery: build.query<IGallery, GetGalleryParams>({
       query: ({ galleryId, ...query }) => {
-        console.groupCollapsed("getGallery");
-        console.log("galleryId", galleryId);
-        console.groupEnd();
+        //console.groupCollapsed("getGallery");
+        //console.log("galleryId", galleryId);
+        //console.groupEnd();
 
         return {
           url: `gallery/${galleryId}${

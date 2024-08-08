@@ -84,6 +84,9 @@ handler.post<
   },
   NextApiResponse
 >(async function addSubscription(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /subscriptions `;
+  console.log(prefix + "body", req.body);
+
   const session = await getSession({ req });
 
   try {
@@ -133,7 +136,7 @@ handler.post<
           )
         );
 
-    logJson(`POST /subscriptions: selector`, selector);
+    //logJson(`POST /subscriptions: selector`, selector);
     let subscription = await models.Subscription.findOne(selector);
 
     if (!subscription)
@@ -141,7 +144,7 @@ handler.post<
 
     if (!subscription) throw new Error("Impossible de créer un abonnement");
 
-    logJson(`POST /subscriptions: subscription`, subscription);
+    //logJson(`POST /subscriptions: subscription`, subscription);
 
     if (body.orgs) {
       for (const newOrgSubscription of body.orgs) {
@@ -346,7 +349,7 @@ handler.post<
       }
     }
 
-    logJson(`POST /subscriptions: saving subscription`, subscription);
+    //logJson(`POST /subscriptions: saving subscription`, subscription);
     await subscription.save();
 
     res.status(200).json(subscription);

@@ -13,13 +13,11 @@ import { useToast } from "hooks/useToast";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "hooks/useFormPersist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { defaultLists, IOrg, IOrgList } from "models/Org";
 import { getFollowerSubscription, ISubscription } from "models/Subscription";
-import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
 import { emailR } from "utils/regex";
 
@@ -214,10 +212,10 @@ export const EntityListForm = ({
                     });
 
                     return {
-                      ...defaultStyles,
-                      backgroundColor: `${
-                        !!followerSubscription ? "green" : "purple"
-                      } !important`
+                      ...defaultStyles
+                      // backgroundColor: `${
+                      //   !!followerSubscription ? "green" : "purple"
+                      // } !important`
                     };
                   },
                   placeholder: () => {

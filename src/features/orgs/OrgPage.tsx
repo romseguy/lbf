@@ -1,8 +1,9 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { GrRefresh } from "react-icons/gr";
 import { AppHeading } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
@@ -14,6 +15,8 @@ import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { useSession } from "hooks/useSession";
 import { OrgConfigButtons } from "./OrgConfigButtons";
+import { css } from "twin.macro";
+import { IoMdRefresh } from "react-icons/io";
 
 export interface IsEditConfig {
   isAddingChild?: boolean;
@@ -130,7 +133,17 @@ export const OrgPage = ({
     >
       {isCreator && (
         <Flex ml={3}>
-          <AppHeading>Admin :</AppHeading>
+          <IconButton
+            aria-label="Actualiser"
+            colorScheme="green"
+            variant="outline"
+            icon={<Icon as={IoMdRefresh} boxSize={7} />}
+            mr={3}
+            onClick={() => {
+              orgQuery.refetch();
+            }}
+          />
+          <Heading>Admin :</Heading>
           <OrgConfigButtons
             orgQuery={orgQuery}
             isConfig={isConfig}

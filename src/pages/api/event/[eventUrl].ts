@@ -471,8 +471,8 @@ handler.delete<
 
   try {
     const eventUrl = req.query.eventUrl;
-    let _id: string | undefined;
     let event = await models.Event.findOne({ eventUrl });
+    let _id = event?._id;
 
     if (!event) {
       _id = eventUrl;
@@ -517,9 +517,9 @@ handler.delete<
     }
 
     //#region references
-    await models.Gallery.deleteOne({ galleryName: event._id });
+    await models.Gallery.deleteOne({ galleryName: _id });
     for (const eventOrg of event.eventOrgs) {
-      const orgId = getRefId(eventOrg);
+      const orgId = getRefId(eventOrg, "_id");
       console.log(prefix + " deleting event from org", orgId);
 
       await models.Org.updateOne(

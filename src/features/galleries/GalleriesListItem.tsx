@@ -79,7 +79,7 @@ export const GalleriesListItem = ({
           isCreator={isCreator}
           isGalleryCreator={isGalleryCreator}
           isCurrent={isCurrent}
-          executeScroll={executeScroll}
+          //executeScroll={executeScroll}
           //onClick={onClick}
           onEditClick={onEditClick}
         />
@@ -107,8 +107,8 @@ export const GalleriesListItem = ({
           {!isAdd && (
             <Box>
               {gallery.galleryDescription && (
-                <Alert status="info">
-                  <AlertIcon />
+                <Alert status="info" mb={3}>
+                  {/* <AlertIcon /> */}
                   <div className="rteditor">
                     <div
                       dangerouslySetInnerHTML={{

@@ -57,8 +57,6 @@ export const EntityButton = ({
     : typeof user === "object"
     ? user.userName
     : "";
-
-  console.log("🚀 ~ topic:", topic);
   if (topic) {
     entityUrl = `${
       entityUrl || getRefId(topic.org) || getRefId(topic.event)

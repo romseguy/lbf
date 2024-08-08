@@ -1,19 +1,21 @@
-import { Button, Heading, Grid, GridProps, Flex } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
+import {
+  Button,
+  Heading,
+  Grid,
+  GridProps,
+  Alert,
+  AlertIcon
+} from "@chakra-ui/react";
 
 import React, { useEffect, useState } from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import {
-  GridHeader,
-  GridItem,
-  AppHeading as AppHeading,
-  Link
-} from "features/common";
+import { GridHeader, GridItem, Link } from "features/common";
+import theme from "features/layout/theme";
 import { SubscriptionForm } from "features/forms/SubscriptionForm";
 import { breakpoints } from "features/layout/theme";
 import { SubscriptionsList } from "features/subscriptions/SubscriptionsList";
-import { IOrg, orgTypeFull2 } from "models/Org";
+import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { hasItems } from "utils/array";
@@ -32,6 +34,7 @@ export const OrgConfigSubscribersPanel = ({
     subQuery: AppQuery<ISubscription>;
   }) => {
   const org = orgQuery.data;
+  console.log("🚀 ~ org:", org);
   const dispatch = useAppDispatch();
 
   //#region local state
@@ -130,15 +133,20 @@ export const OrgConfigSubscribersPanel = ({
 
       {isAdd && (
         <GridItem light={{ bg: "orange.100" }} dark={{ bg: "gray.500" }} p={5}>
-          <AppHeading smaller mb={3}>
-            Inscrire des personnes {orgTypeFull2(org.orgType)}
-          </AppHeading>
+          {/* <Heading
+            fontFamily={theme.fonts.roboto}
+            fontSize="2xl"
+            mb={3}
+          >
+            Ajouter des personnes à une liste
+          </Heading> */}
 
           <SubscriptionForm
             org={org}
             isSubscriptionLoading={isSubscriptionLoading}
             onSubmit={() => {
               setIsAdd(false);
+              //orgQuery.refetch();
             }}
           />
         </GridItem>

@@ -241,28 +241,35 @@ export const OrgConfigListsPanel = ({
                         <Td>{listName}</Td>
 
                         <Td whiteSpace="nowrap">
-                          <Link
-                            cursor={"pointer"}
-                            variant={"underline"}
+                          {/* <Link
+                            cursor="pointer"
+                            variant="underline"
                             onClick={() => {
                               setListToShow(list);
                             }}
                             data-cy="org-list-link"
-                          >
-                            {subscriptions.length}{" "}
-                            {listName === "Abonnés" ? "abonné" : "personne"}
-                            {subscriptions &&
-                              (!subscriptions.length ||
-                                subscriptions.length > 1) &&
-                              "s"}
-                          </Link>
+                          > */}
+                          {subscriptions.length}{" "}
+                          {listName === "Abonnés"
+                            ? "abonné"
+                            : listName === "Participants"
+                            ? "participant"
+                            : "personne"}
+                          {subscriptions &&
+                            (!subscriptions.length ||
+                              subscriptions.length > 1) &&
+                            "s"}
+                          {/* </Link> */}
                         </Td>
 
                         <Td textAlign="right" whiteSpace="nowrap">
                           <>
-                            <Tooltip label="Modifier" placement="left">
+                            <Tooltip
+                              label={`Modifier la liste ${listName}`}
+                              placement="left"
+                            >
                               <IconButton
-                                aria-label="Modifier"
+                                aria-label={`Modifier la liste ${listName}`}
                                 icon={<EditIcon />}
                                 colorScheme="green"
                                 variant="outline"
@@ -270,7 +277,6 @@ export const OrgConfigListsPanel = ({
                                 onClick={async () => {
                                   setListToEdit(list);
                                 }}
-                                data-cy={`org-list-${listName}-edit`}
                               />
                             </Tooltip>
 

@@ -39,9 +39,9 @@ export const orgApi = api.injectEndpoints({
   endpoints: (build) => ({
     addOrg: build.mutation<IOrg, AddOrgPayload>({
       query: (payload) => {
-        console.groupCollapsed("addOrg");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addOrg");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `orgs`,
@@ -53,10 +53,10 @@ export const orgApi = api.injectEndpoints({
     }),
     deleteOrg: build.mutation<IOrg, DeleteOrgParams>({
       query: ({ orgId, ...query }) => {
-        console.groupCollapsed("deleteOrg");
-        console.log("orgId", orgId);
-        console.log("isDeleteOrgEvents", query.isDeleteOrgEvents);
-        console.groupEnd();
+        //console.groupCollapsed("deleteOrg");
+        //console.log("orgId", orgId);
+        //console.log("isDeleteOrgEvents", query.isDeleteOrgEvents);
+        //console.groupEnd();
 
         return {
           method: "DELETE",
@@ -73,10 +73,10 @@ export const orgApi = api.injectEndpoints({
       query: ({ payload, orgId }) => {
         const id = orgId ? orgId : "_id" in payload ? payload._id : undefined;
 
-        console.groupCollapsed("editOrg");
-        console.log("orgId", id);
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("editOrg");
+        //console.log("orgId", id);
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `org/${id}`,
@@ -93,11 +93,11 @@ export const orgApi = api.injectEndpoints({
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {
-        console.groupCollapsed("getOrg");
-        console.log("orgUrl", orgUrl);
-        console.log("hash", query.hash);
-        console.log("populate", query.populate);
-        console.groupEnd();
+        //console.groupCollapsed("getOrg");
+        //console.log("orgUrl", orgUrl);
+        //console.log("hash", query.hash);
+        //console.log("populate", query.populate);
+        //console.groupEnd();
 
         return {
           url: `org/${orgUrl}${
@@ -107,17 +107,18 @@ export const orgApi = api.injectEndpoints({
           }`
         };
       },
-      providesTags: (result, error, params) => [
-        { type: TagTypes.ORGS, id: result?._id }
-      ]
+      providesTags: (result, error, params) => {
+        if (error || !result) return [];
+        return [{ type: TagTypes.ORGS, id: result._id }];
+      }
     }),
     getOrgs: build.query<IOrg[], GetOrgsParams | void>({
       query: ({ ...query } = {}) => {
         const hasQueryParams = Object.keys(query).length > 0;
         if (hasQueryParams) {
-          console.groupCollapsed("getOrgs");
-          console.log("query", query);
-          console.groupEnd();
+          //console.groupCollapsed("getOrgs");
+          //console.log("query", query);
+          //console.groupEnd();
         }
         return {
           url: `orgs${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`

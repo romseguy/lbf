@@ -243,8 +243,10 @@ export const OrgPageTabs = ({
               {url === "/agenda" && hasItems(org.orgEvents) ? (
                 <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
               ) : (url === "/discussions" || url === "/d") &&
-                hasItems(org.orgTopics) ? (
-                <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
+                hasItems(org.orgTopics.concat([org.orgEvents])) ? (
+                <Badge {...badgeProps}>
+                  {org.orgTopics.concat([org.orgEvents]).length}
+                </Badge>
               ) : url === "/galeries" &&
                 (hasItems(org.orgGalleries) || hasItems(org.orgEvents)) ? (
                 <Badge {...badgeProps}>

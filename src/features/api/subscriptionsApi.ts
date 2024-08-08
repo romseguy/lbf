@@ -1,3 +1,4 @@
+import { getRefId } from "models/Entity";
 import type { ISubscription } from "models/Subscription";
 import { api, TagTypes } from "./";
 
@@ -7,9 +8,9 @@ export const subscriptionApi = api.injectEndpoints({
   endpoints: (build) => ({
     addSubscription: build.mutation<ISubscription, AddSubscriptionPayload>({
       query: (payload) => {
-        console.groupCollapsed("addSubscription");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addSubscription");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `subscriptions`,
@@ -19,20 +20,21 @@ export const subscriptionApi = api.injectEndpoints({
       },
       //@ts-ignore
       invalidatesTags: (result, error, params) => {
-        if (error) return [];
-
-        const arr = [
+        if (error || !result) return [];
+        const tags = [
           { type: TagTypes.SUBSCRIPTIONS, id: "LIST" },
-          { type: TagTypes.SUBSCRIPTIONS, id: params.email }
+          { type: TagTypes.SUBSCRIPTIONS, id: result.email }
         ];
 
-        if (Array.isArray(params.orgs)) {
-          for (const orgSubscription of params.orgs) {
-            arr.push({ type: TagTypes.ORGS, id: orgSubscription.org._id });
+        if (Array.isArray(result.orgs)) {
+          for (const orgSubscription of result.orgs) {
+            tags.push({
+              type: TagTypes.ORGS,
+              id: getRefId(orgSubscription.org, "_id")
+            });
           }
         }
-
-        return arr;
+        return tags;
       }
     }),
     deleteSubscription: build.mutation<
@@ -45,12 +47,12 @@ export const subscriptionApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, subscriptionId, orgId, topicId }) => {
-        console.groupCollapsed("deleteSubscription");
-        console.log("subscriptionId", subscriptionId);
-        console.log("orgId", orgId);
-        console.log("topicId", topicId);
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("deleteSubscription");
+        //console.log("subscriptionId", subscriptionId);
+        //console.log("orgId", orgId);
+        //console.log("topicId", topicId);
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `subscription/${subscriptionId}`,
@@ -60,18 +62,18 @@ export const subscriptionApi = api.injectEndpoints({
       },
       //@ts-ignore
       invalidatesTags: (result, error, params) => {
-        if (error) return [];
+        if (error || !result) return [];
 
-        let arr = [];
+        let tags = [];
 
-        if (params.orgId) arr.push({ type: "Orgs", id: params.orgId });
+        if (params.orgId) tags.push({ type: "Orgs", id: params.orgId });
 
         //const email = params.email;
         //if (email) return [{ type: TagTypes.SUBSCRIPTIONS, email }];
-        const id = params.subscriptionId || result?._id;
-        if (id) arr.push({ type: TagTypes.SUBSCRIPTIONS, id });
+        const id = result._id;
+        if (id) tags.push({ type: TagTypes.SUBSCRIPTIONS, id });
 
-        return arr;
+        return tags;
       }
     }),
     editSubscription: build.mutation<
@@ -89,10 +91,10 @@ export const subscriptionApi = api.injectEndpoints({
       { email?: string; populate?: string }
     >({
       query: ({ email, populate }) => {
-        console.groupCollapsed("getSubscription");
-        console.log("email", typeof email, email);
-        console.log("populate", populate);
-        console.groupEnd();
+        //console.groupCollapsed("getSubscription");
+        //console.log("email", typeof email, email);
+        //console.log("populate", populate);
+        //console.groupEnd();
 
         if (!email) return "";
 
@@ -100,24 +102,30 @@ export const subscriptionApi = api.injectEndpoints({
           url: `subscription/${email}${populate ? `?populate=${populate}` : ""}`
         };
       },
-      providesTags: (result, error, params) => [
-        { type: TagTypes.SUBSCRIPTIONS, id: params.email }
-      ]
+      providesTags: (result, error, params) => {
+        if (error || !result) return [];
+
+        return [{ type: TagTypes.SUBSCRIPTIONS, id: result.email }];
+      }
     }),
     getSubscriptions: build.query<ISubscription[], { topicId?: string }>({
       query: ({ topicId }) => ({
         url: `subscriptions${topicId ? `?topicId=${topicId}` : ""}`
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ _id }) => ({
-                type: TagTypes.SUBSCRIPTIONS,
-                id: _id
-              })),
-              { type: TagTypes.SUBSCRIPTIONS, id: "LIST" }
-            ]
-          : [{ type: TagTypes.SUBSCRIPTIONS, id: "LIST" }]
+      providesTags: (result, error, params) => {
+        if (error || !result) return [];
+
+        let tags = [{ type: TagTypes.SUBSCRIPTIONS, id: "LIST" }];
+
+        result.forEach((subscription) => {
+          tags.push({
+            type: TagTypes.SUBSCRIPTIONS,
+            id: subscription._id
+          });
+        });
+
+        return tags;
+      }
     })
     // getSubscription: build.query<ISubscription, string | undefined>({
     //   query: (string) => ({ url: `subscriptions/${string}` })

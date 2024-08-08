@@ -68,7 +68,7 @@ export const UserGallery = ({
 
       {description && (
         <Alert status="info" mb={!images.length ? 0 : 3}>
-          <AlertIcon />
+          {/* <AlertIcon /> */}
           <div
             className="rteditor"
             dangerouslySetInnerHTML={{

@@ -5,26 +5,20 @@ import {
   EditOrgPayload,
   GetOrgParams
 } from "features/api/orgsApi";
-import { getRefId, isUser } from "models/Entity";
+import { getRefId } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import {
   EOrgType,
   EOrgVisibility,
   getLists,
-  IOrg,
   orgTypeFull,
-  orgTypeFull4,
-  orgTypeFull5,
-  OrgTypes
+  orgTypeFull4
 } from "models/Org";
 import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
-import { sendMail } from "server/email";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { getClientIp } from "server/ip";
-import api from "utils/api";
-import { hasItems } from "utils/array";
 import {
   createEndpointError,
   databaseErrorCodes,
@@ -413,6 +407,9 @@ handler.put<
   },
   NextApiResponse
 >(async function editOrg(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /org/[orgUrl] `;
+  console.log(prefix + "query", req.query);
+  logJson(prefix + "body", req.body);
   const session = await getSession({ req });
 
   if (!session) {
