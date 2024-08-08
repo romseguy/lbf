@@ -1,22 +1,16 @@
+import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import {
   Badge,
-  Button,
   Icon,
   Link,
-  Table,
-  Tbody,
-  Tr,
-  Td,
   Tooltip,
   Box,
   Flex,
   Text,
   FlexProps,
-  TableProps,
-  HStack
+  HStack,
+  StackProps
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import React from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
@@ -26,9 +20,8 @@ import * as dateUtils from "utils/date";
 import { AppQueryWithData } from "utils/types";
 import { TopicsListItemShare } from "./TopicsListItemShare";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
-import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 
-interface TopicsListItemHeaderTable {
+interface TopicsListItemHeader {
   isCurrent: boolean;
   isDark: boolean;
   query: AppQueryWithData<IEntity>;
@@ -39,7 +32,7 @@ interface TopicsListItemHeaderTable {
   topic: ITopic;
 }
 
-export const TopicsListItemHeaderTable = ({
+export const TopicsListItemHeader = ({
   isCurrent,
   isDark,
   query,
@@ -47,7 +40,7 @@ export const TopicsListItemHeaderTable = ({
   setSelectedCategories,
   topic,
   ...props
-}: TableProps & TopicsListItemHeaderTable) => {
+}: StackProps & TopicsListItemHeader) => {
   //#region entity
   const entity = query.data;
   const isE = isEvent(entity);
@@ -74,112 +67,51 @@ export const TopicsListItemHeaderTable = ({
   //#endregion
 
   return (
-    <Table
-      css={css`
-        td {
-          border: none;
-          padding: 0;
-        }
-        td:last-of-type {
-          width: 100%;
-        }
-      `}
-      {...props}
-    >
-      <Tbody>
-        <Tr>
-          <Td>
-            <Tooltip label={`${topic.topicMessages.length} message(s)`}>
-              <Box pos="relative">
-                {isCurrent ? (
-                  <Icon
-                    as={FaFolderOpen}
-                    //alignSelf="center"
-                    boxSize={7}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                ) : (
-                  <Icon
-                    as={FaFolder}
-                    boxSize={7}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                )}
-                {topic.topicMessages.length > 0 && (
-                  <Badge
-                    bgColor={isDark ? "teal.600" : "teal.100"}
-                    color={isDark ? "white" : "black"}
-                    pos="absolute"
-                    variant="solid"
-                    left={1}
-                  >
-                    {topic.topicMessages.length}
-                  </Badge>
-                )}
-              </Box>
-            </Tooltip>
-          </Td>
+    <HStack {...props}>
+      <Tooltip label={`${topic.topicMessages.length} message(s)`}>
+        <Box pos="relative">
+          {isCurrent ? (
+            <Icon
+              as={FaFolderOpen}
+              //alignSelf="center"
+              boxSize={7}
+              color={isDark ? "teal.200" : "teal"}
+              //mr={2}
+            />
+          ) : (
+            <Icon
+              as={FaFolder}
+              boxSize={7}
+              color={isDark ? "teal.200" : "teal"}
+              //mr={2}
+            />
+          )}
+          {topic.topicMessages.length > 0 && (
+            <Badge
+              bgColor={isDark ? "teal.600" : "teal.100"}
+              color={isDark ? "white" : "black"}
+              pos="absolute"
+              variant="solid"
+              left={1}
+            >
+              {topic.topicMessages.length}
+            </Badge>
+          )}
+        </Box>
+      </Tooltip>
 
-          <Td>
-            {isO && isEventTopic ? (
-              <CalendarIcon mr={1} mt={-1} />
-            ) : (
-              <Icon as={ChatIcon} mr={1} mt={0} />
-            )}
-          </Td>
+      {isO && isEventTopic ? (
+        <CalendarIcon mr={1} mt={-1} />
+      ) : (
+        <Icon as={ChatIcon} mr={1} mt={0} />
+      )}
 
-          <Td>
-            {topic.topicCategory && (
-              <Tooltip
-                label={
-                  !hasCategorySelected
-                    ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                    : ""
-                }
-                hasArrow
-              >
-                <Button
-                  //alignSelf="flex-start"
-                  colorScheme={hasCategorySelected ? "pink" : "teal"}
-                  fontSize="small"
-                  fontWeight="normal"
-                  height="auto"
-                  mr={1}
-                  py={1}
-                  px={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
+      <Text whiteSpace="nowrap">
+        Discussion{isEventTopic && "s de l'événement"} :{" "}
+      </Text>
 
-                    if (hasCategorySelected)
-                      setSelectedCategories(
-                        selectedCategories!.filter(
-                          (category) => category !== topic.topicCategory
-                        )
-                      );
-                    else if (topic.topicCategory)
-                      setSelectedCategories([
-                        ...(selectedCategories || []),
-                        topic.topicCategory
-                      ]);
-                  }}
-                >
-                  {topicCategoryLabel}
-                </Button>
-              </Tooltip>
-            )}
-
-            <HStack>
-              <Text>Discussion {isEventTopic && "de l'événement"} : </Text>
-              <Text fontWeight="bold">
-                {event ? event.eventName : topic.topicName}
-              </Text>
-            </HStack>
-          </Td>
-        </Tr>
-      </Tbody>
-    </Table>
+      <Text fontWeight="bold">{event ? event.eventName : topic.topicName}</Text>
+    </HStack>
   );
 };
 
@@ -273,8 +205,6 @@ export const TopicsListItemHeaderDetails = ({
   );
 };
 
-export const TopicsListItemHeader = ({}: {}) => null;
-
 {
   /*
   
@@ -300,4 +230,115 @@ export const TopicsListItemHeader = ({}: {}) => null;
               </>
             )}
   */
+}
+
+{
+  /*
+  (
+    <Table
+      css={css`
+        td {
+          border: none;
+          padding: 0;
+        }
+        td:last-of-type {
+          width: 100%;
+        }
+      `}
+      {...props}
+    >
+      <Tbody>
+        <Tr>
+          <Td>
+            <Tooltip label={`${topic.topicMessages.length} message(s)`}>
+              <Box pos="relative">
+                {isCurrent ? (
+                  <Icon
+                    as={FaFolderOpen}
+                    //alignSelf="center"
+                    boxSize={7}
+                    color={isDark ? "teal.200" : "teal"}
+                    mr={2}
+                  />
+                ) : (
+                  <Icon
+                    as={FaFolder}
+                    boxSize={7}
+                    color={isDark ? "teal.200" : "teal"}
+                    mr={2}
+                  />
+                )}
+                {topic.topicMessages.length > 0 && (
+                  <Badge
+                    bgColor={isDark ? "teal.600" : "teal.100"}
+                    color={isDark ? "white" : "black"}
+                    pos="absolute"
+                    variant="solid"
+                    left={1}
+                  >
+                    {topic.topicMessages.length}
+                  </Badge>
+                )}
+              </Box>
+            </Tooltip>
+          </Td>
+
+          <Td >
+            {isO && isEventTopic ? (
+              <CalendarIcon mr={1} mt={-1} />
+            ) : (
+              <Icon as={ChatIcon} mr={1} mt={0} />
+            )}
+            <Text>Discussions {isEventTopic && "de l'événement"} : </Text>
+          </Td>
+
+          <Td>
+            {topic.topicCategory && (
+              <Tooltip
+                label={
+                  !hasCategorySelected
+                    ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                    : ""
+                }
+                hasArrow
+              >
+                <Button
+                  //alignSelf="flex-start"
+                  colorScheme={hasCategorySelected ? "pink" : "teal"}
+                  fontSize="small"
+                  fontWeight="normal"
+                  height="auto"
+                  mr={1}
+                  py={1}
+                  px={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    if (hasCategorySelected)
+                      setSelectedCategories(
+                        selectedCategories!.filter(
+                          (category) => category !== topic.topicCategory
+                        )
+                      );
+                    else if (topic.topicCategory)
+                      setSelectedCategories([
+                        ...(selectedCategories || []),
+                        topic.topicCategory
+                      ]);
+                  }}
+                >
+                  {topicCategoryLabel}
+                </Button>
+              </Tooltip>
+            )}
+
+            <Text fontWeight="bold">
+              {event ? event.eventName : topic.topicName}
+            </Text>
+          </Td>
+        </Tr>
+      </Tbody>
+    </Table>
+  )
+    */
 }

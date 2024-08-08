@@ -41,6 +41,7 @@ import { selectIsMobile } from "store/uiSlice";
 import { belongs } from "utils/belongs";
 import { hasItems, sortOn } from "utils/array";
 import { GalleriesList } from "features/galleries/GalleriesList";
+import { OrgPageTopicsTabPanel } from "./OrgPageTopicsTabPanel";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -298,7 +299,7 @@ export const OrgPageTabs = ({
 
           {!!tabs.find(({ label }) => belongs(label, "Discussions")) && (
             <TabPanel aria-hidden>
-              <EntityPageTopics
+              <OrgPageTopicsTabPanel
                 currentTopicName={currentItemName}
                 isCreator={isCreator}
                 isFollowed={isFollowed}

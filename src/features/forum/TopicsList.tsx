@@ -61,6 +61,7 @@ export const TopicsList = ({
   currentTopicName,
   ...props
 }: GridProps & {
+  topics: ITopic[];
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
@@ -88,25 +89,7 @@ export const TopicsList = ({
     [entity]
   );
   const topics = useMemo(() => {
-    return (
-      isE
-        ? entity.eventTopics
-        : isO
-        ? entity.orgTopics.concat(
-            entity.orgEvents.map((event) => ({
-              _id: event._id,
-              event,
-              isPinned: true,
-              topicName: event._id,
-              topicMessages: [],
-              topicNotifications: [],
-              topicVisibility: [],
-              createdAt: event.eventMinDate,
-              createdBy: event.createdBy
-            }))
-          )
-        : []
-    )
+    return props.topics
       .filter((topic: ITopic) => {
         if (hasItems(selectedCategories) || hasItems(selectedLists)) {
           let belongsToCategory = false;

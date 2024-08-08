@@ -6,7 +6,8 @@ import {
   Flex,
   Spinner,
   Text,
-  useColorMode
+  useColorMode,
+  HStack
 } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
@@ -213,8 +214,7 @@ export const TopicsListItemHeaderButtons = ({
   //#endregion
 
   return (
-    <Flex
-      alignItems="center"
+    <HStack
       // pt={3}
       // pb={2}
       ml={2}
@@ -376,6 +376,6 @@ export const TopicsListItemHeaderButtons = ({
           </Tooltip>
         </Flex>
       )}
-    </Flex>
+    </HStack>
   );
 };

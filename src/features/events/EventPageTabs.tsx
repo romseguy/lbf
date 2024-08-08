@@ -39,6 +39,7 @@ import { hasItems } from "utils/array";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { ChatIcon } from "@chakra-ui/icons";
 import { IGallery } from "models/Gallery";
+import { EventPageTopicsTabPanel } from "./EventPageTopicsTabPanel";
 
 export const EventPageTabs = ({
   currentItemName,
@@ -217,7 +218,7 @@ export const EventPageTabs = ({
             <Icon as={ChatIcon} boxSize={10} />
             <Text fontSize="3xl">{eventQuery.data.eventName}</Text>
           </HStack>
-          <EntityPageTopics
+          <EventPageTopicsTabPanel
             currentTopicName={currentItemName}
             isCreator={isCreator}
             isFollowed={isFollowed}

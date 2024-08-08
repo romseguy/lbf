@@ -1,4 +1,4 @@
-import { BoxProps, Button, Box, Flex } from "@chakra-ui/react";
+import { BoxProps, Button, Box, Flex, VStack, HStack } from "@chakra-ui/react";
 
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -13,8 +13,8 @@ import { TopicMessagesList } from "./TopicMessagesList";
 import { ISubscription } from "models/Subscription";
 import { TopicModalState } from "./TopicsList";
 import {
-  TopicsListItemHeaderDetails,
-  TopicsListItemHeaderTable
+  TopicsListItemHeader,
+  TopicsListItemHeaderDetails
 } from "./TopicsListItemHeader";
 import { TopicsListItemHeaderButtons } from "./TopicsListItemHeaderButtons";
 
@@ -116,7 +116,7 @@ export const TopicsListItem = ({
   return (
     <Box ref={elementToScrollRef} {...props}>
       {/*Header */}
-      <Flex
+      {/* <Flex
         alignItems={isMobile ? "flex-start" : "center"}
         flexDir={isMobile ? "column" : "row"}
         borderTopRadius="xl"
@@ -136,15 +136,42 @@ export const TopicsListItem = ({
         onClick={onClick}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
+      > */}
+      <HStack
+        justifyContent="space-between"
+        borderTopRadius="xl"
+        borderBottomRadius={!isCurrent ? "lg" : undefined}
+        bg={
+          topicIndex % 2 === 0
+            ? isDark
+              ? "gray.600"
+              : "orange.200"
+            : isDark
+            ? "gray.500"
+            : "orange.100"
+        }
+        cursor="pointer"
+        _hover={{ bg: isDark ? "#314356" : "orange.300" }}
+        onClick={onClick}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
       >
-        <Flex
+        {/* <Flex
           flexDirection="column"
           flexGrow={1}
           //px={2}
           ml={2}
+        > */}
+        <VStack
+          spacing={0}
+          width="100%"
+          alignItems="flex-start"
+          pb={1}
+          pl={2}
+          pt={1}
         >
           {/* Table */}
-          <TopicsListItemHeaderTable
+          <TopicsListItemHeader
             query={query}
             topic={topic}
             isCurrent={isCurrent}
@@ -159,7 +186,7 @@ export const TopicsListItem = ({
             topic={topic}
             isDark={isDark}
           />
-        </Flex>
+        </VStack>
 
         <TopicsListItemHeaderButtons
           query={query}
@@ -173,7 +200,7 @@ export const TopicsListItem = ({
           topicModalState={topicModalState}
           setTopicModalState={setTopicModalState}
         />
-      </Flex>
+      </HStack>
 
       {isCurrent && (
         <Box bg={isDark ? "#314356" : "orange.50"}>
