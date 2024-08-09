@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env.development.local") });
+const SECOND = 1000;
 
 /**
  * Read environment variables from file.
@@ -15,9 +16,23 @@ dotenv.config({ path: path.resolve(__dirname, ".env.development.local") });
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 0,
+  globalTimeout: 0,
+  expect: { timeout: SECOND * 1800 },
+  // use: {
+  //   // All requests we send go to this API endpoint.
+  //   baseURL: "https://api.github.com",
+  //   extraHTTPHeaders: {
+  //     // We set this header per GitHub guidelines.
+  //     Accept: "application/vnd.github.v3+json",
+  //     // Add authorization token to all requests.
+  //     // Assuming personal access token available in the environment.
+  //     Authorization: `token ${process.env.API_TOKEN}`
+  //   }
+  // },
   testDir: "./tests",
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
