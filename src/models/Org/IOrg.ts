@@ -47,7 +47,7 @@ export interface IOrg extends IEntity {
   orgGalleries: IGallery[];
   orgGalleryCategories: IGalleryCategory[];
   orgLists: IOrgList[];
-  orgProjects: IProject[];
+  //orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopicCategories: IOrgTopicCategory[];
   orgTopics: ITopic[];

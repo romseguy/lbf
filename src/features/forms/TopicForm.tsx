@@ -47,7 +47,7 @@ export const TopicForm = ({
   isCreator?: boolean;
   isFollowed?: boolean;
   onCancel?: () => void;
-  onSubmit?: (topic: Partial<ITopic>) => void;
+  onSubmit?: (topic?: Partial<ITopic>) => void;
 }) => {
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
@@ -149,7 +149,7 @@ export const TopicForm = ({
         });
 
         setIsLoading(false);
-        props.onSubmit && props.onSubmit(topic);
+        props.onSubmit && props.onSubmit();
       } else {
         if (typeof form.topicMessage === "string" && form.topicMessage !== "") {
           topic.topicMessages = [
@@ -199,7 +199,7 @@ export const TopicForm = ({
             required: "Veuillez saisir l'objet de la discussion"
           })}
           autoComplete="off"
-          placeholder="Objet"
+          placeholder="Objet de la discussion"
         />
         <FormErrorMessage>
           <ErrorMessage errors={errors} name="topicName" />

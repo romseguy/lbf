@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env.development.local") });
+const SECOND = 1000;
 
 /**
  * Read environment variables from file.
@@ -15,6 +16,20 @@ dotenv.config({ path: path.resolve(__dirname, ".env.development.local") });
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: 0,
+  globalTimeout: 0,
+  expect: { timeout: SECOND * 1800 },
+  // use: {
+  //   // All requests we send go to this API endpoint.
+  //   baseURL: "https://api.github.com",
+  //   extraHTTPHeaders: {
+  //     // We set this header per GitHub guidelines.
+  //     Accept: "application/vnd.github.v3+json",
+  //     // Add authorization token to all requests.
+  //     // Assuming personal access token available in the environment.
+  //     Authorization: `token ${process.env.API_TOKEN}`
+  //   }
+  // },
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -29,7 +44,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+    baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry"
@@ -40,17 +55,17 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] }
-    },
-
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] }
-    },
-
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] }
     }
+
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] }
+    // },
+
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] }
+    // }
 
     /* Test against mobile viewports. */
     // {

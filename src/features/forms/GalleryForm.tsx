@@ -188,7 +188,7 @@ export const GalleryForm = ({
               required: "Veuillez saisir le nom de la galerie"
             })}
             autoComplete="off"
-            placeholder="Nom"
+            placeholder="Nom de la galerie"
           />
           <FormErrorMessage>
             <ErrorMessage errors={errors} name="galleryName" />

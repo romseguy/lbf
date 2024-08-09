@@ -1,4 +1,12 @@
-import { BoxProps, Button, Box, Flex, VStack, HStack } from "@chakra-ui/react";
+import {
+  BoxProps,
+  Button,
+  Box,
+  Flex,
+  VStack,
+  HStack,
+  useColorMode
+} from "@chakra-ui/react";
 
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -26,7 +34,6 @@ interface TopicsListItemProps {
   isSubbedToTopic: boolean;
   isCurrent: boolean;
   isTopicCreator: boolean;
-  isDark: boolean;
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   selectedCategories?: string[];
@@ -45,7 +52,6 @@ export const TopicsListItem = ({
   currentTopicName,
   isCreator,
   isCurrent,
-  isDark,
   isSubbedToTopic,
   isTopicCreator,
   query,
@@ -58,6 +64,8 @@ export const TopicsListItem = ({
   setTopicModalState,
   ...props
 }: Omit<BoxProps, "onClick"> & TopicsListItemProps) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
   const router = useRouter();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
 
@@ -152,6 +160,8 @@ export const TopicsListItem = ({
         }
         cursor="pointer"
         _hover={{ bg: isDark ? "#314356" : "orange.300" }}
+        pr={isMobile ? 1 : 0}
+        pt={isMobile ? 1 : 0}
         onClick={onClick}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
@@ -168,7 +178,7 @@ export const TopicsListItem = ({
           alignItems="flex-start"
           pb={1}
           pl={2}
-          pt={1}
+          pt={isMobile ? 0 : 1}
         >
           {/* Table */}
           <TopicsListItemHeader
@@ -177,15 +187,10 @@ export const TopicsListItem = ({
             isCurrent={isCurrent}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
-            isDark={isDark}
           />
 
           {/* Details */}
-          <TopicsListItemHeaderDetails
-            query={query}
-            topic={topic}
-            isDark={isDark}
-          />
+          <TopicsListItemHeaderDetails query={query} topic={topic} />
         </VStack>
 
         <TopicsListItemHeaderButtons

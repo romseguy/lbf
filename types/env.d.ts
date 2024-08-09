@@ -22,7 +22,7 @@ declare global {
     }
     interface ProcessEnv {
       NODE_ENV: "development" | "production" | "test";
-      ADMIN_EMAILS: string;
+      NEXT_PUBLIC_ADMIN_EMAILS: string;
       NEXT_PUBLIC_ENV: "development" | "production" | "test";
 
       NEXT_PUBLIC_API: string;

@@ -40,7 +40,7 @@ import {
 } from "features/api/galleriesApi";
 import { AppQueryWithData } from "utils/types";
 import { hasItems } from "utils/array";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { IEntity } from "models/Entity";
 import { IOrg } from "models/Org";
 
 export const GalleriesListItemHeader = ({

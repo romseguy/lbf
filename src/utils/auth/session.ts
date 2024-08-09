@@ -14,55 +14,21 @@ export type Session = {
   user: UserMetadata;
 };
 
-export const singleSession =
+export const devSession: any =
   // lilo
   // {
   //   user: {
   //     email: "rom.seguy@lilo.org",
-  //     userId: "60e340cb56ef290008d2e75d",
-  //     userName: "romain",
-  //     //isAdmin: true
-  //     isAdmin: false
+  //     userid: "60e340cb56ef290008d2e75d",
+  //     username: "lilo"
   //   }
   // };
-  null;
-
-export const devSession =
-  // admin
-  // {
-  //   user: {
-  //     email: "contact@lebonforum.fr",
-  //     userId: "668354c66b0b7a9351b72baf",
-  //     userName: "leo",
-  //     isAdmin: true
-  //   }
-  // };
-
-  // gmail
-  // {
-  //   user: {
-  //     email: "rom.seguy@gmail.com",
-  //     userId: "61138a879544b000088318ae",
-  //     userName: "romseguy66"
-  //   }
-  // };
-  null;
-
-export const testSession =
   // admin
   {
     user: {
-      email: "rom.seguy@lilo.org",
-      userId: "6686e189b1b60d78c1563209",
-      userName: "romano",
-      isAdmin: true
+      email: "contact@lebonforum.fr",
+      userId: "668354c66b0b7a9351b72baf",
+      userName: "admin"
     }
   };
-// {
-//   user: {
-//     email: "rom.seguy@gmail.com",
-//     userId: "61138a879544b000088318ae",
-//     userName: "romseguy66"
-//   }
-// };
 null;

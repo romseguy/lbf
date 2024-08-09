@@ -12,21 +12,25 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import React, { useState } from "react";
-import { Button, AppHeading, CategoryTag } from "features/common";
-import { useSession } from "hooks/useSession";
-import { getCategoryLabel, getRefId, IEntity, isOrg } from "models/Entity";
-import { AppQuery, AppQueryWithData } from "utils/types";
-import { IGallery } from "models/Gallery";
-import { GalleryFormModal } from "features/modals/GalleryFormModal";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
+import { isBefore, parseISO } from "date-fns";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Button, AppHeading, CategoryTag } from "features/common";
+import { GalleryFormModal } from "features/modals/GalleryFormModal";
+import { useSession } from "hooks/useSession";
+import {
+  getCategoryLabel,
+  getRefId,
+  IEntity,
+  isEvent,
+  isOrg
+} from "models/Entity";
+import { IGallery } from "models/Gallery";
+import { selectIsMobile } from "store/uiSlice";
+import { AppQueryWithData } from "utils/types";
 import { GalleriesListItem } from "./GalleriesListItem";
 import { normalize } from "utils/string";
-import { isBefore, parseISO } from "date-fns";
 
 enum EGalleriesListOrder {
   ALPHA = "ALPHA",
@@ -48,7 +52,6 @@ export const GalleriesList = ({
   query: AppQueryWithData<IEntity>;
   isCreator: boolean;
   currentGalleryName?: string;
-  onSubmit?: (gallery: IGallery) => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -56,7 +59,9 @@ export const GalleriesList = ({
   const { data: session } = useSession();
   const isMobile = useSelector(selectIsMobile);
   const entity = query.data;
+  const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const entityUrl = entity[isE ? "event" : "org" + "Url"];
 
   //#region local state
   const [isGalleryLoading, _setIsGalleryLoading] = useState<
@@ -297,11 +302,12 @@ export const GalleriesList = ({
           isCreator={props.isCreator}
           onCancel={onClose}
           onSubmit={async (gallery) => {
-            // const galleryName = normalize(gallery.galleryName);
-            // const url = `${baseUrl}/${galleryName}`;
-            // await router.push(url, url, { shallow: true });
-            //query.refetch();
-            props.onSubmit && props.onSubmit(gallery);
+            if (gallery) {
+              const galleryName = normalize(gallery.galleryName);
+              const url = `/${entityUrl}/galeries/${galleryName}`;
+              await router.push(url, url, { shallow: true });
+            }
+            query.refetch();
             onClose();
           }}
           onClose={onClose}

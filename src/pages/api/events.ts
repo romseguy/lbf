@@ -173,8 +173,6 @@ handler.post<
         }
       }
 
-      console.log("POST /events: creating event with eventOrgs", eventOrgs);
-
       newEvent = {
         ...newEvent,
         eventOrgs,

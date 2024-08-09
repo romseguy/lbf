@@ -107,13 +107,14 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
 
       let gallery: (IGallery & Document<any, IGallery>) | null | undefined;
       let galleryName = body.gallery.galleryName;
-      const galleryWithSameName = await models.Gallery.findOne({
-        galleryName
-      });
-      if (galleryWithSameName) {
-        const uid = org ? org.orgGalleries.length + 1 : randomNumber(3);
-        galleryName = `${galleryName}-${uid}`;
-      }
+
+      // const galleryWithSameName = await models.Gallery.findOne({
+      //   galleryName
+      // });
+      // if (galleryWithSameName) {
+      //   const uid = org ? org.orgGalleries.length + 1 : randomNumber(3);
+      //   galleryName = `${galleryName}-${uid}`;
+      // }
 
       gallery = await models.Gallery.create({
         ...body.gallery,

@@ -7,7 +7,7 @@ export enum TagTypes {
   EVENTS = "Events",
   GALLERIES = "Galleries",
   DOCUMENTS = "Documents",
-  PROJECTS = "Projects",
+  //PROJECTS = "Projects",
   SUBSCRIPTIONS = "Subscriptions",
   TOPICS = "Topics",
   USERS = "Users"
@@ -18,7 +18,7 @@ const tagTypes = [
   TagTypes.EVENTS,
   TagTypes.GALLERIES,
   TagTypes.DOCUMENTS,
-  TagTypes.PROJECTS,
+  //TagTypes.PROJECTS,
   TagTypes.SUBSCRIPTIONS,
   TagTypes.TOPICS,
   TagTypes.USERS

@@ -20,12 +20,10 @@ import { setUserEmail } from "store/userSlice";
 import { setIsSessionLoading, setSession } from "store/sessionSlice";
 import {
   devSession,
-  testSession,
   getAuthToken,
   sealOptions,
   TOKEN_NAME,
-  Session,
-  singleSession
+  Session
 } from "utils/auth";
 import { isServer } from "utils/isServer";
 import { useRouter } from "next/router";
@@ -129,18 +127,28 @@ App.getInitialProps = wrapper.getInitialAppProps(
       //#endregion
 
       //#region email and session handling
-      let email = ctx.query.email;
+      let email = ctx.query.email as string | undefined;
       let session: Session | undefined;
       let authToken: string | null = null;
 
       if (devSession && getEnv() === "development") {
-        session = devSession;
-        //@ts-ignore
-        email = devSession.user.email;
-      } else if (testSession && getEnv() === "test") {
-        session = testSession;
-        //@ts-ignore
-        email = testSession.user.email;
+        const user = devSession.user;
+        if (user) {
+          email = user.email;
+
+          const isAdmin =
+            typeof email === "string" &&
+            typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"
+              ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").includes(email)
+              : false;
+
+          session = {
+            user: {
+              ...user,
+              isAdmin
+            }
+          };
+        }
       } else {
         if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
           const cookie = parse(cookies);
@@ -169,10 +177,6 @@ App.getInitialProps = wrapper.getInitialAppProps(
               email = user.email;
             }
           }
-        } else if (singleSession) {
-          session = singleSession;
-          //@ts-ignore
-          email = singleSession.user.email;
         }
       }
 

@@ -78,6 +78,7 @@ export const TopicsList = ({
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const entityUrl = entity[isE ? "event" : "org" + "Url"];
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const defaultOrder = ETopicsListOrder.NEWEST;
@@ -394,7 +395,6 @@ export const TopicsList = ({
                 isSubbedToTopic={isSubbedToTopic}
                 isCurrent={isCurrent}
                 isTopicCreator={isTopicCreator}
-                isDark={isDark}
                 //isLoading={isLoading[topic._id] || query.isLoading}
                 //setIsLoading={setIsLoading}
                 selectedCategories={selectedCategories}
@@ -424,9 +424,11 @@ export const TopicsList = ({
           isFollowed={props.isFollowed}
           onCancel={onClose}
           onSubmit={async (topic) => {
-            // const topicName = normalize(topic.topicName);
-            // const url = `${baseUrl}/${topicName}`;
-            // await router.push(url, url, { shallow: true });
+            if (topic) {
+              const topicName = normalize(topic.topicName);
+              const url = `/${entityUrl}/discussions/${topicName}`;
+              await router.push(url, url, { shallow: true });
+            }
             query.refetch();
             onClose();
           }}

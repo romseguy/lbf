@@ -235,8 +235,6 @@ export const EventForm = withGoogleApi({
     let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
     eventOrg =
       eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
-    console.log("🚀 ~ eventOrg:", eventOrg);
-
     const categories = eventOrg ? getEventCategories(eventOrg) : [];
     const visibilities = eventOrg
       ? [EEventVisibility.PUBLIC, EEventVisibility.FOLLOWERS]

@@ -94,10 +94,10 @@ export const OrgSchema = new Schema<IOrg>(
       ],
       default: []
     },
-    orgProjects: {
-      type: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-      default: []
-    },
+    // orgProjects: {
+    //   type: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    //   default: []
+    // },
     orgSubscriptions: {
       type: [
         { type: Schema.Types.ObjectId, ref: "Subscription", required: true }

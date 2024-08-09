@@ -1,26 +1,18 @@
 import { AddIcon } from "@chakra-ui/icons";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  BoxProps,
-  useColorMode
-} from "@chakra-ui/react";
+import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
 
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { IGallery } from "models/Gallery";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { hasItems } from "utils/array";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { sanitize } from "utils/string";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
 import { removeProps } from "utils/object";
 import { useScroll } from "hooks/useScroll";
-import { event } from "d3";
-import { useGetGalleryQuery } from "features/api/galleriesApi";
 
 export const GalleriesListItem = ({
   gallery,

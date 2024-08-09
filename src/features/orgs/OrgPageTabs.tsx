@@ -82,7 +82,7 @@ export const OrgPageTabs = ({
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
-  // console.log("🚀 ~ org:", org);
+  console.log("🚀 ~ org:", org);
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
   //#region tabs
@@ -241,19 +241,24 @@ export const OrgPageTabs = ({
               data-cy={key}
             >
               {label}
-              {url === "/agenda" && hasItems(org.orgEvents) ? (
+              {url === "/agenda" && hasItems(org.orgEvents) && (
                 <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-              ) : (url === "/discussions" || url === "/d") &&
-                hasItems(org.orgTopics.concat([org.orgEvents])) ? (
-                <Badge {...badgeProps}>
-                  {org.orgTopics.concat([org.orgEvents]).length}
-                </Badge>
-              ) : url === "/galeries" &&
-                (hasItems(org.orgGalleries) || hasItems(org.orgEvents)) ? (
-                <Badge {...badgeProps}>
-                  {org.orgGalleries.length + org.orgEvents.length}
-                </Badge>
-              ) : null}
+              )}
+
+              {(url === "/discussions" || url === "/d") &&
+                hasItems(org.orgTopics.concat([org.orgEvents])) && (
+                  <Badge {...badgeProps}>
+                    {org.orgTopics.concat([org.orgEvents]).length}
+                  </Badge>
+                )}
+
+              {url === "/galeries" &&
+                (hasItems(org.orgGalleries) || hasItems(org.orgEvents)) && (
+                  <Badge {...badgeProps}>
+                    {org.orgGalleries.length + org.orgEvents.length}
+                  </Badge>
+                )}
+
               {/* {url === "/galeries"
                 ? Array.isArray(documentsQuery.data) &&
                   documentsQuery.data.length > 0 && (
@@ -364,7 +369,6 @@ export const OrgPageTabs = ({
                   query={orgQuery}
                   currentGalleryName={currentItemName}
                   isCreator={isCreator}
-                  onSubmit={(gallery) => {}}
                 />
               </Column>
             </TabPanel>

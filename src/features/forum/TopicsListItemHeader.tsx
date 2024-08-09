@@ -9,7 +9,9 @@ import {
   Text,
   FlexProps,
   HStack,
-  StackProps
+  StackProps,
+  useColorMode,
+  VStack
 } from "@chakra-ui/react";
 import React from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
@@ -20,10 +22,11 @@ import * as dateUtils from "utils/date";
 import { AppQueryWithData } from "utils/types";
 import { TopicsListItemShare } from "./TopicsListItemShare";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 
 interface TopicsListItemHeader {
   isCurrent: boolean;
-  isDark: boolean;
   query: AppQueryWithData<IEntity>;
   selectedCategories?: string[];
   setSelectedCategories: React.Dispatch<
@@ -34,13 +37,16 @@ interface TopicsListItemHeader {
 
 export const TopicsListItemHeader = ({
   isCurrent,
-  isDark,
   query,
   selectedCategories,
   setSelectedCategories,
   topic,
   ...props
 }: StackProps & TopicsListItemHeader) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
+
   //#region entity
   const entity = query.data;
   const isE = isEvent(entity);
@@ -66,67 +72,65 @@ export const TopicsListItemHeader = ({
       : "";
   //#endregion
 
-  return (
-    <HStack {...props}>
-      <Tooltip label={`${topic.topicMessages.length} message(s)`}>
-        <Box pos="relative">
-          {isCurrent ? (
+  const elements = (
+    <>
+      <HStack>
+        <Tooltip label={`${topic.topicMessages.length} message(s)`}>
+          <Box pos="relative" mt={isMobile ? 0 : 2}>
             <Icon
-              as={FaFolderOpen}
-              //alignSelf="center"
+              as={isCurrent ? FaFolderOpen : FaFolder}
               boxSize={7}
               color={isDark ? "teal.200" : "teal"}
-              //mr={2}
             />
-          ) : (
-            <Icon
-              as={FaFolder}
-              boxSize={7}
-              color={isDark ? "teal.200" : "teal"}
-              //mr={2}
-            />
-          )}
-          {topic.topicMessages.length > 0 && (
-            <Badge
-              bgColor={isDark ? "teal.600" : "teal.100"}
-              color={isDark ? "white" : "black"}
-              pos="absolute"
-              variant="solid"
-              left={1}
-            >
-              {topic.topicMessages.length}
-            </Badge>
-          )}
-        </Box>
-      </Tooltip>
 
-      {isO && isEventTopic ? (
-        <CalendarIcon mr={1} mt={-1} />
-      ) : (
-        <Icon as={ChatIcon} mr={1} mt={0} />
-      )}
+            {topic.topicMessages.length > 0 && (
+              <Badge
+                bgColor={isDark ? "teal.600" : "teal.100"}
+                color={isDark ? "white" : "black"}
+                pos="absolute"
+                variant="solid"
+                left={1}
+              >
+                {topic.topicMessages.length}
+              </Badge>
+            )}
+          </Box>
+        </Tooltip>
 
-      <Text whiteSpace="nowrap">
-        Discussion{isEventTopic && "s de l'événement"} :{" "}
-      </Text>
+        {isO && isEventTopic ? <CalendarIcon /> : <Icon as={ChatIcon} />}
+
+        <Text whiteSpace={!isMobile ? "nowrap" : undefined}>
+          Discussion{isEventTopic && "s de l'événement"} :{" "}
+        </Text>
+      </HStack>
 
       <Text fontWeight="bold">{event ? event.eventName : topic.topicName}</Text>
-    </HStack>
+    </>
   );
+
+  if (isMobile)
+    return (
+      <VStack alignItems="flex-start" spacing={0} {...props}>
+        {elements}
+      </VStack>
+    );
+  return <HStack {...props}>{elements}</HStack>;
 };
 
 interface TopicsListItemHeaderDetailsProps {
-  isDark: boolean;
   query: AppQueryWithData<IEntity>;
   topic: ITopic;
 }
 
 export const TopicsListItemHeaderDetails = ({
-  isDark,
   query,
   topic,
   ...props
 }: Omit<FlexProps, "onClick"> & TopicsListItemHeaderDetailsProps) => {
+  const { colorMode } = useColorMode();
+  const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
+
   //#region topic
   const { timeAgo, fullDate } = dateUtils.timeAgo(topic.createdAt, true);
   const topicCreatedByUserName =
@@ -145,7 +149,7 @@ export const TopicsListItemHeaderDetails = ({
       flexWrap="wrap"
       fontSize="smaller"
       color={isDark ? "white" : "purple"}
-      ml={10}
+      ml={isMobile ? 0 : 10}
     >
       <Tooltip label="Aller à la page de l'utilisateur">
         <Link

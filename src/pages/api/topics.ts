@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
@@ -12,11 +12,9 @@ import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
-import { getCurrentId } from "store/utils";
 import { hasItems } from "utils/array";
 import { createEndpointError } from "utils/errors";
-import { equals, logJson, toString } from "utils/string";
-import { randomNumber } from "utils/randomNumber";
+import { equals, logJson } from "utils/string";
 import { logEvent, ServerEventTypes } from "server/logging";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -80,7 +78,8 @@ handler.get<
 handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
   async function addTopic(req, res) {
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /topics `;
-    console.log(prefix + "body", req.body);
+    //console.log(prefix + "body", req.body);
+    console.log(prefix);
 
     const session = await getSession({ req });
 
@@ -177,7 +176,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#endregion
       //#region new topic
       else {
-        let topicName = body.topic.topicName;
+        // let topicName = body.topic.topicName;
         // const topicWithSameName = await models.Topic.findOne({
         //   topicName
         // });
@@ -192,7 +191,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
         topic = await models.Topic.create({
           ...body.topic,
-          topicName,
+          //topicName,
           topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
             ...topicMessage,
             createdBy: session.user.userId
@@ -204,9 +203,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
         //#region add topic to entity and notify entity subscribers
         if (event) {
-          event.eventTopics.push(topic);
-          await event.save();
-          //log(`POST /topics: event`, event);
+          await models.Event.updateOne(
+            { _id: event._id },
+            {
+              $push: { eventTopics: topic._id }
+            }
+          );
+          // event.eventTopics.push(topic);
+          // await event.save();
         } else if (org) {
           await models.Org.updateOne(
             { _id: org._id },
@@ -214,14 +218,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
               $push: { orgTopics: topic._id }
             }
           );
-          const subscriptions = await models.Subscription.find(
-            {
-              orgs: { $elemMatch: { orgId: org._id } },
-              user: { $ne: session.user.userId }
-            },
-            "user email events orgs"
-          ).populate([{ path: "user", select: "email userSubscription" }]);
-          await sendTopicNotifications({ org, subscriptions, topic });
+          // const subscriptions = await models.Subscription.find(
+          //   {
+          //     orgs: { $elemMatch: { orgId: org._id } },
+          //     user: { $ne: session.user.userId }
+          //   },
+          //   "user email events orgs"
+          // ).populate([{ path: "user", select: "email userSubscription" }]);
+          // await sendTopicNotifications({ org, subscriptions, topic });
         }
         //#endregion
 

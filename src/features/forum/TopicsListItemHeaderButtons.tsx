@@ -7,7 +7,8 @@ import {
   Spinner,
   Text,
   useColorMode,
-  HStack
+  HStack,
+  VStack
 } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
@@ -213,43 +214,18 @@ export const TopicsListItemHeaderButtons = ({
   };
   //#endregion
 
-  return (
-    <HStack
-      // pt={3}
-      // pb={2}
-      ml={2}
-      {...(isMobile ? { pb: 1, pt: 3 } : {})}
-    >
-      {isLoading && <Spinner mr={3} mt={1} mb={2} />}
-
-      {!isLoading && session && (
+  const elements = (
+    <>
+      {session && (
         <>
           {isCreator && (
             <>
-              {/* <Tooltip
-                    placement="bottom"
-                    label="Envoyer des invitations à la discussion"
-                  >
-                    <IconButton
-                      aria-label="Envoyer des invitations à la discussion"
-                      icon={<EmailIcon />}
-                      variant="outline"
-                      colorScheme="blue"
-                      mr={3}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNotifClick();
-                      }}
-                    />
-                  </Tooltip> */}
-
               <Tooltip placement="bottom" label="Épingler la discussion">
                 <IconButton
                   aria-label="Épingler la discussion"
                   icon={topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />}
                   variant="outline"
                   colorScheme="teal"
-                  mr={3}
                   onClick={async (e) => {
                     e.stopPropagation();
                     setIsLoading({
@@ -291,91 +267,116 @@ export const TopicsListItemHeaderButtons = ({
                 }}
               />
 
-              <DeleteButton
-                header={
-                  <>
-                    Êtes vous sûr de vouloir supprimer la discussion
-                    <Text display="inline" color="red" fontWeight="bold">
-                      {` ${topic.topicName}`}
-                    </Text>{" "}
-                    ?
-                  </>
-                }
-                isIconOnly
-                isSmall={false}
-                label="Supprimer la discussion"
-                mr={3}
-                placement="bottom"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteClick();
-                }}
-                data-cy="topic-list-item-delete"
-              />
+              {!isEventTopic && (
+                <DeleteButton
+                  header={
+                    <>
+                      Êtes vous sûr de vouloir supprimer la discussion
+                      <Text display="inline" color="red" fontWeight="bold">
+                        {` ${topic.topicName}`}
+                      </Text>{" "}
+                      ?
+                    </>
+                  }
+                  isIconOnly
+                  isSmall={false}
+                  label="Supprimer la discussion"
+                  mr={3}
+                  placement="bottom"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick();
+                  }}
+                  data-cy="topic-list-item-delete"
+                />
+              )}
             </>
           )}
         </>
       )}
 
-      {!isLoading && (
-        <Flex>
-          {session && !isEventTopic && (
-            <Tooltip
-              label={
-                isSubbedToTopic
-                  ? "Se désabonner de la discussion"
-                  : "S'abonner à la discussion"
-              }
-            >
-              <IconButton
-                aria-label={
-                  isSubbedToTopic
-                    ? "Se désabonner de la discussion"
-                    : "S'abonner à la discussion"
-                }
-                icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
-                variant="outline"
-                colorScheme="blue"
-                mr={3}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  onSubscribeClick();
-                }}
-                data-cy={
-                  isSubbedToTopic
-                    ? "topic-list-item-unsubscribe"
-                    : "topic-list-item-subscribe"
-                }
-              />
-            </Tooltip>
-          )}
-
-          <Tooltip
-            placement="left"
-            label={`${isCurrent ? "Fermer" : "Ouvrir"} la discussion`}
-          >
-            <IconButton
-              aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la discussion`}
-              icon={
-                isCurrent ? (
-                  <ChevronUpIcon boxSize={9} />
-                ) : (
-                  <ChevronRightIcon boxSize={9} />
-                )
-              }
-              bg="transparent"
-              height="auto"
-              minWidth={0}
-              _hover={{
-                background: "transparent",
-                color: isDark ? "teal.100" : "white"
-              }}
-              onClick={onClick}
-            />
-          </Tooltip>
-        </Flex>
+      {session && !isEventTopic && (
+        <Tooltip
+          label={
+            isSubbedToTopic
+              ? "Se désabonner de la discussion"
+              : "S'abonner à la discussion"
+          }
+        >
+          <IconButton
+            aria-label={
+              isSubbedToTopic
+                ? "Se désabonner de la discussion"
+                : "S'abonner à la discussion"
+            }
+            icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
+            variant="outline"
+            colorScheme="blue"
+            mr={3}
+            onClick={async (e) => {
+              e.stopPropagation();
+              onSubscribeClick();
+            }}
+            data-cy={
+              isSubbedToTopic
+                ? "topic-list-item-unsubscribe"
+                : "topic-list-item-subscribe"
+            }
+          />
+        </Tooltip>
       )}
-    </HStack>
+
+      <Tooltip
+        placement="left"
+        label={`${isCurrent ? "Fermer" : "Ouvrir"} la discussion`}
+      >
+        <IconButton
+          aria-label={`${isCurrent ? "Fermer" : "Ouvrir"} la discussion`}
+          icon={
+            isCurrent ? (
+              <ChevronUpIcon boxSize={9} />
+            ) : (
+              <ChevronRightIcon boxSize={9} />
+            )
+          }
+          bg="transparent"
+          height="auto"
+          minWidth={0}
+          _hover={{
+            background: "transparent",
+            color: isDark ? "teal.100" : "white"
+          }}
+          onClick={onClick}
+        />
+      </Tooltip>
+    </>
   );
+
+  if (isLoading) return <Spinner mr={3} mt={1} mb={2} />;
+
+  if (isMobile) return <VStack {...props}>{elements}</VStack>;
+
+  return <HStack {...props}>{elements}</HStack>;
 };
+
+{
+  /*
+  <Tooltip
+    placement="bottom"
+    label="Envoyer des invitations à la discussion"
+  >
+    <IconButton
+      aria-label="Envoyer des invitations à la discussion"
+      icon={<EmailIcon />}
+      variant="outline"
+      colorScheme="blue"
+      mr={3}
+      onClick={(e) => {
+        e.stopPropagation();
+        onNotifClick();
+      }}
+    />
+  </Tooltip>
+*/
+}

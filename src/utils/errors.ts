@@ -81,21 +81,23 @@ export const createValidationError = (error: any) => {
  * }
  */
 export const createEndpointError = (error: any) => {
-  if (error.name === "ValidationError") return createValidationError(error);
+  let out = error;
 
-  if (error.code) {
+  // errors by name
+  if (error.name === "ValidationError") out = createValidationError(error);
+  // errors by code
+  else if (error.code) {
     if (typeof error.code === "number") {
       if (databaseErrorMessages[error.code]) {
-        return createDatabaseError(error);
+        out = createDatabaseError(error);
       }
     } else if (typeof error.code === "string") {
       if (messageByCode[error.code]) {
-        return createServerError(error);
+        out = createServerError(error);
       }
     }
-  }
+  } else if (error.message) out = { message: error.message + "." };
 
-  if (error.message) return { message: error.message + "." };
-
-  return error;
+  console.error(out);
+  return out;
 };

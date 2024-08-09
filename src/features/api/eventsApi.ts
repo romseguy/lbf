@@ -32,40 +32,24 @@ export const eventApi = api.injectEndpoints({
           body: payload
         };
       },
-      invalidatesTags: (result, error, params) =>
-        result
-          ? [
-              ...result.eventOrgs.map((org) => ({
-                type: TagTypes.ORGS,
-                id: org._id
-              })),
-              { type: TagTypes.EVENTS, id: "LIST" }
-            ]
-          : [{ type: TagTypes.EVENTS, id: "LIST" }]
-    }),
-    // addEventNotif: build.mutation<
-    //   { notifications: IEventNotification[] },
-    //   {
-    //     payload: AddEventNotifPayload;
-    //     eventId: string;
-    //   }
-    // >({
-    //   query: ({ payload, eventId }) => {
-    //     //console.groupCollapsed("addEventNotif");
-    //     //console.log("addEventNotif: eventId", eventId);
-    //     //console.log("addEventNotif: payload", payload);
-    //     //console.groupEnd();
+      invalidatesTags: (result, error, params) => {
+        if (error || !result) return [];
 
-    //     return {
-    //       url: `event/${eventId}`,
-    //       method: "POST",
-    //       body: payload
-    //     };
-    //   },
-    //   invalidatesTags: (result, error, params) => [
-    //     { types: TagTypes.EVENTS, id: params.eventId }
-    //   ]
-    // }),
+        let tags = [
+          { type: TagTypes.EVENTS, id: "LIST" },
+          { type: TagTypes.TOPICS, id: "LIST" }
+        ];
+
+        result.eventOrgs.forEach((org) => {
+          tags.push({
+            type: TagTypes.ORGS,
+            id: org._id
+          });
+        });
+
+        return tags;
+      }
+    }),
     deleteEvent: build.mutation<IEvent, { eventId: string }>({
       query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) =>
@@ -171,3 +155,27 @@ export const {
   useGetEventsQuery
 } = eventApi;
 export const { getEvent, getEvents, deleteEvent } = eventApi.endpoints;
+
+// addEventNotif: build.mutation<
+//   { notifications: IEventNotification[] },
+//   {
+//     payload: AddEventNotifPayload;
+//     eventId: string;
+//   }
+// >({
+//   query: ({ payload, eventId }) => {
+//     //console.groupCollapsed("addEventNotif");
+//     //console.log("addEventNotif: eventId", eventId);
+//     //console.log("addEventNotif: payload", payload);
+//     //console.groupEnd();
+
+//     return {
+//       url: `event/${eventId}`,
+//       method: "POST",
+//       body: payload
+//     };
+//   },
+//   invalidatesTags: (result, error, params) => [
+//     { types: TagTypes.EVENTS, id: params.eventId }
+//   ]
+// }),
