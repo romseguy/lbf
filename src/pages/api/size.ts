@@ -23,7 +23,7 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       const { data } = await client.get(`size`);
       res.status(200).json(data);
     } catch (error) {
-      res.status(404).json(createEndpointError(error));
+      res.status(504).json(createEndpointError(error));
     }
   });
 

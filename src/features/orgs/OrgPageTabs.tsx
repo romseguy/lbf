@@ -82,7 +82,6 @@ export const OrgPageTabs = ({
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
-  console.log("🚀 ~ org:", org);
   const orgTabs = [...(org.orgTabs || defaultTabs)];
   //.filter((tab) => tab.label === "" && !session ? false : true);
   //#region tabs
@@ -199,8 +198,6 @@ export const OrgPageTabs = ({
           )}-tab`;
           const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
           const isCurrent = tabIndex === currentTabIndex;
-          // console.log("🚀 ~ {sortedTabs.map ~ url:", url);
-
           return (
             <EntityPageTab
               key={key}
@@ -246,9 +243,9 @@ export const OrgPageTabs = ({
               )}
 
               {(url === "/discussions" || url === "/d") &&
-                hasItems(org.orgTopics.concat([org.orgEvents])) && (
+                (hasItems(org.orgTopics) || hasItems(org.orgEvents)) && (
                   <Badge {...badgeProps}>
-                    {org.orgTopics.concat([org.orgEvents]).length}
+                    {org.orgTopics.length + org.orgEvents.length}
                   </Badge>
                 )}
 

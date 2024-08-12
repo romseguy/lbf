@@ -3,7 +3,7 @@ import nextConnect from "next-connect";
 import database, { models } from "server/database";
 import { AddSubscriptionPayload } from "features/api/subscriptionsApi";
 import { getSession } from "server/auth";
-import { IOrg } from "models/Org";
+import { addOrReplaceList, editList, IOrg } from "models/Org";
 import {
   getFollowerSubscription,
   IOrgSubscription,
@@ -15,38 +15,6 @@ import { IUser } from "models/User";
 import { createEndpointError } from "utils/errors";
 import { equals, logJson } from "utils/string";
 import { getRefId } from "models/Entity";
-
-function updateOrgSubscription(
-  org: IOrg,
-  subscription: ISubscription,
-  subscriptionType: string,
-  newOrgSubscription: IOrgSubscription
-) {
-  subscription.orgs = subscription.orgs?.map((orgSubscription) => {
-    if (
-      equals(orgSubscription.orgId, org._id) &&
-      orgSubscription.type === subscriptionType
-    ) {
-      if (newOrgSubscription.eventCategories)
-        orgSubscription.eventCategories = newOrgSubscription.eventCategories;
-
-      if (newOrgSubscription.tagTypes) {
-        if (
-          Array.isArray(orgSubscription.tagTypes) &&
-          orgSubscription.tagTypes.length > 0
-        ) {
-          for (const newTagType of newOrgSubscription.tagTypes) {
-            setFollowerSubscriptionTagType(newTagType, orgSubscription);
-          }
-        } else {
-          orgSubscription.tagTypes = newOrgSubscription.tagTypes;
-        }
-      }
-    }
-
-    return orgSubscription;
-  });
-}
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -163,37 +131,44 @@ handler.post<
               )
             );
 
+        //#region orgLists
+        let list = org.orgLists.find(
+          (orgList) => orgList.listName === "Participants"
+        );
+
+        if (list) {
+          list.subscriptions.push(subscription);
+        } else
+          list = {
+            listName: "Participants",
+            subscriptions: [subscription]
+          };
+
+        org.orgLists = addOrReplaceList(org, list);
+        //#endregion
+
+        //#region orgSubscriptions
         org = await org.populate("orgSubscriptions").execPopulate();
 
         if (
           !org.orgSubscriptions.find((orgSubscription) =>
-            equals(orgSubscription._id, subscription!._id)
+            equals(
+              getRefId(orgSubscription, "_id"),
+              getRefId(subscription, "_id")
+            )
           )
         ) {
           org.orgSubscriptions.push(subscription);
           await org.save();
         }
+        //#endregion
 
         if (!Array.isArray(subscription.orgs) || !subscription.orgs.length) {
           subscription.orgs = [newOrgSubscription];
           continue;
         }
 
-        if (newOrgSubscription.type === EOrgSubscriptionType.FOLLOWER) {
-          const followerSubscription = getFollowerSubscription({
-            org,
-            subscription
-          });
-
-          if (!followerSubscription) subscription.orgs.push(newOrgSubscription);
-          else
-            updateOrgSubscription(
-              org,
-              subscription,
-              EOrgSubscriptionType.FOLLOWER,
-              newOrgSubscription
-            );
-        }
+        // [0]
       }
     } else if (body.events) {
       const { events: newEventSubscriptions } = body;
@@ -309,7 +284,7 @@ handler.post<
       for (let i = 0; i < body.topics.length; i++) {
         const newTopicSubscription = body.topics[i];
         if (newTopicSubscription.topic === null) continue;
-        const topicId = getRefId(newTopicSubscription.topic);
+        const topicId = getRefId(newTopicSubscription.topic, "_id");
         const topic = await models.Topic.findOne({ _id: topicId });
 
         if (!topic) {
@@ -327,7 +302,8 @@ handler.post<
         const { emailNotif, pushNotif } = newTopicSubscription;
         const topicSubscription = subscription.topics?.find(
           (topicS) =>
-            topicS.topic !== null && equals(getRefId(topicS.topic), topicId)
+            topicS.topic !== null &&
+            equals(getRefId(topicS.topic, "_id"), topicId)
         );
 
         if (!topicSubscription) {
@@ -367,3 +343,60 @@ export const config = {
 };
 
 export default handler;
+
+{
+  /*
+    [0]
+
+    if (newOrgSubscription.type === EOrgSubscriptionType.FOLLOWER) {
+      const followerSubscription = getFollowerSubscription({
+        org,
+        subscription
+      });
+
+      if (!followerSubscription) subscription.orgs.push(newOrgSubscription);
+      else
+        updateOrgSubscription(
+          org,
+          subscription,
+          EOrgSubscriptionType.FOLLOWER,
+          newOrgSubscription
+        );
+    }
+  */
+}
+{
+  /*
+    function updateOrgSubscription(
+      org: IOrg,
+      subscription: ISubscription,
+      subscriptionType: string,
+      newOrgSubscription: IOrgSubscription
+    ) {
+      subscription.orgs = subscription.orgs?.map((orgSubscription) => {
+        if (
+          equals(orgSubscription.orgId, org._id) &&
+          orgSubscription.type === subscriptionType
+        ) {
+          if (newOrgSubscription.eventCategories)
+            orgSubscription.eventCategories = newOrgSubscription.eventCategories;
+
+          if (newOrgSubscription.tagTypes) {
+            if (
+              Array.isArray(orgSubscription.tagTypes) &&
+              orgSubscription.tagTypes.length > 0
+            ) {
+              for (const newTagType of newOrgSubscription.tagTypes) {
+                setFollowerSubscriptionTagType(newTagType, orgSubscription);
+              }
+            } else {
+              orgSubscription.tagTypes = newOrgSubscription.tagTypes;
+            }
+          }
+        }
+
+        return orgSubscription;
+      });
+    }
+  */
+}

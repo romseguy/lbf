@@ -21,9 +21,6 @@ export async function getSession(params: {
   if (devSession) session = devSession;
 
   if (session?.user) {
-    console.log("🚀 ~ split:", process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(","));
-    console.log("🚀 ~ session.user.email:", session.user.email);
-
     session.user.isAdmin =
       typeof session.user.email === "string" &&
       typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"

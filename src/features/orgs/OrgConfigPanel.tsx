@@ -170,7 +170,7 @@ export const OrgConfigPanel = ({
             />
           </Column>
 
-          <Column mx={3} pt={1}>
+          {/* <Column mx={3} pt={1}>
             <Text fontSize="3xl" mb={3}>
               Événements
             </Text>
@@ -182,7 +182,7 @@ export const OrgConfigPanel = ({
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}
             />
-          </Column>
+          </Column> */}
         </>
       )}
     </>

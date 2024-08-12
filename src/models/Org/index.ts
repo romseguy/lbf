@@ -17,7 +17,7 @@ import {
   IOrgTabWithMetadata
 } from "./IOrg";
 
-export const defaultLists = ["Abonnés", "Participants"];
+export const defaultLists = [/*"Abonnés",*/ "Participants"];
 
 export * from "./IOrg";
 
@@ -53,7 +53,7 @@ export const addOrReplaceList = (org: IOrg, list: IOrgList) => {
 
 export const editList = (
   org: IOrg,
-  listToEdit: IOrgList,
+  listToEdit: Partial<IOrgList>,
   newList: IOrgList
 ) => {
   if (!hasItems(org.orgLists)) return [newList];
@@ -69,16 +69,16 @@ export const getLists = (org?: IOrg): IOrgList[] => {
 
   let lists = org.orgLists;
 
-  if (
-    Array.isArray(lists) &&
-    !lists.find(({ listName }) => listName === "Abonnés")
-  )
-    lists = [
-      {
-        listName: "Abonnés",
-        subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
-      }
-    ].concat(lists);
+  // if (
+  //   Array.isArray(lists) &&
+  //   !lists.find(({ listName }) => listName === "Abonnés")
+  // )
+  //   lists = [
+  //     {
+  //       listName: "Abonnés",
+  //       subscriptions: getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
+  //     }
+  //   ].concat(lists);
 
   if (
     Array.isArray(lists) &&

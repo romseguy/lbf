@@ -87,81 +87,19 @@ export const SubscriptionForm = ({
   const onSubmit = async (form: FormValues) => {
     console.log("submitted", form);
     setIsLoading(true);
-    const { emailList, phoneList, orgLists } = form;
+    const { emailList /*phoneList, orgLists*/ } = form;
 
     const emailArray: string[] = tags
       .map(({ label }) => label)
       .concat(emailList)
       .filter((email: string) => emailR.test(email));
-    const phoneArray: string[] = (phoneList || "")
-      .split(/(\s+)/)
-      .filter((e: string) => e.trim().length > 0)
-      .filter((phone: string) => phoneR.test(phone));
 
     try {
-      if (!hasItems(emailArray) && !hasItems(phoneArray)) {
+      if (!hasItems(emailArray) /*&& !hasItems(phoneArray)*/) {
         throw new Error("Aucunes coordonnées valide");
       }
 
       for (const email of emailArray) {
-        // if (hasItems(orgLists)) {
-        //   for (const { value: listName } of orgLists) {
-        //     let type;
-        //     // TODO1 replace with sub.list
-        //     if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
-        //     if (type) {
-        //       await addSubscription({
-        //         email,
-        //         orgs: [
-        //           {
-        //             org,
-        //             orgId: org._id,
-        //             type,
-        //             tagTypes: [
-        //               { type: "Events", emailNotif: true, pushNotif: true },
-        //               { type: "Projects", emailNotif: true, pushNotif: true },
-        //               { type: "Topics", emailNotif: true, pushNotif: true }
-        //             ]
-        //           }
-        //         ]
-        //       });
-        //     } else {
-        //       const subscription = await addSubscription({
-        //         email,
-        //         orgs: [
-        //           {
-        //             org,
-        //             orgId: org._id
-        //           }
-        //         ]
-        //       }).unwrap();
-        //     }
-        //   }
-
-        //   const payload: EditOrgPayload = {
-        //     orgLists: org.orgLists.map((orgList) => {
-        //       if (orgList.listName === listName) {
-        //         if (!orgList.subscriptions.length)
-        //           return {
-        //             ...orgList,
-        //             subscriptions: [subscription]
-        //           };
-
-        //         return {
-        //           ...orgList,
-        //           subscriptions: !orgList.subscriptions.find(
-        //             ({ _id }) => _id === subscription._id
-        //           )
-        //             ? [...orgList.subscriptions, subscription]
-        //             : orgList.subscriptions
-        //         };
-        //       }
-
-        //       return orgList;
-        //     })
-        //   };
-        //   await editOrg({ orgId: org._id, payload });
-        // } else
         await addSubscription({
           email,
           orgs: [
@@ -173,24 +111,6 @@ export const SubscriptionForm = ({
         });
       }
 
-      // for (const phone of phoneArray) {
-      //   for (const type of orgLists) {
-      //     await addSubscription({
-      //       phone,
-      //       payload: {
-      //         orgs: [
-      //           {
-      //             orgId: org._id,
-      //             org,
-      //             type
-      //           }
-      //         ]
-      //       }
-      //     });
-      //   }
-      // }
-
-      //setValue("orgLists", []);
       setIsLoading(false);
       props.onSubmit && props.onSubmit();
     } catch (error) {
@@ -227,7 +147,7 @@ export const SubscriptionForm = ({
         />
       </Box>
 
-      <Box {...formBoxProps(isDark)}>
+      {/*<Box {...formBoxProps(isDark)}>
         <ListsControl
           name="orgLists"
           control={control}
@@ -240,7 +160,7 @@ export const SubscriptionForm = ({
           mb={3}
           onChange={onChange}
         />
-      </Box>
+      </Box>*/}
 
       <ErrorMessage
         errors={errors}
@@ -265,7 +185,6 @@ export const SubscriptionForm = ({
           type="submit"
           isDisabled={isDisabled}
           isLoading={isLoading}
-          data-cy="orgAddSubscribersSubmit"
         >
           Ajouter
         </Button>
@@ -273,3 +192,93 @@ export const SubscriptionForm = ({
     </form>
   );
 };
+
+{
+  /*
+    const phoneArray: string[] = (phoneList || "")
+      .split(/(\s+)/)
+      .filter((e: string) => e.trim().length > 0)
+      .filter((phone: string) => phoneR.test(phone));
+    for (const phone of phoneArray) {
+      for (const type of orgLists) {
+        await addSubscription({
+          phone,
+          payload: {
+            orgs: [
+              {
+                orgId: org._id,
+                org,
+                type
+              }
+            ]
+          }
+        });
+      }
+    }
+
+    setValue("orgLists", []);
+  */
+}
+
+{
+  /*
+    if (hasItems(orgLists)) {
+      for (const { value: listName } of orgLists) {
+        let type;
+        // TODO1 replace with sub.list
+        if (listName === "Abonnés") type = EOrgSubscriptionType.FOLLOWER;
+        if (type) {
+          await addSubscription({
+            email,
+            orgs: [
+              {
+                org,
+                orgId: org._id,
+                type,
+                tagTypes: [
+                  { type: "Events", emailNotif: true, pushNotif: true },
+                  { type: "Projects", emailNotif: true, pushNotif: true },
+                  { type: "Topics", emailNotif: true, pushNotif: true }
+                ]
+              }
+            ]
+          });
+        } else {
+          const subscription = await addSubscription({
+            email,
+            orgs: [
+              {
+                org,
+                orgId: org._id
+              }
+            ]
+          }).unwrap();
+        }
+      }
+
+      const payload: EditOrgPayload = {
+        orgLists: org.orgLists.map((orgList) => {
+          if (orgList.listName === listName) {
+            if (!orgList.subscriptions.length)
+              return {
+                ...orgList,
+                subscriptions: [subscription]
+              };
+
+            return {
+              ...orgList,
+              subscriptions: !orgList.subscriptions.find(
+                ({ _id }) => _id === subscription._id
+              )
+                ? [...orgList.subscriptions, subscription]
+                : orgList.subscriptions
+            };
+          }
+
+          return orgList;
+        })
+      };
+      await editOrg({ orgId: org._id, payload });
+    } else
+  */
+}

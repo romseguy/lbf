@@ -163,7 +163,7 @@ export const OrgConfigListsPanel = ({
               </Flex>
             </GridItem>
 
-            <GridItem
+            {/* <GridItem
               css={css`
                 @media (max-width: ${breakpoints.nav}) {
                   & {
@@ -185,7 +185,7 @@ export const OrgConfigListsPanel = ({
               >
                 {isAdd ? "Annuler" : "Ajouter"}
               </Button>
-            </GridItem>
+            </GridItem> */}
           </Grid>
         </GridHeader>
       </Link>

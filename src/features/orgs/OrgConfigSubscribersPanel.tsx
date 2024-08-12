@@ -34,7 +34,6 @@ export const OrgConfigSubscribersPanel = ({
     subQuery: AppQuery<ISubscription>;
   }) => {
   const org = orgQuery.data;
-  console.log("🚀 ~ org:", org);
   const dispatch = useAppDispatch();
 
   //#region local state
@@ -124,7 +123,7 @@ export const OrgConfigSubscribersPanel = ({
                 m={1}
                 data-cy="orgAddSubscribers"
               >
-                {isAdd ? "Annuler" : "Ajouter"}
+                {isAdd ? "Annuler" : "Ajouter des participants"}
               </Button>
             </GridItem>
           </Grid>
