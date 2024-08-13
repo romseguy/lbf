@@ -1,17 +1,12 @@
-import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendMail, sendTopicNotifications } from "server/email";
-import { EditTopicPayload, AddTopicNotifPayload } from "features/api/topicsApi";
+import { EditTopicPayload } from "features/api/topicsApi";
 import { getRefId } from "models/Entity";
-import { ITopicNotification } from "models/INotification";
-import { getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { getSession } from "server/auth";
-import { createTopicEmailNotif } from "utils/email";
 import { createEndpointError } from "utils/errors";
 import { equals } from "utils/string";
+import { logEvent, ServerEventTypes } from "server/logging";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -397,6 +392,12 @@ handler.delete<
     const { deletedCount } = await models.Topic.deleteOne({ _id });
     if (deletedCount !== 1)
       throw new Error(`La discussion n'a pas pu être supprimée`);
+
+    logEvent({
+      type: ServerEventTypes.TOPICS_DEL,
+      metadata: { topic }
+    });
+
     res.status(200).json(topic);
   } catch (error) {
     res.status(500).json(createEndpointError(error));

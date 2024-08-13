@@ -199,7 +199,9 @@ handler.post<
 
     if (event) {
       await models.Gallery.create({
-        galleryName: event._id
+        galleryName: event._id,
+        event,
+        createdBy: session.user.userId
       });
       await models.Org.updateMany(
         {

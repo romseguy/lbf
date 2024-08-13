@@ -4,10 +4,10 @@ import { IGallery } from "./IGallery";
 
 export const GallerySchema = new Schema<IGallery>(
   {
-    // event: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: "Event"
-    // },
+    event: {
+      type: Schema.Types.ObjectId,
+      ref: "Event"
+    },
     org: {
       type: Schema.Types.ObjectId,
       ref: "Org"

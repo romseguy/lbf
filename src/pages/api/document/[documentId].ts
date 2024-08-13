@@ -8,6 +8,7 @@ import { equals } from "utils/string";
 
 import axios from "axios";
 import https from "https";
+import { logEvent, ServerEventTypes } from "server/logging";
 const agent = new https.Agent({
   rejectUnauthorized: false,
   requestCert: false
@@ -99,6 +100,13 @@ handler.delete<
       return res.status(200).json({ galleryId: galleryId });
     }
     //#endregion
+
+    logEvent({
+      type: ServerEventTypes.DOCUMENTS_DEL,
+      metadata: {
+        document: doc
+      }
+    });
 
     res.status(200).json({ ...doc._doc });
   } catch (error) {

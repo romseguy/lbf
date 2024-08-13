@@ -1,5 +1,6 @@
 import { IDocument } from "models/Document";
 import { IEntity, IEntityCategory } from "models/Entity";
+import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 
 export interface IGallery extends IEntity {
@@ -9,6 +10,7 @@ export interface IGallery extends IEntity {
   galleryName: string;
   galleryDocuments: IDocument[];
   isPinned?: boolean;
+  event?: IEvent;
   org?: IOrg;
 }
 export interface IGalleryCategory extends IEntityCategory {}

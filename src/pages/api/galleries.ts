@@ -13,6 +13,7 @@ import { createEndpointError } from "utils/errors";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { randomNumber } from "utils/randomNumber";
+import { normalize } from "path";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -185,16 +186,27 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
       //   }
       // }
 
-      res.status(200).json(gallery);
-    } catch (error: any) {
       logEvent({
-        type: ServerEventTypes.API_ERROR,
+        type: ServerEventTypes.GALLERIES,
         metadata: {
-          error,
-          method: "POST",
-          url: `/api/galleries`
+          galleryName: gallery.galleryName,
+          galleryUrl:
+            process.env.NEXT_PUBLIC_URL +
+            "/photo/galeries/" +
+            normalize(gallery.galleryName)
         }
       });
+
+      res.status(200).json(gallery);
+    } catch (error: any) {
+      //logEvent({
+      //   type: ServerEventTypes.API_ERROR,
+      //   metadata: {
+      //     error,
+      //     method: "POST",
+      //     url: `/api/galleries`
+      //   }
+      // });
       res.status(500).json(createEndpointError(error));
     }
   }

@@ -61,14 +61,14 @@ handler.get<
           )
         );
 
-    logEvent({
-      type: ServerEventTypes.API_CALL,
-      metadata: {
-        method: "GET",
-        ip: getClientIp(req),
-        url: `/api/${orgUrl}`
-      }
-    });
+    //logEvent({
+    //   type: ServerEventTypes.API_CALL,
+    //   metadata: {
+    //     method: "GET",
+    //     ip: getClientIp(req),
+    //     url: `/api/${orgUrl}`
+    //   }
+    // });
 
     const session = await getSession({ req });
     const isCreator =

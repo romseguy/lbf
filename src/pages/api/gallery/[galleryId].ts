@@ -236,15 +236,15 @@ handler.get<
       }
     }
 
-    logEvent({
-      type: ServerEventTypes.API_CALL,
-      metadata: {
-        method: "GET",
-        ip: getClientIp(req),
-        url: `/api/${galleryId}`,
-        galleryName: gallery.galleryName
-      }
-    });
+    //logEvent({
+    //   type: ServerEventTypes.API_CALL,
+    //   metadata: {
+    //     method: "GET",
+    //     ip: getClientIp(req),
+    //     url: `/api/${galleryId}`,
+    //     galleryName: gallery.galleryName
+    //   }
+    // });
 
     const session = await getSession({ req });
     const isCreator =
@@ -411,6 +411,13 @@ handler.delete<
       );
     }
     //#endregion
+
+    logEvent({
+      type: ServerEventTypes.GALLERIES_DEL,
+      metadata: {
+        gallery
+      }
+    });
 
     res.status(200).json({ ...gallery._doc });
   } catch (error) {

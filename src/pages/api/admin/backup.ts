@@ -124,14 +124,14 @@ handler.post<NextApiRequest, NextApiResponse>(async function importData(
 
     res.status(200).json({});
   } catch (error) {
-    logEvent({
-      type: ServerEventTypes.API_ERROR,
-      metadata: {
-        error: JSON.stringify(error),
-        method: "POST",
-        url: `/api/admin/backup`
-      }
-    });
+    //logEvent({
+    //   type: ServerEventTypes.API_ERROR,
+    //   metadata: {
+    //     error: JSON.stringify(error),
+    //     method: "POST",
+    //     url: `/api/admin/backup`
+    //   }
+    // });
     res.status(500).json(createEndpointError(error));
   }
 });

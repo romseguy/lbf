@@ -14,7 +14,7 @@ import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { createEndpointError } from "utils/errors";
-import { equals, logJson } from "utils/string";
+import { equals, logJson, normalize } from "utils/string";
 import { logEvent, ServerEventTypes } from "server/logging";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
@@ -172,6 +172,19 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           subscriptions,
           topic
         });
+
+        logEvent({
+          type: ServerEventTypes.TOPICS_MESSAGE,
+          metadata: {
+            topicName: topic.topicName,
+            topicUrl:
+              process.env.NEXT_PUBLIC_URL +
+              "/" +
+              (event ? event.eventUrl : "photo") +
+              "/discussions/" +
+              normalize(topic.topicName)
+          }
+        });
       }
       //#endregion
       //#region new topic
@@ -264,19 +277,41 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           }
         }
         //#endregion
+
+        // //logEvent({
+        //   type: ServerEventTypes.API_LOG,
+        //   metadata: {
+        //     text: `Une nouvelle discussion a été ajoutée à ${
+        //       event ? "l'événement " + event.eventName : "l'atelier"
+        //     }`
+        //   }
+        // });
+
+        logEvent({
+          type: ServerEventTypes.TOPICS,
+          metadata: {
+            topicName: topic.topicName,
+            topicUrl:
+              process.env.NEXT_PUBLIC_URL +
+              "/" +
+              (event ? event.eventUrl : "photo") +
+              "/discussions/" +
+              normalize(topic.topicName)
+          }
+        });
       }
       //#endregion
 
       res.status(200).json(topic);
     } catch (error: any) {
-      logEvent({
-        type: ServerEventTypes.API_ERROR,
-        metadata: {
-          error,
-          method: "POST",
-          url: `/api/topics`
-        }
-      });
+      //logEvent({
+      //   type: ServerEventTypes.API_ERROR,
+      //   metadata: {
+      //     error,
+      //     method: "POST",
+      //     url: `/api/topics`
+      //   }
+      // });
       res.status(500).json(createEndpointError(error));
     }
   }

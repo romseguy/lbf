@@ -8,9 +8,8 @@ import { AddDocumentPayload } from "features/api/documentsApi";
 import { getSession } from "server/auth";
 import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
-import { IGallery } from "models/Gallery";
-import mongoose, { Document } from "mongoose";
 import { getRefId } from "models/Entity";
+import { normalize } from "utils/string";
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -27,6 +26,9 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>().use(cors());
 
 handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
   async function addDocument(req, res) {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /documents `;
+    console.log(prefix + "body", req.body);
+
     const session = await getSession({ req });
 
     if (!session) {
@@ -73,6 +75,18 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
             { $push: { galleryDocuments: document._id } }
           );
 
+          logEvent({
+            type: ServerEventTypes.DOCUMENTS,
+            metadata: {
+              documentName: document.documentName,
+              documentUrl: `${process.env.NEXT_PUBLIC_URL}/${
+                gallery.org ? "photo" : gallery.galleryName
+              }/${gallery.org ? "galeries" : "galerie"}/${
+                gallery.org ? normalize(gallery.galleryName) : ""
+              }`
+            }
+          });
+
           if (gallery.org) {
             return res.status(200).json({
               documentId: document._id,
@@ -88,14 +102,14 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
 
       res.status(200).json({ documentId: document._id });
     } catch (error: any) {
-      logEvent({
-        type: ServerEventTypes.API_ERROR,
-        metadata: {
-          error,
-          method: "POST",
-          url: `/api/documents`
-        }
-      });
+      //logEvent({
+      //   type: ServerEventTypes.API_ERROR,
+      //   metadata: {
+      //     error,
+      //     method: "POST",
+      //     url: `/api/documents`
+      //   }
+      // });
       res.status(500).json(createEndpointError(error));
     }
   }
