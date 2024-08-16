@@ -1,5 +1,4 @@
-import { expect, request, APIRequestContext } from "@playwright/test";
-import { test } from "./common.fixtures";
+import { expect, request, APIRequestContext, test } from "@playwright/test";
 
 test("LoginForm.onSubmit", async ({ page, context, browser, playwright }) => {
   await page.goto("http://localhost:3000");

@@ -78,7 +78,7 @@ export const subscriptionApi = api.injectEndpoints({
     }),
     editSubscription: build.mutation<
       ISubscription,
-      { payload: Partial<ISubscription>; subscriptionId: string }
+      { payload: Partial<ISubscription>; subscriptionId?: string }
     >({
       query: ({ payload, subscriptionId }) => ({
         url: `subscription/${subscriptionId || payload._id}`,

@@ -47,6 +47,8 @@ import {
 import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
+import { belongs } from "utils/belongs";
+import { useEditSubscriptionMutation } from "features/api/subscriptionsApi";
 
 export const OrgConfigListsPanel = ({
   orgQuery,
@@ -62,6 +64,7 @@ export const OrgConfigListsPanel = ({
   //#region org
   const org = orgQuery.data;
   const [editOrg] = useEditOrgMutation();
+  const [editSubscription] = useEditSubscriptionMutation();
   //#endregion
 
   //#region local state
@@ -88,6 +91,31 @@ export const OrgConfigListsPanel = ({
         for (const orgList of org.orgLists)
           if (orgList.listName === form.listName)
             throw { listName: "Ce nom n'est pas disponible." };
+
+      for (const sub of listToEdit?.subscriptions || []) {
+        if (
+          !belongs(
+            sub._id,
+            form.subscriptions.map(({ _id }) => _id)
+          )
+        ) {
+          console.log(
+            "listToEdit.sub._id",
+            sub._id,
+            " no longer belongs to",
+            form.subscriptions
+          );
+          // => remove org sub from sub._id.orgs
+          await editSubscription({
+            payload: {
+              ...sub,
+              orgs: sub.orgs?.filter((orgSubscription) => {
+                orgSubscription.orgId !== org._id;
+              })
+            }
+          }).unwrap();
+        }
+      }
 
       await editOrg({
         orgId: org._id,
@@ -141,12 +169,12 @@ export const OrgConfigListsPanel = ({
           <Grid templateColumns="1fr auto" alignItems="center">
             <GridItem
               css={css`
-                @media (max-width: ${breakpoints.nav}) {
-                  & {
+                // @media (max-width: ${breakpoints.nav}) {
+                //   & {
                     padding-top: 12px;
                     padding-bottom: 12px;
                   }
-                }
+                //}
               `}
             >
               <Flex alignItems="center">
@@ -162,30 +190,6 @@ export const OrgConfigListsPanel = ({
                 </Heading>
               </Flex>
             </GridItem>
-
-            {/* <GridItem
-              css={css`
-                @media (max-width: ${breakpoints.nav}) {
-                  & {
-                    grid-column: 1;
-                    padding-bottom: 12px;
-                  }
-                }
-              `}
-            >
-              <Button
-                colorScheme={isAdd ? "red" : "teal"}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsAdd(!isAdd);
-                  toggleVisibility("lists", false);
-                }}
-                m={1}
-                data-cy="org-list-add"
-              >
-                {isAdd ? "Annuler" : "Ajouter"}
-              </Button>
-            </GridItem> */}
           </Grid>
         </GridHeader>
       </Link>
@@ -402,3 +406,29 @@ export const OrgConfigListsPanel = ({
     </Grid>
   );
 };
+
+{
+  /* <GridItem
+              css={css`
+                @media (max-width: ${breakpoints.nav}) {
+                  & {
+                    grid-column: 1;
+                    padding-bottom: 12px;
+                  }
+                }
+              `}
+            >
+              <Button
+                colorScheme={isAdd ? "red" : "teal"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAdd(!isAdd);
+                  toggleVisibility("lists", false);
+                }}
+                m={1}
+                data-cy="org-list-add"
+              >
+                {isAdd ? "Annuler" : "Ajouter"}
+              </Button>
+            </GridItem> */
+}

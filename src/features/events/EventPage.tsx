@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { Layout } from "features/layout";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { getEntitySubscription, ISubscription } from "models/Subscription";
 import { PageProps } from "main";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
@@ -53,7 +53,7 @@ export const EventPage = ({
   //#endregion
 
   //#region sub
-  const isFollowed = !!getFollowerSubscription({ event, subQuery });
+  const isFollowed = !!getEntitySubscription({ event, subQuery });
   //#endregion
 
   //#region config

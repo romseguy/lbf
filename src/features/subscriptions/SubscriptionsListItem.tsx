@@ -5,7 +5,7 @@ import { DeleteButton, Link } from "features/common";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
-  getFollowerSubscription,
+  getEntitySubscription,
   IOrgSubscription,
   ISubscription
 } from "models/Subscription";
@@ -31,7 +31,7 @@ export const SubscriptionsListItem = ({
     useDeleteSubscriptionMutation();
 
   const org = orgQuery.data;
-  const followerSubscription = getFollowerSubscription({
+  const followerSubscription = getEntitySubscription({
     org,
     subscription
   }) as IOrgSubscription;

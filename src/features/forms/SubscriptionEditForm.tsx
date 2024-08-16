@@ -15,16 +15,15 @@ import { IEvent } from "models/Event";
 import {
   ISubscription,
   isOrgSubscription,
-  setFollowerSubscriptionTagType,
   IOrgSubscription,
   IEventSubscription,
-  IOrgSubscriptionEventCategory
+  IOrgSubscriptionEventCategory,
+  setEntityTagTypes
 } from "models/Subscription";
 import { getEventCategories, IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { useAddSubscriptionMutation } from "features/api/subscriptionsApi";
 import { AppQuery } from "utils/types";
-import { ArrowForwardIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import { getRefId } from "models/Entity";
 import { equals } from "utils/string";
 
@@ -233,14 +232,14 @@ export const SubscriptionEditForm = ({
     if (isOrgSubscription(newFollowerSubscription)) {
       newFollowerSubscription = {
         ...newFollowerSubscription,
-        ...(setFollowerSubscriptionTagType(
+        ...(setEntityTagTypes(
           {
             type: "Projects",
             [`${notifType}Notif`]: isAllProjects
           },
           newFollowerSubscription
         ) as IOrgSubscription),
-        ...(setFollowerSubscriptionTagType(
+        ...(setEntityTagTypes(
           {
             type: "Topics",
             [`${notifType}Notif`]: isAllTopics
@@ -251,7 +250,7 @@ export const SubscriptionEditForm = ({
 
       newFollowerSubscription = {
         ...newFollowerSubscription,
-        ...(setFollowerSubscriptionTagType(
+        ...(setEntityTagTypes(
           {
             type: "Events",
             [`${notifType}Notif`]: isAllEvents
@@ -296,7 +295,7 @@ export const SubscriptionEditForm = ({
     } else {
       newFollowerSubscription = {
         ...newFollowerSubscription,
-        ...(setFollowerSubscriptionTagType(
+        ...(setEntityTagTypes(
           {
             type: "Topics",
             [`${notifType}Notif`]: isAllTopics

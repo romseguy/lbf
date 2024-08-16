@@ -44,10 +44,7 @@ import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import { equalsValue } from "utils/string";
 import { AppQuery } from "utils/types";
-import {
-  getFollowerSubscription,
-  isOrgSubscription
-} from "models/Subscription";
+import { getEntitySubscription, isOrgSubscription } from "models/Subscription";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
@@ -331,7 +328,7 @@ export const EventNotifForm = ({
                                 continue;
 
                               const followerSubscription =
-                                getFollowerSubscription({ org, subscription });
+                                getEntitySubscription({ org, subscription });
 
                               if (
                                 followerSubscription &&

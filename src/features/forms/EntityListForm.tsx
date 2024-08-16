@@ -12,12 +12,11 @@ import { useToast } from "hooks/useToast";
 
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import Creatable from "react-select/creatable";
-import { ErrorMessageText } from "features/common";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { ErrorMessageText, MultiSelect } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { defaultLists, IOrg, IOrgList } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { getEntitySubscription, ISubscription } from "models/Subscription";
 import { handleError } from "utils/form";
 import { emailR } from "utils/regex";
 
@@ -29,7 +28,7 @@ const subscriptionsToOptions = (subscriptions: ISubscription[]) =>
 
     return {
       label,
-      value: subscription
+      value: subscription._id
     };
   });
 
@@ -49,6 +48,7 @@ export const EntityListForm = ({
   const [isLoading, setIsLoading] = useState(false);
 
   //#region form
+  const defaultSubscriptions = props.list?.subscriptions || [];
   const {
     control,
     register,
@@ -60,12 +60,18 @@ export const EntityListForm = ({
     watch,
     setValue
   } = useForm({
+    defaultValues: {
+      listName: props.list?.listName,
+      subscriptions: subscriptionsToOptions(defaultSubscriptions)
+    },
     mode: "onChange"
   });
   useLeaveConfirm({ formState });
 
-  const defaultSubscriptions = props.list?.subscriptions || [];
-  //const subscriptions: ISubscription[] = watch("subscriptions") || defaultSubscriptions;
+  // const subscriptions = useWatch<ISubscription[]>({
+  //   control,
+  //   name: "subscriptions"
+  // });
 
   const onSubmit = async (form: {
     listName: string;
@@ -117,7 +123,7 @@ export const EntityListForm = ({
           ref={register({
             required: "Veuillez saisir un nom de liste"
           })}
-          defaultValue={props.list?.listName}
+
           //placeholder="Nom de la liste"
         />
         <FormErrorMessage>
@@ -131,59 +137,29 @@ export const EntityListForm = ({
         <Controller
           name="subscriptions"
           control={control}
-          defaultValue={subscriptionsToOptions(defaultSubscriptions)}
           render={(renderProps) => {
             return (
-              <Creatable
-                options={subscriptionsToOptions(
-                  org.orgSubscriptions.filter((subscription) => {
-                    if (
-                      defaultSubscriptions.find(
-                        ({ _id }) => _id === subscription._id
-                      )
-                    )
-                      return false;
-
-                    return subscription.orgs?.find(
-                      (orgSubscription) => orgSubscription.orgId === org._id
-                    );
-                  })
-                )}
+              <MultiSelect
+                options={subscriptionsToOptions(org.orgSubscriptions)}
                 value={renderProps.value}
                 onChange={renderProps.onChange}
-                onCreateOption={async (inputValue: string) => {
-                  try {
-                    if (!emailR.test(inputValue))
-                      throw new Error("Adresse e-mail invalide");
-
-                    //TODO
-                    toast({
-                      status: "info",
-                      title: "En cours de développement"
-                    });
-                    // await addSubscription({
-                    //   email,
-                    //   orgs: [
-                    //     {
-                    //       org,
-                    //       orgId: org._id,
-                    //       type,
-                    //       tagTypes: [
-                    //         { type: "Events", emailNotif: true, pushNotif: true },
-                    //         { type: "Projects", emailNotif: true, pushNotif: true },
-                    //         { type: "Topics", emailNotif: true, pushNotif: true }
-                    //       ]
-                    //     }
-                    //   ]
-                    // });
-                  } catch (error: any) {
-                    console.error(error);
-                    toast({
-                      status: "error",
-                      title: error.message
-                    });
-                  }
-                }}
+                // onChange={(newValue, actionMeta) => {
+                //   if (
+                //     actionMeta.action === "select-option" &&
+                //     renderProps.value
+                //       .map(({ label }) => label)
+                //       .includes(actionMeta.option.label)
+                //   ) {
+                //     const wtf = {
+                //       ...actionMeta,
+                //       action: "deselect-option"
+                //     };
+                //     const wtff = newValue.slice(0, -1);
+                //     console.log("🚀 ~ onChange ~ wtf:", wtf);
+                //     console.log("🚀 ~ onChange ~ wtff:", wtff);
+                //     renderProps.onChange(wtff, wtf);
+                //   } else renderProps.onChange(newValue, actionMeta);
+                // }}
                 //#region ui
                 closeMenuOnSelect={false}
                 placeholder="Sélectionner ou saisir un e-mail..."
@@ -206,7 +182,7 @@ export const EntityListForm = ({
                   },
                   multiValue: (defaultStyles: any, option: any) => {
                     const subscription: ISubscription = option.data.value;
-                    const followerSubscription = getFollowerSubscription({
+                    const followerSubscription = getEntitySubscription({
                       org,
                       subscription
                     });

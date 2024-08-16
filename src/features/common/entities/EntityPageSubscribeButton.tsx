@@ -4,7 +4,7 @@ import { useToast } from "hooks/useToast";
 import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { useSession } from "hooks/useSession";
 import { IOrg } from "models/Org";
-import { ISubscription, getFollowerSubscription } from "models/Subscription";
+import { ISubscription, getEntitySubscription } from "models/Subscription";
 import { AppQueryWithData, AppQuery } from "utils/types";
 
 export const EntityPageSubscribeButton = ({
@@ -16,7 +16,7 @@ export const EntityPageSubscribeButton = ({
 }) => {
   const { data: session } = useSession();
   const org = orgQuery.data;
-  const isFollowed = !!getFollowerSubscription({ org, subQuery });
+  const isFollowed = !!getEntitySubscription({ org, subQuery });
 
   const isDisabled =
     orgQuery.isFetching ||

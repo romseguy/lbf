@@ -47,7 +47,7 @@ export const OrgPageTabs = ({
   currentItemName,
   currentTabLabel = "Accueil",
   isCreator,
-  isFollowed,
+  isFollowed = false,
   orgQuery,
   isConfig,
   setIsConfig,
@@ -58,7 +58,7 @@ export const OrgPageTabs = ({
   currentItemName?: string;
   currentTabLabel?: string;
   isCreator: boolean;
-  isFollowed: boolean;
+  isFollowed?: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   isConfig: boolean;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;

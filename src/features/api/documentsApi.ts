@@ -27,7 +27,12 @@ export type GetDocumentsParams = Record<string, string | undefined>;
 export const documentApi = api.injectEndpoints({
   endpoints: (build) => ({
     addDocument: build.mutation<
-      { documentId: string; orgId?: string; galleryId?: string },
+      {
+        documentId: string;
+        eventId?: string;
+        orgId?: string;
+        galleryId?: string;
+      },
       AddDocumentPayload
     >({
       query: (payload) => {

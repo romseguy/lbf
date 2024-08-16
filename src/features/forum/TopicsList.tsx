@@ -40,7 +40,6 @@ import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
-import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { selectIsMobile } from "store/uiSlice";
 
 enum ETopicsListOrder {
@@ -59,20 +58,24 @@ export const TopicsList = ({
   query,
   subQuery,
   currentTopicName,
+  isAttendee = false,
   ...props
 }: GridProps & {
   topics: ITopic[];
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
+  isAttendee?: boolean;
   isCreator: boolean;
   isFollowed?: boolean;
   currentTopicName?: string;
 }) => {
+  console.log("🚀 ~ subQuery:", subQuery);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const { data: session } = useSession();
+  const toast = useToast();
 
   //#region local state
   const entity = query.data;
@@ -191,8 +194,14 @@ export const TopicsList = ({
     });
   const onAddClick = () => {
     if (!session) {
-      router.push("/login", "/login", { shallow: true });
-      return;
+      return router.push("/login", "/login", { shallow: true });
+    }
+
+    if (!isAttendee) {
+      return toast({
+        title:
+          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter une discussion"
+      });
     }
 
     setTopicModalState({ ...topicModalState, isOpen: true });
@@ -208,7 +217,6 @@ export const TopicsList = ({
           leftIcon={<AddIcon />}
           mb={3}
           onClick={onAddClick}
-          data-cy="topic-add-button"
         >
           Ajouter une discussion
         </Button>
@@ -429,7 +437,7 @@ export const TopicsList = ({
               const url = `/${entityUrl}/discussions/${topicName}`;
               await router.push(url, url, { shallow: true });
             }
-            query.refetch();
+            //query.refetch();
             onClose();
           }}
           onClose={onClose}

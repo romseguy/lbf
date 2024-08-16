@@ -1,4 +1,8 @@
-import type { IEventSubscription, IOrgSubscription } from "models/Subscription";
+import type {
+  IEventSubscription,
+  IOrgSubscription,
+  ISubscription
+} from "models/Subscription";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
@@ -7,6 +11,7 @@ import { getSession } from "server/auth";
 import { equals, logJson } from "utils/string";
 import { emailR } from "utils/regex";
 import { IUser } from "models/User";
+import { getRefId } from "models/Entity";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -117,41 +122,62 @@ handler.get<
   }
 });
 
-handler.put<NextApiRequest & { query: { slug: string } }, NextApiResponse>(
-  async function editSubscription(req, res) {
-    const session = await getSession({ req });
+handler.put<
+  NextApiRequest & { query: { slug: string }; body: Partial<ISubscription> },
+  NextApiResponse
+>(async function editSubscription(req, res) {
+  const {
+    query: { slug },
+    body: sub
+  } = req;
 
-    if (!session) {
-      return res
-        .status(401)
-        .json(createEndpointError(new Error("Vous devez être identifié")));
-    }
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /subscription/${slug} `;
+  //logJson(prefix, sub);
+  logJson(prefix);
 
-    try {
-      const {
-        query: { slug }
-      } = req;
+  const session = await getSession({ req });
 
-      let body = req.body;
-
-      await models.Subscription.updateOne({ _id: slug }, body);
-
-      // if (nModified === 1) {
-      res.status(200).json({});
-      // } else {
-      //   res
-      //     .status(400)
-      //     .json(
-      //       createEndpointError(
-      //         new Error(`L'abonnement n'a pas pu être modifié`)
-      //       )
-      //     );
-      // }
-    } catch (error) {
-      res.status(500).json(createEndpointError(error));
-    }
+  if (!session) {
+    return res
+      .status(401)
+      .json(createEndpointError(new Error("Vous devez être identifié")));
   }
-);
+
+  if (
+    !equals(getRefId(sub.user, "_id"), session.user.userId) &&
+    !session.user.isAdmin
+  ) {
+    return res
+      .status(401)
+      .json(
+        createEndpointError(
+          new Error(
+            "Vous ne pouvez pas modifier l'abonnement d'une autre personne"
+          )
+        )
+      );
+  }
+
+  try {
+    let body = req.body;
+
+    await models.Subscription.updateOne({ _id: slug }, body);
+
+    // if (nModified === 1) {
+    res.status(200).json({});
+    // } else {
+    //   res
+    //     .status(400)
+    //     .json(
+    //       createEndpointError(
+    //         new Error(`L'abonnement n'a pas pu être modifié`)
+    //       )
+    //     );
+    // }
+  } catch (error) {
+    res.status(500).json(createEndpointError(error));
+  }
+});
 
 handler.delete<
   NextApiRequest & {

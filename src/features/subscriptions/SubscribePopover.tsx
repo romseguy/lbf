@@ -32,7 +32,7 @@ import { HostTag } from "features/common";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull, orgTypeFull2, orgTypeFull4 } from "models/Org";
 import {
-  getFollowerSubscription,
+  getEntitySubscription,
   ISubscription,
   EOrgSubscriptionType
 } from "models/Subscription";
@@ -64,7 +64,7 @@ export const SubscribePopover = ({
   const userEmail = useSelector(selectUserEmail);
 
   //#region local state
-  const followerSubscription = getFollowerSubscription({
+  const followerSubscription = getEntitySubscription({
     event,
     org,
     subQuery

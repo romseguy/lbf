@@ -1,21 +1,17 @@
 import { Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { GrRefresh } from "react-icons/gr";
-import { AppHeading } from "features/common";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
 import { IOrg } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { getEntitySubscription, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { OrgConfigPanel, OrgConfigVisibility } from "./OrgConfigPanel";
 import { OrgPageTabs } from "./OrgPageTabs";
 import { useSession } from "hooks/useSession";
 import { OrgConfigButtons } from "./OrgConfigButtons";
-import { css } from "twin.macro";
 import { IoMdRefresh } from "react-icons/io";
 
 export interface IsEditConfig {
@@ -49,14 +45,6 @@ export const OrgPage = ({
     session?.user.userId === getRefId(org) ||
     session?.user.isAdmin ||
     false;
-  const orgCreatedByUserName =
-    typeof org.createdBy === "object"
-      ? org.createdBy?.userName || org.createdBy?._id
-      : org.createdBy;
-  //#endregion
-
-  //#region sub
-  const isFollowed = !!getFollowerSubscription({ org, subQuery });
   //#endregion
 
   //#region config
@@ -114,7 +102,6 @@ export const OrgPage = ({
       currentItemName={tabItem}
       currentTabLabel={currentTabLabel}
       isCreator={isCreator}
-      isFollowed={isFollowed}
       orgQuery={orgQuery}
       isConfig={isConfig}
       setIsConfig={setIsConfig}

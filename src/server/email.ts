@@ -12,7 +12,7 @@ import { EProjectInviteStatus, IProject } from "models/Project";
 import {
   EOrgSubscriptionType,
   ISubscription,
-  getFollowerSubscription
+  getEntitySubscription
 } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import api from "utils/api";
@@ -487,7 +487,7 @@ export const sendTopicNotifications = async ({
       createdAt: new Date().toISOString()
     };
 
-    const followerSubscription = getFollowerSubscription({
+    const followerSubscription = getEntitySubscription({
       event,
       org,
       subscription

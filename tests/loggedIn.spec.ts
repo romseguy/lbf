@@ -28,13 +28,13 @@ import { test } from "./common.fixtures";
 // });
 
 // test("logged in", async ({ page, context, browser, playwright }) => {
-//   await page.goto("/api/login");
+//   await page.goto("http://localhost:3000/api/login");
 //   await page.goto("");
 //   await expect(page).toHaveTitle(/Atelier – Photo – ateliers.lebonforum.fr/);
 // });
 
 test("TopicForm.onSubmit", async ({ page }) => {
-  await page.goto("/api/login");
+  await page.goto("http://localhost:3000/api/login");
   await page.goto("");
   //await page.getByRole("button", { name: "Discussions" }).click();
   await page.getByText(/Discussions/).click();
@@ -52,7 +52,7 @@ test("TopicForm.onSubmit", async ({ page }) => {
 
   await page.getByRole("button", { name: /Ajouter/ }).click();
 
-  // await page.goto("/api/login");
+  // await page.goto("http://localhost:3000/api/login");
   // await page.goto("/photo/discussions/1");
   // await page.waitForURL("/photo/discussions/1");
 
@@ -60,7 +60,7 @@ test("TopicForm.onSubmit", async ({ page }) => {
 });
 
 test("GalleryForm.onSubmit", async ({ page }) => {
-  await page.goto("/api/login");
+  await page.goto("http://localhost:3000/api/login");
   await page.goto("");
   await page.getByText(/Galeries/).click();
   await page.getByText(/Ajouter/).click();
@@ -93,7 +93,7 @@ test("GalleryForm.onSubmit", async ({ page }) => {
 });
 
 test("EventForm.onSubmit", async ({ page }) => {
-  await page.goto("/api/login");
+  await page.goto("http://localhost:3000/api/login");
   await page.goto("/photo/agenda");
   await page.getByText("Ajouter un événement").click();
   await page

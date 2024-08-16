@@ -21,7 +21,7 @@ import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { SubscriptionEditForm } from "features/forms/SubscriptionEditForm";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { getEntitySubscription, ISubscription } from "models/Subscription";
 import { AppQuery } from "utils/types";
 import { useSelector } from "react-redux";
 import { selectUserEmail } from "store/userSlice";
@@ -47,7 +47,7 @@ export const SubscriptionEditPopover = ({
   const subQuery = useGetSubscriptionQuery({
     email: userEmail
   }) as AppQuery<ISubscription>;
-  const followerSubscription = getFollowerSubscription({
+  const followerSubscription = getEntitySubscription({
     event,
     org,
     subQuery

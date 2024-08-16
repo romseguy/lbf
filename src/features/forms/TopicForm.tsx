@@ -87,7 +87,6 @@ export const TopicForm = ({
     setError,
     clearErrors,
     setValue,
-    watch,
     formState
   } = useFormPersist(
     useForm<{
@@ -106,8 +105,6 @@ export const TopicForm = ({
     })
   );
   useLeaveConfirm({ formState });
-
-  const topicVisibility = watch("topicVisibility");
 
   const onChange = () => {
     clearErrors("formErrorMessage");

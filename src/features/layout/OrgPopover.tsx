@@ -28,7 +28,7 @@ import { useGetOrgsQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { selectUserEmail } from "store/userSlice";
 import { EOrgType, IOrg } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
+import { getEntitySubscription, ISubscription } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { AppQuery } from "utils/types";
@@ -106,7 +106,7 @@ const OrgPopoverContent = ({
           .filter(
             (org) =>
               org.orgUrl !== "forum" &&
-              !!getFollowerSubscription({ org, subQuery })
+              !!getEntitySubscription({ org, subQuery })
           )
       })
     }

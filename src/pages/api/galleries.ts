@@ -106,6 +106,26 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
           .json(createEndpointError(new Error("Atelier introuvable")));
       }
 
+      if (!session.user.isAdmin) {
+        const isAttendee = org.orgLists
+          .find(({ listName }) => {
+            return listName === "Participants";
+          })
+          ?.subscriptions.find(({ email }) => email === session.user.email);
+
+        if (!isAttendee) {
+          return res
+            .status(401)
+            .json(
+              createEndpointError(
+                new Error(
+                  "Vous devez être inscrit en tant que participant pour ajouter une galerie"
+                )
+              )
+            );
+        }
+      }
+
       let gallery: (IGallery & Document<any, IGallery>) | null | undefined;
       let galleryName = body.gallery.galleryName;
 

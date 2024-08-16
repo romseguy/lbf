@@ -30,6 +30,16 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /login `;
     console.log(prefix);
 
+    if (!req.headers.authorization) {
+      // return res
+      //   .status(400)
+      //   .json(
+      //     createEndpointError(new Error("No request authorization headers"))
+      //   );
+
+      return res.status(200).json({});
+    }
+
     try {
       const didToken = req.headers.authorization.substr(7);
       magic.token.validate(didToken);

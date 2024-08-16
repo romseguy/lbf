@@ -1,3 +1,4 @@
+import { getRefId, isUser } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
@@ -19,7 +20,12 @@ export const isOrgSubscription = (
   return (followerSubscription as IOrgSubscription).orgId !== undefined;
 };
 
-export const getFollowerSubscription = ({
+export const getEmail = (sub: ISubscription) => {
+  if (isUser(sub.user)) return sub.user.email;
+  return sub.email;
+};
+
+export const getEntitySubscription = ({
   event,
   org,
   subQuery,
@@ -35,43 +41,34 @@ export const getFollowerSubscription = ({
   if (!sub) return;
 
   if (event) {
-    return sub.events?.find(
-      (eventSubscription: IEventSubscription) =>
-        eventSubscription.eventId === event._id
+    return sub.events?.find((eventSubscription: IEventSubscription) =>
+      equals(getRefId(eventSubscription.event, "_id"), event._id)
     );
   }
 
   if (org) {
-    return sub.orgs?.find(
-      (orgSubscription: IOrgSubscription) =>
-        equals(orgSubscription.orgId, org._id) &&
-        orgSubscription.type === EOrgSubscriptionType.FOLLOWER
+    return sub.orgs?.find((orgSubscription: IOrgSubscription) =>
+      equals(getRefId(orgSubscription.org, "_id"), org._id)
     );
   }
 };
 
-export const setFollowerSubscriptionTagType = (
+export const setEntityTagTypes = (
   newTagType: TagType,
-  followerSubscription: IOrgSubscription | IEventSubscription
+  sub: IOrgSubscription | IEventSubscription
 ): IOrgSubscription | IEventSubscription => {
-  if (!hasItems(followerSubscription.tagTypes)) {
-    followerSubscription.tagTypes = [newTagType];
-    return followerSubscription;
+  if (!hasItems(sub.tagTypes)) {
+    sub.tagTypes = [newTagType];
+    return sub;
   }
 
-  if (
-    followerSubscription.tagTypes?.find(
-      (tagType) => tagType.type === newTagType.type
-    )
-  ) {
-    followerSubscription.tagTypes = followerSubscription.tagTypes
+  if (sub.tagTypes?.find((tagType) => tagType.type === newTagType.type)) {
+    sub.tagTypes = sub.tagTypes
       .filter((tagType) => tagType.type !== newTagType.type)
       .concat([newTagType]);
   } else {
-    followerSubscription.tagTypes = (
-      followerSubscription.tagTypes || []
-    ).concat([newTagType]);
+    sub.tagTypes = (sub.tagTypes || []).concat([newTagType]);
   }
 
-  return followerSubscription;
+  return sub;
 };

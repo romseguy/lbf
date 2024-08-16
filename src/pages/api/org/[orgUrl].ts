@@ -14,7 +14,7 @@ import {
   orgTypeFull,
   orgTypeFull4
 } from "models/Org";
-import { ISubscription, getFollowerSubscription } from "models/Subscription";
+import { ISubscription, getEntitySubscription } from "models/Subscription";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
@@ -196,7 +196,7 @@ handler.get<
           const subscription = await models.Subscription.findOne({
             user: session?.user.userId
           });
-          const isFollowed = !!getFollowerSubscription({
+          const isFollowed = !!getEntitySubscription({
             org,
             subscription: subscription as ISubscription
           });

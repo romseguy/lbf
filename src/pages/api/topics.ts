@@ -118,6 +118,28 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         //}
       }
 
+      if (!session.user.isAdmin) {
+        const isAttendee = (
+          event ? event.eventOrgs[0].orgLists : org ? org.orgLists : []
+        )
+          .find(({ listName }) => {
+            return listName === "Participants";
+          })
+          ?.subscriptions.find(({ email }) => email === session.user.email);
+
+        if (!isAttendee) {
+          return res
+            .status(401)
+            .json(
+              createEndpointError(
+                new Error(
+                  "Vous devez être inscrit en tant que participant pour ajouter une discussion"
+                )
+              )
+            );
+        }
+      }
+
       let topic: (ITopic & Document<any, ITopic>) | null | undefined;
 
       //#region existing topic
