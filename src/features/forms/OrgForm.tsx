@@ -72,9 +72,9 @@ import { AppQueryWithData } from "utils/types";
 type FormValues = {
   orgName: string;
   orgType?: EOrgType;
-  orgs: { label: string; value: string }[];
+  //orgs: { label: string; value: string }[];
   orgDescription: string;
-  orgVisibility: EOrgVisibility;
+  //orgVisibility: EOrgVisibility;
   orgPassword?: string;
   orgPasswordConfirm?: string;
   orgAddress?: IEntityAddress[];
@@ -108,60 +108,60 @@ export const OrgForm = withGoogleApi({
     const [addOrg] = useAddOrgMutation();
     const [editOrg] = useEditOrgMutation();
     const org = orgQuery?.data;
-    const allowedChildrenTypes = Object.keys(
-      org?.orgPermissions?.allowedChildrenTypes || {}
-    );
-    const [orgTrees, setOrgTrees] = useState(
-      org
-        ? org.orgs.filter((org) =>
-            [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(org.orgType)
-          )
-        : []
-    );
+    // const allowedChildrenTypes = Object.keys(
+    //   org?.orgPermissions?.allowedChildrenTypes || {}
+    // );
+    // const [orgTrees, setOrgTrees] = useState(
+    //   org
+    //     ? org.orgs.filter((org) =>
+    //         [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(org.orgType)
+    //       )
+    //     : []
+    // );
 
-    const orgsQuery = useGetOrgsQuery();
-    const myOrgsQuery = useGetOrgsQuery(
-      {
-        createdBy: session.user.userId
-      },
-      {
-        selectFromResult: (query) => {
-          const data = query.data?.filter((myOrg) => {
-            return org ? myOrg.orgName !== org.orgName : true;
-          });
+    // const orgsQuery = useGetOrgsQuery();
+    // const myOrgsQuery = useGetOrgsQuery(
+    //   {
+    //     createdBy: session.user.userId
+    //   },
+    //   {
+    //     selectFromResult: (query) => {
+    //       const data = query.data?.filter((myOrg) => {
+    //         return org ? myOrg.orgName !== org.orgName : true;
+    //       });
 
-          return {
-            ...query,
-            data
-          };
-        }
-      }
-    );
-    const myOrgs = myOrgsQuery.data;
-    const trees = session.user.isAdmin
-      ? orgsQuery.data?.filter(
-          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
-        )
-      : myOrgs?.filter((myOrg) => {
-          if (myOrg.orgUrl === "forum") return false;
+    //       return {
+    //         ...query,
+    //         data
+    //       };
+    //     }
+    //   }
+    // );
+    // const myOrgs = myOrgsQuery.data;
+    // const trees = session.user.isAdmin
+    //   ? orgsQuery.data?.filter(
+    //       (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+    //     )
+    //   : myOrgs?.filter((myOrg) => {
+    //       if (myOrg.orgUrl === "forum") return false;
 
-          if (!allowedChildrenTypes.length)
-            return [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(
-              myOrg.orgType
-            );
+    //       if (!allowedChildrenTypes.length)
+    //         return [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(
+    //           myOrg.orgType
+    //         );
 
-          return allowedChildrenTypes.includes(myOrg.orgType);
-        });
-    const orgsOptions = trees
-      ? trees.filter(
-          (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
-        )
-      : [];
-    const orgsPlaceholder = `Sélectionner ou créer ${
-      allowedChildrenTypes.length > 0
-        ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
-        : "l'arbre"
-    } que vous voulez planter`;
+    //       return allowedChildrenTypes.includes(myOrg.orgType);
+    //     });
+    // const orgsOptions = trees
+    //   ? trees.filter(
+    //       (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
+    //     )
+    //   : [];
+    // const orgsPlaceholder = `Sélectionner ou créer ${
+    //   allowedChildrenTypes.length > 0
+    //     ? "le " + OrgTypes[allowedChildrenTypes[0] as EOrgType].toLowerCase()
+    //     : "l'arbre"
+    // } que vous voulez planter`;
 
     //#region local state
     const containerProps = {
@@ -176,12 +176,12 @@ export const OrgForm = withGoogleApi({
       p: 3
     };
     const [isLoading, setIsLoading] = useState(false);
-    const [isPassword, setIsPassword] = useState(false);
+    //const [isPassword, setIsPassword] = useState(false);
     const [suggestion, setSuggestion] = useState<Suggestion>();
     //#endregion
 
     //#region form
-    const defaultValues = {
+    const defaultValues: FormValues = {
       orgName: props.orgName || org?.orgName || "",
       orgDescription: org?.orgDescription || "",
       orgAddress: org?.orgAddress,
@@ -206,16 +206,12 @@ export const OrgForm = withGoogleApi({
       })
     );
     useLeaveConfirm({ formState });
-    const refs = useMemo(
-      () =>
-        Object.keys(defaultValues).reduce(
-          (acc: Record<string, React.RefObject<any>>, fieldName) => {
-            acc[fieldName] = React.createRef();
-            return acc;
-          },
-          {}
-        ),
-      [defaultValues]
+    const refs = Object.keys(defaultValues).reduce(
+      (acc: Record<string, React.RefObject<any>>, fieldName) => {
+        acc[fieldName] = React.createRef();
+        return acc;
+      },
+      {}
     );
     useEffect(() => {
       if (Object.keys(errors).length > 0) {
@@ -229,11 +225,11 @@ export const OrgForm = withGoogleApi({
       }
     }, [errors]);
 
-    const hasSelectedChildrenTypes = useWatch<string>({
-      control,
-      name: "hasSelectedChildrenTypes"
-    });
-    const orgName = useWatch<string>({ control, name: "orgName" });
+    // const hasSelectedChildrenTypes = useWatch<string>({
+    //   control,
+    //   name: "hasSelectedChildrenTypes"
+    // });
+    //const orgName = useWatch<string>({ control, name: "orgName" });
     const orgAddress = useWatch<string>({ control, name: "orgAddress" });
     const orgEmail = useWatch<string>({ control, name: "orgEmail" });
     const orgPhone = useWatch<string>({ control, name: "orgPhone" });
@@ -258,13 +254,13 @@ export const OrgForm = withGoogleApi({
         }
       }
     }, [orgType]);
-    const orgVisibility = useWatch<EOrgVisibility>({
-      control,
-      name: "orgVisibility"
-    });
-    useEffect(() => {
-      if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
-    }, [orgVisibility]);
+    // const orgVisibility = useWatch<EOrgVisibility>({
+    //   control,
+    //   name: "orgVisibility"
+    // });
+    // useEffect(() => {
+    //   if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
+    // }, [orgVisibility]);
     const password = useRef<string | undefined>();
     password.current = useWatch({ control, name: "orgPassword" }) || "";
     const orgWeb = useWatch<UrlControlValue>({ control, name: "orgWeb" });
@@ -300,7 +296,7 @@ export const OrgForm = withGoogleApi({
         if (!orgName) throw new Error("Une erreur inattendue est survenue.");
         let orgUrl = normalize(orgName);
         const orgDescription = form.orgDescription || "";
-        const orgs = orgTrees;
+        //const orgs = orgTrees;
         const orgAddress = (form.orgAddress || []).filter(
           ({ address }) => address !== ""
         );
@@ -332,7 +328,7 @@ export const OrgForm = withGoogleApi({
           orgName,
           orgType,
           orgDescription,
-          orgs,
+          //orgs,
           orgVisibility:
             form.orgVisibility || org?.orgVisibility || EOrgVisibility.PUBLIC,
           orgAddress,
@@ -365,28 +361,28 @@ export const OrgForm = withGoogleApi({
           }
 
         if (org) {
-          if (isEditConfig?.isAddingChild && hasItems(orgs)) {
-            await editOrg({ orgId: org._id, payload: { orgs } }).unwrap();
-          } else if (
-            isEditConfig?.isAddingToNetwork &&
-            !Array.isArray(form.orgs)
-          ) {
-            const { label, value } = form.orgs;
-            const myNetwork = myOrgs?.find((myNetwork) => {
-              return myNetwork._id === value;
-            });
+          // if (isEditConfig?.isAddingChild && hasItems(orgs)) {
+          //   await editOrg({ orgId: org._id, payload: { orgs } }).unwrap();
+          // } else if (
+          //   isEditConfig?.isAddingToNetwork &&
+          //   !Array.isArray(form.orgs)
+          // ) {
+          //   const { label, value } = form.orgs;
+          //   const myNetwork = myOrgs?.find((myNetwork) => {
+          //     return myNetwork._id === value;
+          //   });
+          //   if (myNetwork) {
+          //     await editOrg({
+          //       orgId: myNetwork._id,
+          //       payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) }
+          //     }).unwrap();
 
-            if (myNetwork) {
-              await editOrg({
-                orgId: myNetwork._id,
-                payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) }
-              }).unwrap();
-
-              const url = myNetwork.orgUrl;
-              router.push(url, url, { shallow: true });
-              return;
-            }
-          } else if (isEditConfig?.isAddingDescription) {
+          //     const url = myNetwork.orgUrl;
+          //     router.push(url, url, { shallow: true });
+          //     return;
+          //   }
+          // } else if (isEditConfig?.isAddingDescription) {
+          if (isEditConfig?.isAddingDescription) {
             await editOrg({
               orgId: org._id,
               payload: { orgDescription }
@@ -463,7 +459,7 @@ export const OrgForm = withGoogleApi({
     //#endregion
 
     //#region form controls
-    const ChildrenFormControl = null;
+    //const ChildrenFormControl = null;
     // (
     //   <FormControl mb={3} isInvalid={!!errors["orgs"]}>
     //     {Array.isArray(orgTrees) && orgTrees.length > 0 && (
@@ -618,98 +614,98 @@ export const OrgForm = withGoogleApi({
     //   </FormControl>
     // );
 
-    const NetworkFormControl = (
-      <FormControl mb={3} isInvalid={!!errors["orgs"]}>
-        <FormLabel>
-          Sélectionner ou créer l'atelier où vous voulez planter cet arbre :
-        </FormLabel>
+    // const NetworkFormControl = (
+    //   <FormControl mb={3} isInvalid={!!errors["orgs"]}>
+    //     <FormLabel>
+    //       Sélectionner ou créer l'atelier où vous voulez planter cet arbre :
+    //     </FormLabel>
 
-        {myOrgsQuery.isLoading ? (
-          <Spinner />
-        ) : (
-          <Controller
-            name="orgs"
-            control={control}
-            defaultValue={[]}
-            render={(renderProps) => {
-              return (
-                <Creatable
-                  options={myOrgs
-                    ?.filter(({ orgType }) => orgType === EOrgType.NETWORK)
-                    .map(({ _id, orgName }) => ({
-                      label: orgName,
-                      value: _id
-                    }))}
-                  value={renderProps.value}
-                  onChange={(options, { action, option }) => {
-                    if (action === "select-option") {
-                      if (
-                        Array.isArray(renderProps.value) &&
-                        renderProps.value.length > 0
-                      ) {
-                      } else {
-                        renderProps.onChange(option);
-                      }
-                    }
-                  }}
-                  onCreateOption={async (inputValue: string) => {
-                    try {
-                      const payload: AddOrgPayload = {
-                        orgName: inputValue,
-                        orgType: EOrgType.NETWORK
-                      };
+    //     {myOrgsQuery.isLoading ? (
+    //       <Spinner />
+    //     ) : (
+    //       <Controller
+    //         name="orgs"
+    //         control={control}
+    //         defaultValue={[]}
+    //         render={(renderProps) => {
+    //           return (
+    //             <Creatable
+    //               options={myOrgs
+    //                 ?.filter(({ orgType }) => orgType === EOrgType.NETWORK)
+    //                 .map(({ _id, orgName }) => ({
+    //                   label: orgName,
+    //                   value: _id
+    //                 }))}
+    //               value={renderProps.value}
+    //               onChange={(options, { action, option }) => {
+    //                 if (action === "select-option") {
+    //                   if (
+    //                     Array.isArray(renderProps.value) &&
+    //                     renderProps.value.length > 0
+    //                   ) {
+    //                   } else {
+    //                     renderProps.onChange(option);
+    //                   }
+    //                 }
+    //               }}
+    //               onCreateOption={async (inputValue: string) => {
+    //                 try {
+    //                   const payload: AddOrgPayload = {
+    //                     orgName: inputValue,
+    //                     orgType: EOrgType.NETWORK
+    //                   };
 
-                      const addedOrg = await addOrg(payload).unwrap();
-                      renderProps.onChange({
-                        label: addedOrg.orgName,
-                        value: addedOrg._id
-                      });
-                    } catch (error: any) {
-                      console.error(error);
-                      toast({
-                        status: "error",
-                        title: error.message
-                      });
-                    }
-                  }}
-                  //#region ui
-                  allowCreateWhileLoading
-                  formatCreateLabel={(inputValue: string) =>
-                    `Créer l'atelier "${inputValue}"`
-                  }
-                  isClearable
-                  isMulti
-                  noOptionsMessage={() => "Aucun résultat"}
-                  placeholder="Sélectionner ou créer l'atelier où vous voulez planter cet arbre"
-                  //#endregion
-                  //#region styling
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                  //#endregion
-                />
-              );
-            }}
-          />
-        )}
+    //                   const addedOrg = await addOrg(payload).unwrap();
+    //                   renderProps.onChange({
+    //                     label: addedOrg.orgName,
+    //                     value: addedOrg._id
+    //                   });
+    //                 } catch (error: any) {
+    //                   console.error(error);
+    //                   toast({
+    //                     status: "error",
+    //                     title: error.message
+    //                   });
+    //                 }
+    //               }}
+    //               //#region ui
+    //               allowCreateWhileLoading
+    //               formatCreateLabel={(inputValue: string) =>
+    //                 `Créer l'atelier "${inputValue}"`
+    //               }
+    //               isClearable
+    //               isMulti
+    //               noOptionsMessage={() => "Aucun résultat"}
+    //               placeholder="Sélectionner ou créer l'atelier où vous voulez planter cet arbre"
+    //               //#endregion
+    //               //#region styling
+    //               className="react-select-container"
+    //               classNamePrefix="react-select"
+    //               styles={{
+    //                 control: (defaultStyles: any) => {
+    //                   return {
+    //                     ...defaultStyles,
+    //                     borderColor: "#e2e8f0"
+    //                   };
+    //                 },
+    //                 placeholder: () => {
+    //                   return {
+    //                     color: "#A0AEC0"
+    //                   };
+    //                 }
+    //               }}
+    //               //#endregion
+    //             />
+    //           );
+    //         }}
+    //       />
+    //     )}
 
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgs" />
-        </FormErrorMessage>
-      </FormControl>
-    );
+    //     <FormErrorMessage>
+    //       <ErrorMessage errors={errors} name="orgs" />
+    //     </FormErrorMessage>
+    //   </FormControl>
+    // );
 
     const DescriptionFormControl = (
       <FormControl isInvalid={!!errors["orgDescription"]} mb={3}>
@@ -826,74 +822,74 @@ export const OrgForm = withGoogleApi({
       </>
     );
 
-    const PasswordFormControl = (
-      <>
-        <PasswordControl
-          name="orgPassword"
-          errors={errors}
-          register={register}
-          my={3}
-          //isRequired={orgVisibility === Visibility.PRIVATE}
-        />
-        <PasswordConfirmControl
-          name="orgPasswordConfirm"
-          errors={errors}
-          register={register}
-          password={password}
-        />
-      </>
-    );
+    // const PasswordFormControl = (
+    //   <>
+    //     <PasswordControl
+    //       name="orgPassword"
+    //       errors={errors}
+    //       register={register}
+    //       my={3}
+    //       //isRequired={orgVisibility === Visibility.PRIVATE}
+    //     />
+    //     <PasswordConfirmControl
+    //       name="orgPasswordConfirm"
+    //       errors={errors}
+    //       register={register}
+    //       password={password}
+    //     />
+    //   </>
+    // );
 
-    const VisibilityFormControl = (
-      <FormControl
-        isRequired
-        isInvalid={!!errors["orgVisibility"]}
-        onChange={async (e) => {
-          clearErrors("orgOrgs");
-        }}
-        mb={3}
-      >
-        <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
-        <Select
-          name="orgVisibility"
-          ref={register({
-            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
-          })}
-          color={isDark ? "whiteAlpha.400" : "gray.400"}
-          defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
-          placeholder={`Visibilité ${orgTypeLabel}`}
-        >
-          {Object.keys(EOrgVisibility).map((key) => {
-            const visibility = key as EOrgVisibility;
-            return (
-              <option key={visibility} value={visibility}>
-                {OrgVisibilities[visibility]}
-              </option>
-            );
-          })}
-        </Select>
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="orgVisibility" />
-        </FormErrorMessage>
-      </FormControl>
-    );
+    // const VisibilityFormControl = (
+    //   <FormControl
+    //     isRequired
+    //     isInvalid={!!errors["orgVisibility"]}
+    //     onChange={async (e) => {
+    //       clearErrors("orgOrgs");
+    //     }}
+    //     mb={3}
+    //   >
+    //     <FormLabel>Visibilité {orgTypeLabel}</FormLabel>
+    //     <Select
+    //       name="orgVisibility"
+    //       ref={register({
+    //         required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
+    //       })}
+    //       color={isDark ? "whiteAlpha.400" : "gray.400"}
+    //       defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
+    //       placeholder={`Visibilité ${orgTypeLabel}`}
+    //     >
+    //       {Object.keys(EOrgVisibility).map((key) => {
+    //         const visibility = key as EOrgVisibility;
+    //         return (
+    //           <option key={visibility} value={visibility}>
+    //             {OrgVisibilities[visibility]}
+    //           </option>
+    //         );
+    //       })}
+    //     </Select>
+    //     <FormErrorMessage>
+    //       <ErrorMessage errors={errors} name="orgVisibility" />
+    //     </FormErrorMessage>
+    //   </FormControl>
+    // );
     //#endregion
 
-    if (isEditConfig?.isAddingChild)
-      return (
-        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-          {ChildrenFormControl}
-          {FooterFormControl}
-        </form>
-      );
+    // if (isEditConfig?.isAddingChild)
+    //   return (
+    //     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+    //       {ChildrenFormControl}
+    //       {FooterFormControl}
+    //     </form>
+    //   );
 
-    if (isEditConfig?.isAddingToNetwork)
-      return (
-        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-          {NetworkFormControl}
-          {FooterFormControl}
-        </form>
-      );
+    // if (isEditConfig?.isAddingToNetwork)
+    //   return (
+    //     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+    //       {NetworkFormControl}
+    //       {FooterFormControl}
+    //     </form>
+    //   );
 
     if (isEditConfig?.isAddingDescription)
       return (
@@ -907,45 +903,6 @@ export const OrgForm = withGoogleApi({
       return (
         <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
           {InfoFormControl}
-          {FooterFormControl}
-        </form>
-      );
-
-    if (capitalize(orgName) === "Forum")
-      return (
-        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-          <FormControl
-            ref={refs.orgName}
-            isInvalid={!!errors["orgName"]}
-            mb={getValues("orgName") ? 0 : 3}
-          >
-            <FormLabel>Nom {orgTypeLabel}</FormLabel>
-            <Input
-              name="orgName"
-              ref={register({
-                required: `Veuillez saisir le nom ${orgTypeLabel}`
-                // pattern: {
-                //   value: /^[A-zÀ-ú0-9 ]+$/i,
-                //   message:
-                //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-                // }
-              })}
-              autoComplete="off"
-              placeholder={`Saisir le nom ${orgTypeLabel}`}
-            />
-            {getValues("orgName") && (
-              <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
-                <Tag mt={3} alignSelf="flex-end" cursor="help">
-                  {process.env.NEXT_PUBLIC_URL}/
-                  {normalize(getValues("orgName"))}
-                </Tag>
-              </Tooltip>
-            )}
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="orgName" />
-            </FormErrorMessage>
-          </FormControl>
-
           {FooterFormControl}
         </form>
       );

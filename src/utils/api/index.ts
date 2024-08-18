@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import https from "https";
 import { isServer } from "utils/isServer";
+import { logJson } from "utils/string";
 import { objectToQueryString } from "../query";
 import { Primitive } from "../types";
 
@@ -31,8 +32,7 @@ async function request(
   }`;
 
   try {
-    if (!config?.isLoggingDisabled)
-      console.log(`${prefix}${params ? ` params : ${String(params)}` : ""}`);
+    if (!config?.isLoggingDisabled) logJson(prefix, params);
 
     const options: {
       method: string;

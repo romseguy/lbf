@@ -131,6 +131,7 @@ export const LogoForm = ({
       {entityLogo && (
         <>
           <Image
+            alt="logo"
             src={entityLogo.url || entityLogo.base64}
             height={logoHeight}
             mb={3}
@@ -217,7 +218,7 @@ export const LogoForm = ({
               mb={3}
             />
 
-            {url && <Image src={url} height={logoHeight} />}
+            {url && <Image alt="logo" src={url} height={logoHeight} />}
           </>
         )}
 
@@ -254,7 +255,9 @@ export const LogoForm = ({
               </FormErrorMessage>
             </FormControl>
 
-            {image?.base64 && <Image src={image.base64} height={logoHeight} />}
+            {image?.base64 && (
+              <Image alt="logo" src={image.base64} height={logoHeight} />
+            )}
           </>
         )}
 

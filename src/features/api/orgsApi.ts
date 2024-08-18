@@ -4,7 +4,7 @@ import { api, TagTypes } from "./";
 
 export type AddOrgPayload = Pick<
   Partial<IOrg>,
-  "orgAddress" | "orgEmail" | "orgPhone" | "orgWeb" | "orgVisibility" | "orgs"
+  "orgAddress" | "orgEmail" | "orgPhone" | "orgWeb" | "orgVisibility"
 > &
   Pick<
     IOrg,

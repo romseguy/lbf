@@ -5,7 +5,6 @@ export * from "./equals";
 export * from "./formatStringToCamelCase";
 export * from "./getStyleObjectFromString";
 export * from "./normalize";
-export * from "./toast";
 
 export const MB = 1000000;
 

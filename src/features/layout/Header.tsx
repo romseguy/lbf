@@ -121,6 +121,7 @@ export const Header = ({
           }}
         >
           <Image
+            alt="logo"
             src={logo.url || logo.base64}
             borderBottomLeftRadius="lg"
             borderTopLeftRadius={!banner && logo ? "lg" : undefined}
@@ -162,6 +163,7 @@ export const Header = ({
           }}
         >
           <Image
+            alt="logo"
             alignSelf="center"
             src={(banner.url || banner.base64) as string}
             height={banner.height || 140}
@@ -184,6 +186,7 @@ export const Header = ({
           }}
         >
           <Image
+            alt="logo"
             alignSelf="center"
             src={(logo.url || logo.base64) as string}
             height={logo.height}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { css } from "twin.macro";
-import { Button } from "@chakra-ui/react";
+import { Button, Image } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
 export const FullscreenControl = ({
@@ -42,7 +42,7 @@ export const FullscreenControl = ({
       `}
     >
       <>
-        <img
+        <Image
           src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2018%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M0%200v6h2V2h4V0H0zm16%200h-4v2h4v4h2V0h-2zm0%2016h-4v2h6v-6h-2v4zM2%2012H0v6h6v-2H2v-4z%22/%3E%3C/svg%3E"
           alt=""
           css={css`
@@ -50,7 +50,7 @@ export const FullscreenControl = ({
             width: 18px;
           `}
         />
-        <img
+        <Image
           src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2018%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M0%200v6h2V2h4V0H0zm16%200h-4v2h4v4h2V0h-2zm0%2016h-4v2h6v-6h-2v4zM2%2012H0v6h6v-2H2v-4z%22/%3E%3C/svg%3E"
           alt=""
           css={css`
@@ -58,7 +58,7 @@ export const FullscreenControl = ({
             width: 18px;
           `}
         />
-        <img
+        <Image
           src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2018%22%3E%3Cpath%20fill%3D%22%23111%22%20d%3D%22M0%200v6h2V2h4V0H0zm16%200h-4v2h4v4h2V0h-2zm0%2016h-4v2h6v-6h-2v4zM2%2012H0v6h6v-2H2v-4z%22/%3E%3C/svg%3E"
           alt=""
           css={css`

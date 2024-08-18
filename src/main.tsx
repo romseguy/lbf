@@ -214,7 +214,7 @@ export const Main = ({
         fallbackRender={({ error }: { error: Error & ServerError }) => (
           <ErrorPage
             message={error.message || error.data?.message}
-            statusCode={error.status || 500}
+            statusCode={error.status}
             {...props}
           />
         )}

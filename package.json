@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
     "test": "playwright test",
+    "test:server": "next build && next start -p 3000",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8001",
     "prebuild": "kill-port --port 8001 && node ./maintenance.js &",
     "build": "next build",
@@ -130,8 +131,8 @@
     "cross-fetch": "^4.0.0",
     "dotenv": "^16.4.5",
     "dotenv-cli": "^7.3.0",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.5.2"
+    "eslint": "8",
+    "eslint-config-next": "^14.2.5"
   },
   "browserslist": {
     "production": [

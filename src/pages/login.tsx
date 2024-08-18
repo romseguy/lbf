@@ -1,13 +1,8 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   ButtonProps,
-  Checkbox,
   Flex,
-  FormControl,
-  FormLabel,
-  Image,
   Spinner,
   Stack,
   Text,
@@ -22,29 +17,17 @@ import { FaPowerOff } from "react-icons/fa";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { css } from "twin.macro";
-import {
-  getUser,
-  usePostResetPasswordMailMutation
-} from "features/api/usersApi";
-import {
-  AppHeading,
-  Button,
-  Column,
-  EmailControl,
-  Link,
-  PasswordControl
-} from "features/common";
+import { getUser } from "features/api/usersApi";
+import { AppHeading, Button, Column } from "features/common";
 import { breakpoints } from "features/layout/theme";
-import { SocialLogins } from "features/session/SocialLogins";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { useAppDispatch } from "store";
+import { useAppDispatch, wrapper } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
-import { magic, sealOptions, TOKEN_NAME } from "utils/auth";
-import { seal } from "@hapi/iron";
+import { magic } from "utils/auth";
 import { LoginForm } from "features/forms/LoginForm";
 
 const onLoginWithSocial = async (provider: OAuthProvider) => {
@@ -243,6 +226,12 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
     </>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    return { props: {} };
+  }
+);
 
 export default LoginPage;
 

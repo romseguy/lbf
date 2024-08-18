@@ -139,8 +139,9 @@ export const EntityCategoriesList = ({
             </Td>
           </Tr>
         ) : (
-          categories.map((category) => (
+          categories.map((category, index) => (
             <EntityCategoriesListItem
+              key={`cat-${index}`}
               category={category}
               //categoryKey={categoryKey}
               query={query}

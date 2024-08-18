@@ -154,6 +154,7 @@ export const BannerForm = ({
       {entityBanner && (
         <>
           <Image
+            alt="banner"
             src={entityBanner.url || entityBanner.base64}
             height={entityBanner.headerHeight}
             width={bannerWidth}
@@ -256,6 +257,7 @@ export const BannerForm = ({
 
             {url && (
               <Image
+                alt="banner"
                 src={url}
                 height={parseInt(formHeight)}
                 width={bannerWidth}
@@ -299,6 +301,7 @@ export const BannerForm = ({
 
             {image?.base64 && (
               <Image
+                alt="banner"
                 src={image.base64}
                 height={parseInt(formHeight)}
                 width={bannerWidth}

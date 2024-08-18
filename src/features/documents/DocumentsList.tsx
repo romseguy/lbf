@@ -311,6 +311,7 @@ export const DocumentsList = ({
           onClose={onClose}
         >
           <Image
+            alt="image"
             alignSelf="center"
             src={`${process.env.NEXT_PUBLIC_FILES}/${entity._id}/${modalState.image.url}`}
             width={`${modalState.image.width}px`}

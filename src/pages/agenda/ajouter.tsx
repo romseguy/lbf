@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { EntityAddPage } from "features/common";
 import { PageProps } from "main";
 import { useSession } from "hooks/useSession";
 import { useRouter } from "next/router";
-import { useErrorBoundary } from "react-error-boundary";
 
 const EventsAddPage = (props: PageProps) => {
-  const { showBoundary } = useErrorBoundary();
   const router = useRouter();
   const { data: session, loading } = useSession();
+  //const [isAdmin, setIsAdmin] = useState();
 
   useEffect(() => {
     if (!loading) {
@@ -16,8 +15,8 @@ const EventsAddPage = (props: PageProps) => {
         window.localStorage.setItem("path", router.asPath);
         router.push("/login", "/login", { shallow: true });
       } else if (!session.user.isAdmin) {
-        showBoundary(
-          new Error("Vous devez être administrateur pour accéder à cette page")
+        throw new Error(
+          "Vous devez être administrateur pour ajouter un événement"
         );
       }
     }

@@ -152,132 +152,87 @@ export const LoginForm = ({
         {title}
       </AppHeading>
 
-      {isSessionLoading && <Spinner mb={3} />}
+      <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
+        <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
+          <Flex
+            flexDirection="column"
+            //width={isMobile ? "auto" : "md"}
+            m="0 auto"
+          >
+            <Alert
+              fontSize="18px"
+              status="info"
+              m="0 auto"
+              mb={5}
+              {...(isMobile ? { mt: 12 } : {})}
+            >
+              <AlertIcon />
+              <Text align="justify">
+                Pour accéder aux ateliers LEO{" "}
+                <b>
+                  saisissez simplement votre adresse e-mail ci-dessous pour
+                  recevoir un e-mail
+                </b>{" "}
+                qui vous permettra d'accéder aux ateliers. Vous aurez ensuite la
+                possibilité de définir un mot de passe pour votre compte.
+              </Text>
+            </Alert>
+          </Flex>
 
-      {!isSessionLoading && (
-        <>
-          {session && (
-            <Column borderRadius={isMobile ? 0 : undefined}>
-              <Alert bg={isDark ? "gray.600" : undefined} status="success">
+          <EmailControl
+            name="email"
+            control={control}
+            errors={errors}
+            register={register}
+            isDisabled={isLoggingIn}
+            isMultiple={false}
+            isRequired
+            mb={0}
+          />
+
+          <FormControl display="flex" flexDir="row" mb={0}>
+            <FormLabel mt={3}>Mot de passe</FormLabel>
+            <Checkbox
+              borderColor={isDark ? "white" : "black"}
+              onChange={() => setIsPassword(!isPassword)}
+            />
+          </FormControl>
+
+          {isPassword && (
+            <PasswordControl
+              errors={errors}
+              register={register}
+              noLabel
+              mb={3}
+            />
+          )}
+
+          <ErrorMessage
+            errors={errors}
+            name="formErrorMessage"
+            render={({ message }) => (
+              <Alert status="error" mb={3}>
                 <AlertIcon />
-                <Stack spacing={3} textAlign="center">
-                  <Text>Vous êtes déjà connecté avec l'adresse e-mail :</Text>
-
-                  <Text fontWeight="bold" ml={1}>
-                    {session.user.email}
-                  </Text>
-                </Stack>
+                <ErrorMessageText>{message}</ErrorMessageText>
               </Alert>
+            )}
+          />
 
-              <Button
-                colorScheme="red"
-                leftIcon={<FaPowerOff />}
-                mt={3}
-                onClick={async () => {
-                  dispatch(setIsSessionLoading(true));
-                  dispatch(resetUserEmail());
-                  await magic.user.logout();
-                  await api.get("logout");
-                  dispatch(setSession(null));
-                  dispatch(setIsSessionLoading(false));
-                }}
-              >
-                Se déconnecter
-              </Button>
-            </Column>
-          )}
+          <Button
+            type="submit"
+            colorScheme="green"
+            isLoading={isLoading}
+            isDisabled={isLoading || Object.keys(errors).length > 0}
+            fontSize="sm"
+          >
+            {isPassword ? "Se connecter" : "Envoyer un e-mail de connexion"}
+          </Button>
+        </Column>
 
-          {!session && (
-            <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-              <Column borderRadius={isMobile ? 0 : undefined} mt={3} mb={5}>
-                <Flex
-                  flexDirection="column"
-                  //width={isMobile ? "auto" : "md"}
-                  m="0 auto"
-                >
-                  <Alert
-                    fontSize="18px"
-                    status="info"
-                    m="0 auto"
-                    mb={5}
-                    {...(isMobile ? { mt: 12 } : {})}
-                  >
-                    <AlertIcon />
-                    <Text align="justify">
-                      Pour accéder aux ateliers LEO{" "}
-                      <b>
-                        saisissez simplement votre adresse e-mail ci-dessous
-                        pour recevoir un e-mail
-                      </b>{" "}
-                      qui vous permettra d'accéder aux ateliers. Vous aurez
-                      ensuite la possibilité de définir un mot de passe pour
-                      votre compte.
-                    </Text>
-                  </Alert>
-                </Flex>
-
-                <EmailControl
-                  name="email"
-                  control={control}
-                  errors={errors}
-                  register={register}
-                  isDisabled={isLoggingIn}
-                  isMultiple={false}
-                  isRequired
-                  mb={0}
-                />
-
-                <FormControl display="flex" flexDir="row" mb={0}>
-                  <FormLabel mt={3}>Mot de passe</FormLabel>
-                  <Checkbox
-                    borderColor={isDark ? "white" : "black"}
-                    onChange={() => setIsPassword(!isPassword)}
-                  />
-                </FormControl>
-
-                {isPassword && (
-                  <PasswordControl
-                    errors={errors}
-                    register={register}
-                    noLabel
-                    mb={3}
-                  />
-                )}
-
-                <ErrorMessage
-                  errors={errors}
-                  name="formErrorMessage"
-                  render={({ message }) => (
-                    <Alert status="error" mb={3}>
-                      <AlertIcon />
-                      <ErrorMessageText>{message}</ErrorMessageText>
-                    </Alert>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  colorScheme="green"
-                  isLoading={isLoading}
-                  isDisabled={isLoading || Object.keys(errors).length > 0}
-                  fontSize="sm"
-                >
-                  {isPassword
-                    ? "Se connecter"
-                    : "Envoyer un e-mail de connexion"}
-                </Button>
-              </Column>
-
-              <Column borderRadius={isMobile ? 0 : undefined} pb={0}>
-                <SocialLogins
-                  flexDirection="column"
-                  onSubmit={onLoginWithSocial}
-                />
-              </Column>
-            </form>
-          )}
-        </>
-      )}
+        <Column borderRadius={isMobile ? 0 : undefined} pb={0}>
+          <SocialLogins flexDirection="column" onSubmit={onLoginWithSocial} />
+        </Column>
+      </form>
     </Flex>
   );
 };

@@ -33,7 +33,6 @@ import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { defaultErrorMessage } from "utils/string";
 import { AppQuery, AppQueryWithData, Optional } from "utils/types";
 
 export const TopicForm = ({
@@ -309,7 +308,7 @@ export const TopicForm = ({
                     console.error(error);
                     toast({
                       status: "error",
-                      title: defaultErrorMessage
+                      title: "La catégorie n'a pas pu être ajoutée"
                     });
                   }
                 }}

@@ -2,7 +2,6 @@ import { NextPageContext } from "next";
 import { Layout } from "features/layout";
 import { PageProps } from "main";
 import { Alert, AlertIcon, Box } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import { Column, ContactLink } from "features/common";
 import { IEntity } from "models/Entity";
@@ -55,14 +54,17 @@ function Error({
   message,
   ...props
 }: PageProps & {
-  statusCode: number;
+  statusCode?: number;
   message: string;
 }) {
   return (
     <Layout pageTitle="Erreur" {...props}>
-      {`Une erreur ${
-        statusCode ? `(${statusCode})` : ""
-      } est survenue : ${message}`}
+      <Alert status="error">
+        <AlertIcon />
+        {`Une erreur ${
+          statusCode ? `(${statusCode})` : ""
+        } est survenue : ${message}`}
+      </Alert>
     </Layout>
   );
 }

@@ -1,9 +1,10 @@
-name: tsc
-
-on: [push]
-
+name: Tests
+on:
+  push:
+    branches: [ateliers]
 jobs:
-  tsc:
+  test:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -11,38 +12,29 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
-      - name: Run tsc
-        run: |
-          yarn install
-          yarn compile
-  cypress-run:
-    if: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
+          node-version: "18.x"
+      - name: Install dependencies
+        run: yarn
       - name: Create env file
-        run: |
-          touch .env.test.local
-          echo NEXTAUTH_URL=http://localhost:3004 >> .env
-          echo NEXT_PUBLIC_URL=http://localhost:3004 >> .env
-          echo NEXT_PUBLIC_API=http://localhost:3004/api >> .env
-          echo NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY }} >> .env
-          echo EMAIL_ADMIN=${{ secrets.EMAIL_ADMIN }} >> .env
-          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-          echo SECRET=${{ secrets.SECRET }} >> .env
-
-      - name: Start app
-        run: |
-          yarn
-          yarn build:test
-          yarn start:test &
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
+      run: |
+        touch .env
+        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+        echo NEXT_PUBLIC_URL=http://localhost:3000 >> .env
+        echo NEXT_PUBLIC_SHORT_URL=ateliers.lebonforum.fr >> .env
+        echo NEXT_PUBLIC_API=http://localhost:3000/api >> .env
+        echo NEXT_PUBLIC_API2=https://api2.lebonforum.fr >> .env
+        echo NEXT_PUBLIC_FILES=https://files.lebonforum.fr >> .env
+        echo NEXT_PUBLIC_ADMIN_EMAILS=contact@lebonforum.fr >> .env
+        echo NEXT_PUBLIC_TITLE=Les ateliers LEO >> .env
+      - name: Run test server
+        run: yarn test:server
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+      - name: Run Playwright tests
+        run: yarn playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          config: video=false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

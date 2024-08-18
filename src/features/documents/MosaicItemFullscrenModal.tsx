@@ -218,6 +218,7 @@ export const MosaicItemFullscrenModal = ({
       onClose={onClose}
     >
       <Image
+        alt={modalState.image!.name}
         alignSelf="center"
         src={images[modalState.image!.index].url}
         maxHeight={screenHeight - 72 + "px"}

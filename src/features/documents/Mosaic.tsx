@@ -133,6 +133,7 @@ export const Mosaic = ({
                     }
                   >
                     <Image
+                      alt={image.name}
                       //ref={imageRefs[image.url]}
                       src={image.url}
                       width={`${width}px`}
