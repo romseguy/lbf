@@ -16,6 +16,16 @@ test("TopicForm.onSubmit", async ({ page }) => {
   expect(toast.isVisible()).toBeTruthy();
 });
 
+test("GalleryForm.onSubmit", async ({ page }) => {
+  await page.goto("http://localhost:3000/api/login");
+  await page.goto("");
+  await page.getByText(/Galeries/).click();
+  await page.getByText(/Ajouter/).click();
+  const toast = page.locator("#chakra-toast-manager-top-right");
+  expect(toast.isVisible()).toBeTruthy();
+  await page.screenshot({ path: "test.png", fullPage: true });
+});
+
 test("DocumentForm.onSubmit", async ({ page }) => {
   await page.goto("http://localhost:3000/api/login");
   await page.goto("");

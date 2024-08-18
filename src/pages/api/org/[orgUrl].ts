@@ -215,10 +215,10 @@ handler.get<
             path: "orgLists",
             populate: {
               path: "subscriptions",
-              select: isCreator ? "+email +phone" : undefined,
+              select: "+email +phone",
               populate: {
                 path: "user",
-                select: isCreator ? "+email" : undefined
+                select: "+email +phone"
               }
             }
           })
@@ -227,30 +227,29 @@ handler.get<
         org = await org
           .populate({
             path: "orgSubscriptions",
-            select: isCreator ? "+email +phone" : undefined,
+            select: "+email +phone",
             populate: {
               path: "user",
-              select: isCreator ? "+email +phone" : undefined
+              select: "+email +phone"
             }
           })
           .execPopulate();
-
         org.orgLists = getLists(org);
+        // wtf was that?
+        // if (!isCreator) {
+        //   const subscription = await models.Subscription.findOne({
+        //     user: session?.user.userId
+        //   });
 
-        if (!isCreator) {
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
-
-          org.orgLists = subscription
-            ? org.orgLists.filter(
-                ({ subscriptions }) =>
-                  !!subscriptions.find(({ _id }) =>
-                    equals(_id, subscription._id)
-                  )
-              )
-            : [];
-        }
+        //   org.orgLists = subscription
+        //     ? org.orgLists.filter(
+        //         ({ subscriptions }) =>
+        //           !!subscriptions.find(({ _id }) =>
+        //             equals(_id, subscription._id)
+        //           )
+        //       )
+        //     : [];
+        // }
       }
 
       if (modelKey === "orgGalleries") {

@@ -19,18 +19,14 @@ import { useSelector } from "react-redux";
 import { Button, AppHeading, CategoryTag } from "features/common";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { useSession } from "hooks/useSession";
-import {
-  getCategoryLabel,
-  getRefId,
-  IEntity,
-  isEvent,
-  isOrg
-} from "models/Entity";
+import { getCategoryLabel, getRefId } from "models/Entity";
 import { IGallery } from "models/Gallery";
 import { selectIsMobile } from "store/uiSlice";
 import { AppQueryWithData } from "utils/types";
 import { GalleriesListItem } from "./GalleriesListItem";
 import { normalize } from "utils/string";
+import { useToast } from "hooks/useToast";
+import { IOrg } from "models/Org";
 
 enum EGalleriesListOrder {
   ALPHA = "ALPHA",
@@ -49,7 +45,7 @@ export const GalleriesList = ({
   currentGalleryName,
   ...props
 }: GridProps & {
-  query: AppQueryWithData<IEntity>;
+  query: AppQueryWithData<IOrg>;
   isCreator: boolean;
   currentGalleryName?: string;
 }) => {
@@ -57,11 +53,17 @@ export const GalleriesList = ({
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
+  const toast = useToast();
   const isMobile = useSelector(selectIsMobile);
-  const entity = query.data;
-  const isE = isEvent(entity);
-  const isO = isOrg(entity);
-  const entityUrl = entity[isE ? "event" : "org" + "Url"];
+  const org = query.data;
+  const isAttendee =
+    session?.user.isAdmin ||
+    !!org.orgLists
+      .find(({ listName }) => {
+        return listName === "Participants";
+      })
+      ?.subscriptions.find(({ email }) => email === session?.user.email);
+  const entityUrl = org["orgUrl"];
 
   //#region local state
   const [isGalleryLoading, _setIsGalleryLoading] = useState<
@@ -74,18 +76,16 @@ export const GalleriesList = ({
   const [selectedOrder, setSelectedOrder] =
     useState<EGalleriesListOrder>(defaultOrder);
   const galleries = [
-    ...(isO
-      ? entity.orgGalleries.concat(
-          //@ts-expect-error
-          entity.orgEvents.map((event) => {
-            return {
-              galleryName: event._id,
-              isPinned: true,
-              createdAt: event.eventMinDate
-            };
-          })
-        )
-      : [])
+    ...org.orgGalleries.concat(
+      //@ts-expect-error
+      org.orgEvents.map((event) => {
+        return {
+          galleryName: event._id,
+          isPinned: true,
+          createdAt: event.eventMinDate
+        };
+      })
+    )
   ].sort((galleryA, galleryB) => {
     if (galleryA.isPinned && !galleryB.isPinned) return -1;
     if (!galleryA.isPinned && galleryB.isPinned) return 1;
@@ -105,7 +105,7 @@ export const GalleriesList = ({
     return galleryName === currentGalleryName;
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
-  const galleryCategories = entity.orgGalleryCategories || [];
+  const galleryCategories = org.orgGalleryCategories || [];
 
   //const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   //#endregion
@@ -125,6 +125,17 @@ export const GalleriesList = ({
     });
 
   const onAddClick = () => {
+    if (!session) {
+      return router.push("/login", "/login", { shallow: true });
+    }
+
+    if (!isAttendee) {
+      return toast({
+        title:
+          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter une discussion"
+      });
+    }
+
     setGalleryModalState({ ...galleryModalState, isOpen: true });
   };
   //#endregion

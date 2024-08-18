@@ -89,6 +89,13 @@ export const OrgPageHomeTabPanel = ({
 
   //#region org
   const org = orgQuery.data;
+  const isAttendee =
+    session?.user.isAdmin ||
+    !!org.orgLists
+      .find(({ listName }) => {
+        return listName === "Participants";
+      })
+      ?.subscriptions.find(({ email }) => email === session?.user.email);
   const hasInfo =
     hasItems(org.orgAddress) ||
     hasItems(org.orgEmail) ||
@@ -141,11 +148,13 @@ export const OrgPageHomeTabPanel = ({
 
   return (
     <>
-      <Link href={`/${org.orgUrl}/galeries`} shallow>
-        <Button colorScheme="orange" mb={5}>
-          Cliquez ici pour envoyer vos photos !
-        </Button>
-      </Link>
+      {isAttendee && (
+        <Link href={`/${org.orgUrl}/galeries`} shallow>
+          <Button colorScheme="orange" mb={5}>
+            Cliquez ici pour envoyer vos photos !
+          </Button>
+        </Link>
+      )}
       <TabContainer borderBottomRadius={isDescriptionOpen ? undefined : "lg"}>
         <TabContainerHeader
           borderBottomRadius={isDescriptionOpen ? undefined : "lg"}

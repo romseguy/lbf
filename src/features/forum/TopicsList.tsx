@@ -69,7 +69,6 @@ export const TopicsList = ({
   isFollowed?: boolean;
   currentTopicName?: string;
 }) => {
-  console.log("🚀 ~ subQuery:", subQuery);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);

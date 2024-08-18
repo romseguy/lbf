@@ -1,6 +1,6 @@
 import { expect, request, APIRequestContext } from "@playwright/test";
 import path from "path";
-import { test } from "./common.fixtures";
+import { test } from "./admin.fixtures";
 
 // headers: {
 //   "Content-Type": "application/json",
