@@ -1,18 +1,19 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
-
+import { Alert, Box, BoxProps, useColorMode, useToast } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Button } from "features/common";
-import { IGallery } from "models/Gallery";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
-import { AppQueryWithData } from "utils/types";
-import { hasItems } from "utils/array";
-import { IEntity, isEvent, isOrg } from "models/Entity";
-import { sanitize } from "utils/string";
-import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
-import { removeProps } from "utils/object";
 import { useScroll } from "hooks/useScroll";
+import { useSession } from "hooks/useSession";
+import { IEntity, isEvent, isOrg } from "models/Entity";
+import { IGallery } from "models/Gallery";
+import { getEmail } from "models/Subscription";
+import { hasItems } from "utils/array";
+import { removeProps } from "utils/object";
+import { sanitize } from "utils/string";
+import { AppQueryWithData } from "utils/types";
+import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
 
 export const GalleriesListItem = ({
   gallery,
@@ -43,11 +44,22 @@ export const GalleriesListItem = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const { data: session } = useSession();
+  const toast = useToast();
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
 
   const entity = query.data;
+  console.log("🚀 ~ entity:", entity);
   const isO = isOrg(entity);
   const isE = isEvent(entity);
+  const attendees = (
+    isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : []
+  ).find(({ listName }) => listName === "Participants");
+  const isAttendee =
+    session?.user.isAdmin ||
+    !!attendees?.subscriptions.find(
+      (sub) => getEmail(sub) === session?.user.email
+    );
   // const galleryId = entity._id;
   // const galleryQuery = useGetGalleryQuery({
   //   galleryId
@@ -56,6 +68,12 @@ export const GalleriesListItem = ({
   const [isAdd, setIsAdd] = useState(false);
 
   const onAddDocumentClick = () => {
+    if (!isAttendee)
+      return toast({
+        title:
+          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter des photos"
+      });
+
     props.onAddDocumentClick ? props.onAddDocumentClick() : setIsAdd(!isAdd);
   };
 

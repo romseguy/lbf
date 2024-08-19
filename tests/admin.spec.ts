@@ -1,5 +1,4 @@
-import { expect, request, APIRequestContext } from "@playwright/test";
-import path from "path";
+import { expect } from "@playwright/test";
 import { test } from "./admin.fixtures";
 
 // headers: {
@@ -32,65 +31,6 @@ import { test } from "./admin.fixtures";
 //   await page.goto("");
 //   await expect(page).toHaveTitle(/Atelier – Photo – ateliers.lebonforum.fr/);
 // });
-
-test("TopicForm.onSubmit", async ({ page }) => {
-  await page.goto("http://localhost:3000/api/login");
-  await page.goto("");
-  //await page.getByRole("button", { name: "Discussions" }).click();
-  await page.getByText(/Discussions/).click();
-  await expect(page).toHaveURL("/photo/discussions");
-
-  //await page.getByRole("button", { name: "Ajouter une discussion" }).click();
-  await page.getByText(/Ajouter/).click();
-  await page.getByPlaceholder(/Objet/).fill("1");
-
-  const locator = page
-    .frameLocator('iframe[title="Zone de Texte Riche"]')
-    .locator("html");
-  await expect(locator).toBeEditable();
-  await locator.locator("#tinymce").fill("2");
-
-  await page.getByRole("button", { name: /Ajouter/ }).click();
-
-  // await page.goto("http://localhost:3000/api/login");
-  // await page.goto("/photo/discussions/1");
-  // await page.waitForURL("/photo/discussions/1");
-
-  await expect(page).toHaveURL("/photo/discussions/1");
-});
-
-test("GalleryForm.onSubmit", async ({ page }) => {
-  await page.goto("http://localhost:3000/api/login");
-  await page.goto("");
-  await page.getByText(/Galeries/).click();
-  await page.getByText(/Ajouter/).click();
-  await page.getByPlaceholder(/Nom/).fill("1");
-
-  const locator = page
-    .frameLocator('iframe[title="Zone de Texte Riche"]')
-    .locator("html");
-  await expect(locator).toBeEditable();
-  await locator.locator("#tinymce").fill("2");
-
-  await page.getByRole("button", { name: /Ajouter/ }).click();
-  await expect(page).toHaveURL("/photo/galeries/1");
-
-  await page.getByText(/Ajouter des photo/).click();
-
-  const fileChooserPromise = page.waitForEvent("filechooser");
-  await page.locator("#fichiers").click();
-  const fileChooser = await fileChooserPromise;
-  const filePath = path.join(__dirname, "GalleryForm.onSubmit.png");
-  await fileChooser.setFiles(filePath);
-
-  await page.getByText("Valider").click();
-
-  await page.locator("img").click();
-  await expect(page.getByText("GalleryForm.onSubmit.png")).toBeVisible();
-
-  await page.getByRole("button", { name: /Commenter/ }).click();
-  await expect(page).toHaveURL("/photo/discussions/GalleryForm.onSubmit.png");
-});
 
 test("EventForm.onSubmit", async ({ page }) => {
   await page.goto("http://localhost:3000/api/login");

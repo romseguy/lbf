@@ -57,40 +57,22 @@ handler.get<
     const session = await getSession({ req });
     const isCreator =
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
-
     if (isCreator) {
       event = await event
         .populate({
           path: "eventOrgs",
           populate: [
             {
-              path: "orgLists",
-              populate: {
-                path: "subscriptions",
-                select: isCreator ? "+email +phone" : undefined,
-                populate: {
-                  path: "user",
-                  select: isCreator ? "+email" : undefined
-                }
-              }
-            },
-            {
               path: "orgSubscriptions",
-              select: isCreator ? "+email +phone" : undefined,
+              select: "+email +phone",
               populate: {
                 path: "user",
-                select: isCreator ? "+email" : undefined
+                select: "+email +phone"
               }
             }
           ]
         })
         .execPopulate();
-
-      for (const eventOrg of event.eventOrgs) {
-        eventOrg.orgLists = getLists(eventOrg);
-      }
-    } else {
-      event = event.populate("eventOrgs");
     }
 
     event = await event
@@ -115,6 +97,21 @@ handler.get<
             },
             { path: "createdBy", select: "_id userName" }
           ]
+        },
+        {
+          path: "eventOrgs",
+          populate: {
+            path: "orgLists",
+            populate: {
+              // TODO1 filter subs noe belonging to current user
+              path: "subscriptions",
+              select: "+email +phone",
+              populate: {
+                path: "user",
+                select: "+email +phone"
+              }
+            }
+          }
         }
       ])
       .execPopulate();

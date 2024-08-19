@@ -86,14 +86,24 @@ export const DocumentForm = ({
 
     try {
       if (!hasItems(list))
-        throw `Veuillez sélectionner un ou plusieurs fichiers`;
+        throw new Error(`Veuillez sélectionner un ou plusieurs fichiers`);
+
+      for (const file of list) {
+        if (!file.type.includes("image"))
+          return toast({
+            title: `${file.name} n'est pas une image`,
+            status: "error"
+          });
+        const fsMb = file.size / (1024 * 1024);
+        if (fsMb > 10)
+          return toast({
+            title: `${file.name} est trop volumineux`,
+            status: "error"
+          });
+      }
 
       for (const file of list) {
         setLoaded({ ...loaded, [file.name]: 0 });
-        const fsMb = file.size / (1024 * 1024);
-
-        if (fsMb > 10) throw `${file.name} est trop volumineux`;
-
         const { width, height } = await getImageDimensions(file);
 
         //API1
@@ -122,24 +132,18 @@ export const DocumentForm = ({
       }
 
       toast({
-        title: "Vos fichiers ont été ajoutés !",
+        title: "Vos photos ont été ajoutées !",
         status: "success"
       });
 
       props.onSubmit && props.onSubmit();
     } catch (error) {
-      if (typeof error === "string")
+      handleError(error, (message) =>
         setError("formErrorMessage", {
           type: "manual",
-          message: error
-        });
-      else
-        handleError(error, (message) =>
-          setError("formErrorMessage", {
-            type: "manual",
-            message
-          })
-        );
+          message
+        })
+      );
     } finally {
       setIsLoading(false);
     }

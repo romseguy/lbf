@@ -16,6 +16,7 @@ import { hasItems } from "utils/array";
 import { createEndpointError } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
 import { logEvent, ServerEventTypes } from "server/logging";
+import { getEmail } from "models/Subscription";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -101,7 +102,15 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
       if (body.event)
         event = await models.Event.findOne({ _id: body.event._id });
-      else if (body.org) org = await models.Org.findOne({ _id: body.org._id });
+      else if (body.org)
+        org = await models.Org.findOne({ _id: body.org._id }).populate({
+          path: "orgLists",
+          populate: {
+            path: "subscriptions",
+            select: "email",
+            populate: { path: "user", select: "email" }
+          }
+        });
 
       if (!event && !org) {
         //org = await models.Org.findOne({ orgUrl: "photo" });
@@ -119,14 +128,12 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       }
 
       if (!session.user.isAdmin) {
-        const isAttendee = (
-          event ? event.eventOrgs[0].orgLists : org ? org.orgLists : []
-        )
-          .find(({ listName }) => {
-            return listName === "Participants";
-          })
-          ?.subscriptions.find(({ email }) => email === session.user.email);
-
+        const attendees = (
+          org ? org.orgLists : event ? event.eventOrgs[0].orgLists : []
+        ).find(({ listName }) => listName === "Participants");
+        const isAttendee = !!attendees?.subscriptions.find(
+          (sub) => getEmail(sub) === session.user.email
+        );
         if (!isAttendee) {
           return res
             .status(401)

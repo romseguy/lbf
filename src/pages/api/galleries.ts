@@ -14,6 +14,7 @@ import { logEvent, ServerEventTypes } from "server/logging";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { randomNumber } from "utils/randomNumber";
 import { normalize } from "path";
+import { getEmail } from "models/Subscription";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -99,7 +100,15 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
 
     try {
       let org: (IOrg & Document<any, any, IOrg>) | null | undefined;
-      if (body.org) org = await models.Org.findOne({ _id: body.org._id });
+      if (body.org)
+        org = await models.Org.findOne({ _id: body.org._id }).populate({
+          path: "orgLists",
+          populate: {
+            path: "subscriptions",
+            select: "email",
+            populate: { path: "user", select: "email" }
+          }
+        });
       if (!org) {
         return res
           .status(404)
@@ -107,12 +116,12 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
       }
 
       if (!session.user.isAdmin) {
-        const isAttendee = org.orgLists
-          .find(({ listName }) => {
-            return listName === "Participants";
-          })
-          ?.subscriptions.find(({ email }) => email === session.user.email);
-
+        const attendees = org.orgLists.find(
+          ({ listName }) => listName === "Participants"
+        );
+        const isAttendee = !!attendees?.subscriptions.find(
+          (sub) => getEmail(sub) === session.user.email
+        );
         if (!isAttendee) {
           return res
             .status(401)

@@ -4,7 +4,7 @@ import React from "react";
 import { Column } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { IEntity, isEvent, isOrg } from "models/Entity";
-import { ISubscription } from "models/Subscription";
+import { getEmail, ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { ITopic } from "models/Topic";
 import { useSession } from "hooks/useSession";
@@ -26,13 +26,14 @@ export const EntityPageTopics = ({
   const entity = props.query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const attendees = (
+    isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : []
+  ).find(({ listName }) => listName === "Participants");
   const isAttendee =
     session?.user.isAdmin ||
-    !!(isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : [])
-      .find(({ listName }) => {
-        return listName === "Participants";
-      })
-      ?.subscriptions.find(({ email }) => email === session?.user.email);
+    !!attendees?.subscriptions.find(
+      (sub) => getEmail(sub) === session?.user.email
+    );
 
   return (
     <Column bg={isDark ? "gray.700" : "lightblue"}>

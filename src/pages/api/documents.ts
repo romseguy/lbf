@@ -66,31 +66,42 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
 
             const org = await models.Org.findOne({ _id: orgId }).populate({
               path: "orgLists",
-              populate: { path: "subscriptions" }
+              populate: {
+                path: "subscriptions",
+                select: "email",
+                populate: { path: "user", select: "email" }
+              }
             });
 
             if (org) {
-              const attendees =
-                org.orgLists.find(({ listName }) => {
-                  return listName === "Participants";
-                })?.subscriptions || [];
-
-              isAttendee = !!attendees.find(
+              const attendees = org.orgLists.find(
+                ({ listName }) => listName === "Participants"
+              );
+              isAttendee = !!attendees?.subscriptions.find(
                 (sub) => getEmail(sub) === session.user.email
               );
             }
           } else {
             eventId = gallery.galleryName;
             const event = await models.Event.findOne({ _id: eventId }).populate(
-              "eventOrgs"
+              {
+                path: "eventOrgs",
+                populate: {
+                  path: "orgLists",
+                  populate: {
+                    path: "subscriptions",
+                    select: "email",
+                    populate: { path: "user", select: "email" }
+                  }
+                }
+              }
             );
 
             if (event) {
               const attendees =
-                event.eventOrgs[0].orgLists.find(({ listName }) => {
-                  return listName === "Participants";
-                })?.subscriptions || [];
-
+                event.eventOrgs[0].orgLists.find(
+                  ({ listName }) => listName === "Participants"
+                )?.subscriptions || [];
               isAttendee = !!attendees.find(
                 (sub) => getEmail(sub) === session.user.email
               );
@@ -135,14 +146,12 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
         });
       }
 
-      res
-        .status(200)
-        .json({
-          documentId: document._id,
-          galleryId: gallery?._id,
-          eventId,
-          orgId
-        });
+      res.status(200).json({
+        documentId: document._id,
+        galleryId: gallery?._id,
+        eventId,
+        orgId
+      });
     } catch (error: any) {
       //logEvent({
       //   type: ServerEventTypes.API_ERROR,

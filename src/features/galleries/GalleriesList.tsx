@@ -27,6 +27,7 @@ import { GalleriesListItem } from "./GalleriesListItem";
 import { normalize } from "utils/string";
 import { useToast } from "hooks/useToast";
 import { IOrg } from "models/Org";
+import { getEmail } from "models/Subscription";
 
 enum EGalleriesListOrder {
   ALPHA = "ALPHA",
@@ -56,13 +57,14 @@ export const GalleriesList = ({
   const toast = useToast();
   const isMobile = useSelector(selectIsMobile);
   const org = query.data;
+  const attendees = org.orgLists.find(
+    ({ listName }) => listName === "Participants"
+  );
   const isAttendee =
     session?.user.isAdmin ||
-    !!org.orgLists
-      .find(({ listName }) => {
-        return listName === "Participants";
-      })
-      ?.subscriptions.find(({ email }) => email === session?.user.email);
+    !!attendees?.subscriptions.find(
+      (sub) => getEmail(sub) === session?.user.email
+    );
   const entityUrl = org["orgUrl"];
 
   //#region local state
