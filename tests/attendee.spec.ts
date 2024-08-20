@@ -5,12 +5,30 @@ import { test } from "./attendee.fixtures";
 test.describe("event forms", () => {
   test("DocumentForm.onSubmit", async ({ page }) => {
     await page.goto("http://localhost:3000/api/login");
-    await page.goto("/photo/agenda");
-    await page
-      .locator("p")
-      .filter({ hasText: /Atelier/ })
-      .nth(1)
-      .click();
+    await page.goto("/photo/galeries");
+    await expect(page).toHaveURL("/photo/galeries");
+
+    await page.getByLabel("Ouvrir la galerie").nth(0).click();
+    await expect(page).toHaveURL(/atelier/i);
+
+    await page.getByLabel("Ajouter des photos").click();
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await page.locator("#fichiers").click();
+    const fileChooser = await fileChooserPromise;
+    const filePath = path.join(__dirname, "GalleryForm.onSubmit.png");
+    await fileChooser.setFiles(filePath);
+    await page.getByText("Valider").click();
+    await page.getByRole("alert", { name: /ajouté/i }).isVisible();
+
+    const img = page.locator("img").nth(0);
+    await expect(img).toBeVisible();
+    await img.click();
+    await expect(page.getByText("GalleryForm.onSubmit.png")).toBeVisible();
+    await page.getByLabel(/supprimer/i).click();
+    await page.getByRole("button", { name: "Supprimer" }).click();
+    await page.getByRole("alert", { name: /supprimé/i }).isVisible();
+
+    await expect(img).toBeHidden();
   });
 });
 
@@ -33,8 +51,13 @@ test.describe("org forms", () => {
     await fileChooser.setFiles(filePath);
 
     await page.getByText("Valider").click();
-    const toast = page.locator("#chakra-toast-manager-top-right");
-    expect(toast).toHaveText("ajouté");
+    await page.getByRole("alert", { name: /ajouté/i }).isVisible();
+
+    await page.locator("img").first().click();
+    await expect(page.getByText("GalleryForm.onSubmit.png")).toBeVisible();
+
+    await page.getByLabel(/supprimer/i).click();
+    await page.getByRole("button", { name: "Supprimer" }).click();
   });
 
   test("GalleryForm.onSubmit", async ({ page }) => {
@@ -51,8 +74,7 @@ test.describe("org forms", () => {
     await locator.locator("#tinymce").fill("2");
 
     await page.getByRole("button", { name: /Ajouter/ }).click();
-    const toast = page.locator("#chakra-toast-manager-top-right");
-    expect(await toast.isVisible()).toBeTruthy();
+    await page.getByRole("alert", { name: /ajouté/i }).isVisible();
 
     await expect(page).toHaveURL("/photo/galeries/1");
 
@@ -91,8 +113,7 @@ test.describe("org forms", () => {
     await locator.locator("#tinymce").fill("2");
 
     await page.getByRole("button", { name: /Ajouter/ }).click();
-    const toast = page.locator("#chakra-toast-manager-top-right");
-    expect(await toast.isVisible()).toBeTruthy();
+    await page.getByRole("alert", { name: /ajouté/i }).isVisible();
 
     // await page.goto("http://localhost:3000/api/login");
     // await page.goto("/photo/discussions/1");
@@ -109,6 +130,5 @@ test("TopicsListItem.DeleteButton", async ({ page }) => {
   await expect(page).toHaveURL("/photo/discussions");
   await page.getByLabel("Supprimer").first().click();
   await page.getByRole("button", { name: "Supprimer" }).click();
-  const toast = page.locator("#chakra-toast-manager-top-right");
-  expect(await toast.isVisible()).toBeTruthy();
+  await page.getByRole("alert", { name: /supprimé/i }).isVisible();
 });

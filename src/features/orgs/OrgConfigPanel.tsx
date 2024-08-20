@@ -138,7 +138,7 @@ export const OrgConfigPanel = ({
 
           <Column mx={3} mb={3} pt={1}>
             <Text fontSize="3xl" mb={3}>
-              Personnes & Listes
+              Participants
             </Text>
 
             <OrgConfigSubscribersPanel
@@ -149,11 +149,11 @@ export const OrgConfigPanel = ({
               mb={3}
             />
 
-            <OrgConfigListsPanel
+            {/* <OrgConfigListsPanel
               orgQuery={orgQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}
-            />
+            /> */}
           </Column>
 
           <Column mx={3} mb={3} pt={1}>

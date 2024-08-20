@@ -7,11 +7,10 @@ import {
   TooltipProps,
   useColorMode
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import React from "react";
 import { GrWorkshop } from "react-icons/gr";
-import { FaGlobeEurope, FaTree } from "react-icons/fa";
+import { FaTree } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
 import { css } from "twin.macro";
 import { IEvent } from "models/Event";
@@ -19,8 +18,8 @@ import {
   IOrg,
   EOrgType,
   EOrgVisibility,
-  orgTypeFull5,
-  OrgTypes
+  OrgTypes,
+  orgTypeFull5
 } from "models/Org";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";
@@ -48,8 +47,19 @@ export const EntityButton = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-
   const router = useRouter();
+
+  const entityName = topic
+    ? topic.topicName
+    : org
+    ? `${
+        org.orgType === EOrgType.TREETOOLS ? OrgTypes[org.orgType] + " : " : ""
+      }${org.orgName}`
+    : event
+    ? event.eventName
+    : user
+    ? user.userName
+    : "";
   let entityUrl = org
     ? org.orgUrl
     : event
@@ -62,101 +72,83 @@ export const EntityButton = ({
       entityUrl || getRefId(topic.org) || getRefId(topic.event)
     }/discussions/${topic.topicName}`;
   }
-  const hasLink = entityUrl !== "" && onClick !== null;
+  const hasLink = !!entityUrl || !!onClick;
+  const label = hasLink
+    ? topic
+      ? "Aller à la discussion"
+      : org
+      ? org.orgUrl === "forum"
+        ? "Aller au forum"
+        : org.orgType
+        ? `Visiter ${orgTypeFull5(org.orgType)}`
+        : ""
+      : event
+      ? "Aller à la page de l'événement"
+      : user
+      ? "Visiter la page de l'utilisateur"
+      : ""
+    : "";
 
-  if (!org && !event && !user && !topic) return null;
+  if (!entityUrl && !onClick) return null;
 
   return (
-    <Tooltip
-      label={
-        hasLink
-          ? topic
-            ? "Aller à la discussion"
-            : org
-            ? org.orgUrl === "forum"
-              ? "Aller au forum"
-              : org.orgType
-              ? `Visiter ${orgTypeFull5(org.orgType)}`
-              : ""
-            : event
-            ? "Aller à la page de l'événement"
-            : user
-            ? "Visiter la page de l'utilisateur"
-            : ""
-          : ""
-      }
-      hasArrow
-      {...tooltipProps}
-    >
+    <Tooltip label={label} hasArrow {...tooltipProps}>
       <span>
         <Button
-          //aria-hidden
+          aria-label={label}
           colorScheme="teal"
-          cursor={hasLink ? "pointer" : "default"}
+          leftIcon={
+            <Icon
+              as={
+                topic
+                  ? ChatIcon
+                  : org
+                  ? org.orgUrl === "forum"
+                    ? ChatIcon
+                    : org.orgType === EOrgType.NETWORK
+                    ? GrWorkshop
+                    : FaTree
+                  : event
+                  ? CalendarIcon
+                  : user
+                  ? IoIosPerson
+                  : ChatIcon
+              }
+              color={
+                topic
+                  ? "blue.500"
+                  : org
+                  ? org.orgType === EOrgType.NETWORK
+                    ? "blue.500"
+                    : "green.500"
+                  : event
+                  ? "green.500"
+                  : "blue.500"
+              }
+              mr={1}
+              css={css`
+                path {
+                  fill: ${isDark ? "white" : "white"};
+                }
+              `}
+            />
+          }
           height="auto"
+          cursor={hasLink ? "pointer" : "default"}
+          textAlign="left"
+          whiteSpace="normal"
           m={0}
           p={1}
           pr={2}
-          textAlign="left"
-          whiteSpace="normal"
           onClick={(e) => {
+            console.log("🚀 ~ e:", e);
             if (onClick) onClick(e);
             else if (onClick !== null)
               router.push(entityUrl!, entityUrl, { shallow: true });
           }}
           {...props}
         >
-          <Icon
-            as={
-              topic
-                ? ChatIcon
-                : org
-                ? org.orgUrl === "forum"
-                  ? ChatIcon
-                  : org.orgType === EOrgType.NETWORK
-                  ? GrWorkshop
-                  : FaTree
-                : event
-                ? CalendarIcon
-                : user
-                ? IoIosPerson
-                : ChatIcon
-            }
-            color={
-              topic
-                ? "blue.500"
-                : org
-                ? org.orgType === EOrgType.NETWORK
-                  ? "blue.500"
-                  : "green.500"
-                : event
-                ? "green.500"
-                : "blue.500"
-            }
-            mr={1}
-            css={css`
-              path {
-                fill: ${isDark ? "white" : "white"};
-              }
-            `}
-          />
-
-          {children ||
-            (topic
-              ? topic.topicName
-              : org
-              ? org.orgUrl === "forum"
-                ? "Forum"
-                : `${
-                    org.orgType === EOrgType.TREETOOLS
-                      ? OrgTypes[org.orgType] + " : "
-                      : ""
-                  }${org.orgName}`
-              : event
-              ? event.eventName
-              : user
-              ? user.userName
-              : "")}
+          {children || entityName}
 
           {Array.isArray(topic?.topicVisibility) &&
           topic?.topicVisibility.includes("Abonnés") ? (

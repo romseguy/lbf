@@ -166,20 +166,32 @@ export const SubscriptionsListItem = ({
                 isSmall={false}
                 variant="outline"
                 onClick={async () => {
-                  setIsSubscriptionLoading({
-                    ...isSubscriptionLoading,
-                    [subscription._id]: true
-                  });
+                  try {
+                    setIsSubscriptionLoading({
+                      ...isSubscriptionLoading,
+                      [subscription._id]: true
+                    });
 
-                  await deleteSubscription({
-                    subscriptionId: subscription._id,
-                    orgId: org?._id
-                  });
-                  //dispatch(refetchEvent());
-                  setIsSubscriptionLoading({
-                    ...isSubscriptionLoading,
-                    [subscription._id]: false
-                  });
+                    await deleteSubscription({
+                      subscriptionId: subscription._id,
+                      orgId: org?._id
+                    });
+
+                    toast({
+                      title: "Le participant a été supprimé",
+                      status: "success"
+                    });
+
+                    setIsSubscriptionLoading({
+                      ...isSubscriptionLoading,
+                      [subscription._id]: false
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Le participant n'a pas pu être supprimé",
+                      status: "success"
+                    });
+                  }
                 }}
                 label="Supprimer"
                 data-cy="orgUnsubscribe"

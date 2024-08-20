@@ -35,12 +35,13 @@ export const EventsListToggle = ({
           <>
             {!showPreviousEvents && previousEvents.length > 0 && (
               <Button
+                aria-label="Voir les événéments passés"
                 colorScheme="pink"
-                fontSize="smaller"
-                height="auto"
-                py={2}
                 leftIcon={<ArrowBackIcon />}
+                height="auto"
+                fontSize="smaller"
                 whiteSpace="normal"
+                py={2}
                 onClick={() => {
                   setShowPreviousEvents(true);
                 }}
@@ -51,6 +52,7 @@ export const EventsListToggle = ({
 
             {showPreviousEvents && (
               <Button
+                aria-label="Revenir aux événements des 7 prochains jours"
                 colorScheme="pink"
                 fontSize="smaller"
                 height="auto"
@@ -73,6 +75,7 @@ export const EventsListToggle = ({
           <>
             {!showNextEvents && nextEvents.length > 0 && (
               <Button
+                aria-label="Voir les événéments suivants"
                 colorScheme="pink"
                 fontSize="smaller"
                 height="auto"
@@ -90,6 +93,7 @@ export const EventsListToggle = ({
 
             {showNextEvents && (
               <Button
+                aria-label="Revenir aux événements des 7 prochains jours"
                 colorScheme="pink"
                 fontSize="smaller"
                 height="auto"

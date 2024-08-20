@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
+    "dev": "(cd ../lbf-api && yarn dev) & yarn dev:server",
+    "dev:server": "NODE_OPTIONS='max_old_space_size=4096' next",
     "test": "playwright test",
     "test:server": "next build && next start -p 3000",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8001",
@@ -58,7 +59,7 @@
     "date-fns": "^2.22.1",
     "deepl-node": "^1.10.2",
     "deepmerge": "^4.2.2",
-    "framer-motion": "^10.16.2",
+    "framer-motion": "^11.3.28",
     "google-map-react": "2.1.10",
     "http-server": "^14.1.1",
     "isomorphic-dompurify": "^0.15.0",

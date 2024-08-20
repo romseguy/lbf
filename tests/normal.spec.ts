@@ -1,14 +1,27 @@
 import { expect } from "@playwright/test";
 import { test } from "./normal.fixtures";
 
-test.describe("forms", () => {
+test.describe("event forms", () => {
+  test("DocumentForm.onSubmit", async ({ page }) => {
+    await page.goto("http://localhost:3000/api/login");
+    await page.goto("/photo/galeries");
+    await expect(page).toHaveURL("http://localhost:3000/photo/galeries");
+
+    await page.getByLabel("Ouvrir la galerie").nth(0).click();
+    await expect(page).toHaveURL(/atelier/i);
+
+    await page.getByLabel("Ajouter des photos").click();
+    await page.getByRole("alert", { name: /participant/i }).isVisible();
+  });
+});
+
+test.describe("org forms", () => {
   test("TopicForm.onSubmit", async ({ page }) => {
     await page.goto("http://localhost:3000/api/login");
     await page.goto("/photo/discussions");
     await expect(page).toHaveURL("/photo/discussions");
     await page.getByText(/Ajouter/).click();
-    const toast = page.locator("#chakra-toast-manager-top-right");
-    expect(await toast.isVisible()).toBeTruthy();
+    await page.getByRole("alert", { name: /participant/i }).isVisible();
   });
 
   test("GalleryForm.onSubmit", async ({ page }) => {
@@ -16,8 +29,7 @@ test.describe("forms", () => {
     await page.goto("/photo/galeries");
     await expect(page).toHaveURL("/photo/galeries");
     await page.getByText(/Ajouter/).click();
-    const toast = page.locator("#chakra-toast-manager-top-right");
-    expect(await toast.isVisible()).toBeTruthy();
+    await page.getByRole("alert", { name: /participant/i }).isVisible();
     //await page.screenshot({ path: "test.png", fullPage: true });
   });
 
@@ -32,8 +44,7 @@ test.describe("forms", () => {
     if (locator) {
       await locator.click();
       await page.getByText(/Ajouter des photos/).click();
-      const toast = page.locator("#chakra-toast-manager-bottom");
-      expect(await toast.isVisible()).toBeTruthy();
+      await page.getByRole("alert", { name: /participant/i }).isVisible();
     }
   });
 });

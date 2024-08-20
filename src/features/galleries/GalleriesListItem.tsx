@@ -1,5 +1,5 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Alert, Box, BoxProps, useColorMode, useToast } from "@chakra-ui/react";
+import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
@@ -14,6 +14,7 @@ import { removeProps } from "utils/object";
 import { sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
+import { useToast } from "hooks/useToast";
 
 export const GalleriesListItem = ({
   gallery,
@@ -49,7 +50,6 @@ export const GalleriesListItem = ({
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
 
   const entity = query.data;
-  console.log("🚀 ~ entity:", entity);
   const isO = isOrg(entity);
   const isE = isEvent(entity);
   const attendees = (
@@ -106,6 +106,7 @@ export const GalleriesListItem = ({
               })}
         >
           <Button
+            aria-label="Ajouter des photos"
             colorScheme={isAdd ? "red" : "teal"}
             leftIcon={isAdd ? undefined : <AddIcon />}
             mb={3}

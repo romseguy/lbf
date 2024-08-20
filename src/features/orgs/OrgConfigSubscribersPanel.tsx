@@ -98,7 +98,7 @@ export const OrgConfigSubscribersPanel = ({
                 <FaFolder />
               )}
               <Heading size="sm" ml={2}>
-                {org.orgSubscriptions.length} personne
+                {org.orgSubscriptions.length} participant
                 {org.orgSubscriptions.length !== 1 ? "s" : ""}
               </Heading>
             </GridItem>
