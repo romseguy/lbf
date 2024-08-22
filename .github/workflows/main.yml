@@ -16,18 +16,16 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Create env file
-      run: |
-        touch .env
-        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-        echo NEXT_PUBLIC_URL=http://localhost:3000 >> .env
-        echo NEXT_PUBLIC_SHORT_URL=ateliers.lebonforum.fr >> .env
-        echo NEXT_PUBLIC_API=http://localhost:3000/api >> .env
-        echo NEXT_PUBLIC_API2=https://api2.lebonforum.fr >> .env
-        echo NEXT_PUBLIC_FILES=https://files.lebonforum.fr >> .env
-        echo NEXT_PUBLIC_ADMIN_EMAILS=contact@lebonforum.fr >> .env
-        echo NEXT_PUBLIC_TITLE=Les ateliers LEO >> .env
-      - name: Run test server
-        run: yarn test:server
+        run: |
+          touch .env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+          echo NEXT_PUBLIC_URL=http://localhost:3000 >> .env
+          echo NEXT_PUBLIC_SHORT_URL=ateliers.lebonforum.fr >> .env
+          echo NEXT_PUBLIC_API=http://localhost:3000/api >> .env
+          echo NEXT_PUBLIC_API2=https://api2.lebonforum.fr >> .env
+          echo NEXT_PUBLIC_FILES=https://files.lebonforum.fr >> .env
+          echo NEXT_PUBLIC_ADMIN_EMAILS=contact@lebonforum.fr >> .env
+          echo NEXT_PUBLIC_TITLE=Les ateliers LEO >> .env
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
       - name: Run Playwright tests

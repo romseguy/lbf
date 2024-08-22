@@ -1,6 +1,5 @@
 import DOMPurify from "isomorphic-dompurify";
 export * from "./base64ToUint8Array";
-export * from "./capitalize";
 export * from "./equals";
 export * from "./formatStringToCamelCase";
 export * from "./getStyleObjectFromString";
@@ -17,6 +16,11 @@ export function bytesForHuman(bytes: number, decimals = 0) {
   }
 
   return parseFloat(bytes.toFixed(decimals)) + units[i];
+}
+
+export function capitalize(string?: string): string {
+  if (!string) return "";
+  return string.charAt(0).toUpperCase() + string.substring(1, string.length);
 }
 
 export function getExtension(path: string) {
