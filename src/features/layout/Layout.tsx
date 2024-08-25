@@ -101,7 +101,7 @@ export const Layout = ({
       css={css`
         ${isMobile && !!entity
           ? `
-          margin: 30px 3px 0 3px;
+          margin: 0px 3px 30px 3px;
           max-height: calc(100% - 80px);
           overflow-y: scroll;
           `

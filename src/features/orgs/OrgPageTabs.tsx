@@ -301,13 +301,15 @@ export const OrgPageTabs = ({
 
           {!!tabs.find(({ label }) => belongs(label, "Discussions")) && (
             <TabPanel aria-hidden>
-              <OrgPageTopicsTabPanel
-                currentTopicName={currentItemName}
-                isCreator={isCreator}
-                isFollowed={isFollowed}
-                query={orgQuery}
-                subQuery={subQuery}
-              />
+              <Column bg={isDark ? "gray.700" : "lightblue"}>
+                <OrgPageTopicsTabPanel
+                  currentTopicName={currentItemName}
+                  isCreator={isCreator}
+                  isFollowed={isFollowed}
+                  query={orgQuery}
+                  subQuery={subQuery}
+                />
+              </Column>
 
               {/* <AppHeading>Discussions des ateliers passés</AppHeading> */}
               {/* <VStack spacing={3}>

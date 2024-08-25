@@ -37,7 +37,7 @@ import { FaImages } from "react-icons/fa";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
 import { hasItems } from "utils/array";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
-import { ChatIcon } from "@chakra-ui/icons";
+import { CalendarIcon, ChatIcon } from "@chakra-ui/icons";
 import { IGallery } from "models/Gallery";
 import { EventPageTopicsTabPanel } from "./EventPageTopicsTabPanel";
 
@@ -206,6 +206,10 @@ export const EventPageTabs = ({
         `}
       >
         <TabPanel aria-hidden>
+          <HStack mb={3}>
+            <Icon as={CalendarIcon} boxSize={10} />
+            <Text fontSize="3xl">{eventQuery.data.eventName}</Text>
+          </HStack>
           <EventPageHomeTabPanel
             eventQuery={eventQuery}
             isCreator={isCreator}
@@ -218,13 +222,16 @@ export const EventPageTabs = ({
             <Icon as={ChatIcon} boxSize={10} />
             <Text fontSize="3xl">{eventQuery.data.eventName}</Text>
           </HStack>
-          <EventPageTopicsTabPanel
-            currentTopicName={currentItemName}
-            isCreator={isCreator}
-            isFollowed={isFollowed}
-            query={eventQuery}
-            subQuery={subQuery}
-          />
+
+          <Column bg={isDark ? "gray.700" : "lightblue"}>
+            <EventPageTopicsTabPanel
+              currentTopicName={currentItemName}
+              isCreator={isCreator}
+              isFollowed={isFollowed}
+              query={eventQuery}
+              subQuery={subQuery}
+            />
+          </Column>
         </TabPanel>
 
         <TabPanel aria-hidden>
@@ -232,9 +239,9 @@ export const EventPageTabs = ({
             mb={3}
             {...(isMobile
               ? {
-                  bg: isDark ? "#63B3ED" : "#2B6CB0",
-                  borderTopRadius: "12px",
-                  p: 3
+                  // bg: isDark ? "#63B3ED" : "#2B6CB0",
+                  // borderTopRadius: "12px",
+                  // p: 3
                 }
               : {})}
           >
@@ -263,7 +270,7 @@ export const EventPageTabs = ({
 
           <Column
             bg={isDark ? "gray.700" : "lightblue"}
-            {...(isMobile ? { p: 0 } : {})}
+            {...(isMobile ? { px: 0 } : {})}
           >
             {gallery ? (
               <GalleriesListItem

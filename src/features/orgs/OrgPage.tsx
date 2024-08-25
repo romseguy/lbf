@@ -1,4 +1,4 @@
-import { Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
+import { Box, Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoMdRefresh } from "react-icons/io";
@@ -116,18 +116,21 @@ export const OrgPage = ({
       isMobile={isMobile}
     >
       {isCreator && (
-        <Flex ml={3}>
-          <IconButton
-            aria-label="Actualiser"
-            colorScheme="green"
-            variant="outline"
-            icon={<Icon as={IoMdRefresh} boxSize={7} />}
-            mr={3}
-            onClick={() => {
-              orgQuery.refetch();
-            }}
-          />
-          <Heading>Admin :</Heading>
+        <Box m={3} mb={0} {...(isMobile ? {} : {})}>
+          <Flex>
+            <IconButton
+              aria-label="Actualiser"
+              colorScheme="green"
+              variant="outline"
+              icon={<Icon as={IoMdRefresh} boxSize={7} />}
+              mr={3}
+              onClick={() => {
+                orgQuery.refetch();
+              }}
+            />
+            <Heading>Admin :</Heading>
+          </Flex>
+
           <OrgConfigButtons
             orgQuery={orgQuery}
             isConfig={isConfig}
@@ -139,30 +142,24 @@ export const OrgPage = ({
           />
 
           {session && (isConfig || isEdit) && (
-            <>
-              <OrgConfigPanel
-                session={session}
-                orgQuery={orgQuery}
-                subQuery={subQuery}
-                isCreator={isCreator}
-                isEdit={isEdit}
-                isEditConfig={isEditConfig}
-                isVisible={isVisible}
-                setIsConfig={setIsConfig}
-                setIsEdit={setIsEdit}
-                toggleVisibility={toggleVisibility}
-              />
-
-              {isMobile && tabs}
-            </>
+            <OrgConfigPanel
+              session={session}
+              orgQuery={orgQuery}
+              subQuery={subQuery}
+              isCreator={isCreator}
+              isEdit={isEdit}
+              isEditConfig={isEditConfig}
+              isVisible={isVisible}
+              setIsConfig={setIsConfig}
+              setIsEdit={setIsEdit}
+              toggleVisibility={toggleVisibility}
+            />
           )}
-        </Flex>
+        </Box>
       )}
 
       {!isConfig && !isEdit && (
         <>
-          {/* <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} /> */}
-
           <Header entity={org} borderBottomRadius="none" />
           {tabs}
         </>

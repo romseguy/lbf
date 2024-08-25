@@ -19,8 +19,6 @@ export const EntityPageTopics = ({
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
 }) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
   const { data: session } = useSession();
 
   const entity = props.query.data;
@@ -35,11 +33,7 @@ export const EntityPageTopics = ({
       (sub) => getEmail(sub) === session?.user.email
     );
 
-  return (
-    <Column bg={isDark ? "gray.700" : "lightblue"}>
-      <TopicsList {...props} isAttendee={isAttendee} />
-    </Column>
-  );
+  return <TopicsList {...props} isAttendee={isAttendee} />;
 };
 
 {

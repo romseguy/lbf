@@ -1,6 +1,11 @@
-import { Flex, useColorMode } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
+import {
+  Box,
+  Flex,
+  Heading,
+  Icon,
+  IconButton,
+  useColorMode
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Layout } from "features/layout";
@@ -13,7 +18,7 @@ import { EventConfigPanel, EventConfigVisibility } from "./EventConfigPanel";
 import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
 import { EventConfigButtons } from "./EventConfigButtons";
-import { AppHeading } from "features/common";
+import { IoMdRefresh } from "react-icons/io";
 
 //let isFirstLoad = true;
 
@@ -125,8 +130,21 @@ export const EventPage = ({
   return (
     <Layout entity={event} isMobile={isMobile}>
       {isCreator && (
-        <Flex ml={3}>
-          <AppHeading>Admin :</AppHeading>
+        <Box m={3} mb={0}>
+          <Flex>
+            <IconButton
+              aria-label="Actualiser"
+              colorScheme="green"
+              variant="outline"
+              icon={<Icon as={IoMdRefresh} boxSize={7} />}
+              mr={3}
+              onClick={() => {
+                eventQuery.refetch();
+              }}
+            />
+            <Heading>Admin :</Heading>
+          </Flex>
+
           <EventConfigButtons
             eventQuery={eventQuery}
             isConfig={isConfig}
@@ -136,69 +154,32 @@ export const EventPage = ({
             toggleVisibility={toggleVisibility}
             mx={3}
           />
-        </Flex>
+
+          {session && (isConfig || isEdit) && (
+            <EventConfigPanel
+              session={session}
+              eventQuery={eventQuery}
+              isEdit={isEdit}
+              isVisible={isVisible}
+              setIsConfig={setIsConfig}
+              setIsEdit={setIsEdit}
+              toggleVisibility={toggleVisibility}
+            />
+          )}
+        </Box>
       )}
 
       {!isConfig && !isEdit && (
-        <>
-          {/* <EntityPageSubscribeButton eventQuery={eventQuery} subQuery={subQuery} /> */}
-
-          {/* <Box mb={3}>
-            {tab === "accueil" && !isCreator && (
-              <EventAttendingForm eventQuery={eventQuery} mb={3} />
-            )}
-
-            {tab === "invitations" && isCreator && !event.isApproved && (
-              <Alert status="info">
-                <AlertIcon />
-                <Box>
-                  <Text>Votre événement est en attente de modération.</Text>
-                  <Text fontSize="smaller">
-                    Vous devez attendre son approbation avant de pouvoir envoyer
-                    un e-mail d'invitation à cet événement.
-                  </Text>
-                </Box>
-              </Alert>
-            )}
-
-            <Text fontSize="smaller">
-              Événement ajouté le{" "}
-              {format(parseISO(event.createdAt!), "eeee d MMMM yyyy", {
-                locale: fr
-              })}{" "}
-              par :{" "}
-              <Link variant="underline" href={`/${eventCreatedByUserName}`}>
-                {eventCreatedByUserName}
-              </Link>{" "}
-              {isCreator && "(Vous)"}
-            </Text>
-          </Box>*/}
-
-          <EventPageTabs
-            currentItemName={tabItem}
-            currentTabLabel={tab}
-            eventQuery={eventQuery}
-            isCreator={isCreator}
-            isFollowed={isFollowed}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            subQuery={subQuery}
-          />
-        </>
-      )}
-
-      {session && isCreator && (isConfig || isEdit) && (
-        <>
-          <EventConfigPanel
-            session={session}
-            eventQuery={eventQuery}
-            isEdit={isEdit}
-            isVisible={isVisible}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
-        </>
+        <EventPageTabs
+          currentItemName={tabItem}
+          currentTabLabel={tab}
+          eventQuery={eventQuery}
+          isCreator={isCreator}
+          isFollowed={isFollowed}
+          setIsConfig={setIsConfig}
+          setIsEdit={setIsEdit}
+          subQuery={subQuery}
+        />
       )}
     </Layout>
   );

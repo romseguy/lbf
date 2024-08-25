@@ -41,35 +41,39 @@ export const EventConfigButtons = ({
       mb={!isMobile ? 3 : 0}
       {...props}
     >
-      <Flex my={isMobile ? 3 : 0}>
-        <Button
-          colorScheme="teal"
-          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-          mr={3}
-          onClick={() => {
-            setIsConfig(false);
-            setIsEdit(!isEdit);
-            toggleVisibility();
-          }}
-          data-cy="eventEdit"
-        >
-          {!isEdit ? "Modifier" : "Retour"}
-        </Button>
-      </Flex>
+      {!isConfig && (
+        <Flex my={isMobile ? 3 : 0}>
+          <Button
+            colorScheme="teal"
+            leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+            mr={3}
+            onClick={() => {
+              setIsConfig(false);
+              setIsEdit(!isEdit);
+              toggleVisibility();
+            }}
+            data-cy="eventEdit"
+          >
+            {!isEdit ? "Modifier" : "Retour"}
+          </Button>
+        </Flex>
+      )}
 
-      <Flex mb={isMobile ? 3 : 0}>
-        <Button
-          colorScheme="orange"
-          leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
-          mr={3}
-          onClick={() => {
-            setIsEdit(false);
-            setIsConfig(!isConfig);
-          }}
-        >
-          {!isConfig ? "Paramètres" : "Retour"}
-        </Button>
-      </Flex>
+      {!isEdit && (
+        <Flex mb={isMobile ? 3 : 0}>
+          <Button
+            colorScheme="orange"
+            leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
+            mr={3}
+            onClick={() => {
+              setIsEdit(false);
+              setIsConfig(!isConfig);
+            }}
+          >
+            {!isConfig ? "Paramètres" : "Retour"}
+          </Button>
+        </Flex>
+      )}
 
       <Flex mb={isMobile ? 3 : 0}>
         <DeleteButton

@@ -87,34 +87,38 @@ export const OrgConfigButtons = ({
 
   return (
     <Flex flexDirection={isMobile ? "column" : "row"} {...props}>
-      <Flex mb={isMobile ? 3 : 3}>
-        <Button
-          colorScheme="teal"
-          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-          mr={3}
-          onClick={onEdit}
-          data-cy="orgEdit"
-        >
-          {!isEdit ? "Modifier" : "Retour"}
-        </Button>
-      </Flex>
+      {!isConfig && (
+        <Flex my={isMobile ? 3 : 3}>
+          <Button
+            colorScheme="teal"
+            leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+            mr={3}
+            onClick={onEdit}
+            data-cy="orgEdit"
+          >
+            {!isEdit ? "Modifier" : "Retour"}
+          </Button>
+        </Flex>
+      )}
 
-      <Flex mb={isMobile ? 3 : 3}>
-        <Button
-          colorScheme="orange"
-          leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
-          mr={3}
-          onClick={() => {
-            setIsEdit(false);
-            setIsConfig(!isConfig);
-          }}
-        >
-          {!isConfig ? "Paramètres" : "Retour"}
-        </Button>
-      </Flex>
+      {!isEdit && (
+        <Flex mb={isMobile ? 3 : 3}>
+          <Button
+            colorScheme="orange"
+            leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
+            mr={3}
+            onClick={() => {
+              setIsEdit(false);
+              setIsConfig(!isConfig);
+            }}
+          >
+            {!isConfig ? "Paramètres" : "Retour"}
+          </Button>
+        </Flex>
+      )}
 
-      <Flex mb={isMobile ? 3 : 3}>
-        {/* <DeleteButton
+      {/*<Flex mb={isMobile ? 3 : 3}>
+         <DeleteButton
           isDisabled={isDisabled}
           isLoading={deleteQuery.isLoading}
           label={`Supprimer`}
@@ -162,8 +166,8 @@ export const OrgConfigButtons = ({
             </>
           }
           onClick={onDelete}
-        /> */}
-      </Flex>
+        /> 
+      </Flex>*/}
     </Flex>
   );
 };
