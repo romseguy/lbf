@@ -19,6 +19,7 @@ import {
   EditGalleryPayload
 } from "features/api/galleriesApi";
 import { sanitize } from "utils/string";
+import { useSession } from "hooks/useSession";
 
 export const UserGallery = ({
   gallery,
@@ -40,6 +41,8 @@ export const UserGallery = ({
   marginBetween: number;
   onImageClick: (image: MosaicImage) => void;
 }) => {
+  const { data: session } = useSession();
+  const isGalleryCreator = userId === session?.user.userId;
   const [editGallery] = useEditGalleryMutation();
   const [modalState, setModalState] = useState<UseDisclosureProps>({
     isOpen: false
@@ -59,11 +62,13 @@ export const UserGallery = ({
         <AppHeading noContainer smaller>
           {userName}
         </AppHeading>
-        <EditIconButton
-          aria-label="Modifier la description de votre galerie"
-          ml={3}
-          onClick={onEditClick}
-        />
+        {isGalleryCreator && (
+          <EditIconButton
+            aria-label="Modifier la description de votre galerie"
+            ml={3}
+            onClick={onEditClick}
+          />
+        )}
       </Flex>
 
       {description && (

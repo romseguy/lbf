@@ -11,7 +11,6 @@ test.describe("event forms", () => {
     await page.goto("http://localhost:3000/api/login");
     await page.goto("/photo/galeries");
     await expect(page).toHaveURL("/photo/galeries");
-
     await page.getByLabel("Ouvrir la galerie").nth(0).click();
     await expect(page).toHaveURL(/atelier/i);
 
@@ -33,6 +32,16 @@ test.describe("event forms", () => {
     await page.getByRole("alert", { name: /supprimé/i }).isVisible();
 
     await expect(img).toBeHidden();
+  });
+});
+
+test.describe("event gallery", () => {
+  test("user gallery", async ({ page }) => {
+    await page.goto("http://localhost:3000/api/login");
+    await page.goto("/photo/galeries");
+    await expect(page).toHaveURL("/photo/galeries");
+    await page.getByLabel("Ouvrir la galerie").nth(0).click();
+    await expect(page).toHaveURL(/atelier/i);
   });
 });
 
@@ -125,6 +134,13 @@ test.describe("org forms", () => {
 
     await expect(page).toHaveURL("/photo/discussions/1");
     await expect(page.getByText("2", { exact: true })).toBeVisible();
+  });
+});
+
+test.describe("org galleries", () => {
+  test("Galleries", async ({ page }) => {
+    await page.goto("http://localhost:3000/api/login");
+    await page.goto("/photo/galeries");
   });
 });
 

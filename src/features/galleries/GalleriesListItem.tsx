@@ -3,25 +3,27 @@ import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
-import { DocumentForm } from "features/forms/DocumentForm";
+import {
+  DocumentForm,
+  maxNumberOfDocumentsPerUser
+} from "features/forms/DocumentForm";
 import { useScroll } from "hooks/useScroll";
 import { useSession } from "hooks/useSession";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { useToast } from "hooks/useToast";
+import { getRefId, IEntity, isEvent, isOrg } from "models/Entity";
 import { IGallery } from "models/Gallery";
 import { getEmail } from "models/Subscription";
 import { hasItems } from "utils/array";
 import { removeProps } from "utils/object";
-import { sanitize } from "utils/string";
+import { equals, sanitize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { GalleriesListItemHeader } from "./GalleriesListItemHeader";
-import { useToast } from "hooks/useToast";
 
 export const GalleriesListItem = ({
   gallery,
   query,
   galleryIndex,
   isCreator,
-  isGalleryCreator,
   isCurrent,
   isLoading,
   setIsLoading,
@@ -34,7 +36,6 @@ export const GalleriesListItem = ({
   query: AppQueryWithData<IEntity>;
   galleryIndex: number;
   isCreator: boolean;
-  isGalleryCreator: boolean;
   isCurrent: boolean;
   isLoading?: boolean;
   setIsLoading?: (isLoading: boolean) => void;
@@ -52,6 +53,8 @@ export const GalleriesListItem = ({
   const entity = query.data;
   const isO = isOrg(entity);
   const isE = isEvent(entity);
+  const isGalleryCreator =
+    isCreator || equals(getRefId(entity), session?.user.userId);
   const attendees = (
     isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : []
   ).find(({ listName }) => listName === "Participants");
@@ -73,6 +76,16 @@ export const GalleriesListItem = ({
         title:
           "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter des photos"
       });
+
+    const userDocuments = gallery.galleryDocuments.filter((doc) =>
+      equals(session?.user.userId, getRefId(doc))
+    );
+
+    if (userDocuments.length >= maxNumberOfDocumentsPerUser) {
+      return toast({
+        title: `Vous avez atteint la limite de ${maxNumberOfDocumentsPerUser} photos pour cet atelier`
+      });
+    }
 
     props.onAddDocumentClick ? props.onAddDocumentClick() : setIsAdd(!isAdd);
   };
@@ -153,6 +166,14 @@ export const GalleriesListItem = ({
                 bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
                 p={3}
                 gallery={gallery}
+                remainingDocumentsCount={
+                  isO
+                    ? undefined
+                    : maxNumberOfDocumentsPerUser -
+                      gallery.galleryDocuments.filter((doc) =>
+                        equals(session?.user.userId, getRefId(doc))
+                      ).length
+                }
                 onSubmit={() => {
                   // TODO1
                   // dispatch setRefreshDiskUsage(!refreshDiskUsage);

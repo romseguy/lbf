@@ -1,12 +1,12 @@
 import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { css } from "twin.macro";
 import { Link } from "features/common";
 import { EventCategoryTag } from "features/events/EventCategoryTag";
 import theme, { logoHeight } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
+import { useToast } from "hooks/useToast";
 import {
   IEntity,
   IEntityBanner,
@@ -16,9 +16,8 @@ import {
 } from "models/Entity";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
-import { HeaderTitle } from "./HeaderTitle";
-import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { HeaderTitle } from "./HeaderTitle";
 
 export const Header = ({
   //defaultTitle,
@@ -87,8 +86,9 @@ export const Header = ({
         ${banner &&
         `
           background-image: url("${banner.base64 || banner.url}");
-          background-size: 100% 100%;
-          background-repeat: no-repeat;
+          /*background-size: 100% 100%;
+          background-repeat: no-repeat;*/
+          background-size: cover;
           cursor: pointer;
           height: ${banner.headerHeight}px;
           ${logo ? `` : ``}
@@ -163,7 +163,7 @@ export const Header = ({
           }}
         >
           <Image
-            alt="logo"
+            alt="bannière"
             alignSelf="center"
             src={(banner.url || banner.base64) as string}
             height={banner.height || 140}

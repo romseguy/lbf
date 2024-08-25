@@ -30,10 +30,9 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>().use(cors());
 handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
   async function addDocument(req, res) {
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /documents `;
-    console.log(prefix + "body", req.body);
+    //console.log(prefix + "body", req.body);
 
     const session = await getSession({ req });
-    console.log("🚀 ~ addDocument ~ session:", session);
 
     if (!session) {
       return res
@@ -50,6 +49,18 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
     }: {
       body: AddDocumentPayload;
     } = req;
+
+    const fsMb = body.documentBytes / (1024 * 1024);
+
+    if (fsMb > 3) {
+      return res
+        .status(400)
+        .json(
+          createEndpointError(
+            new Error(body.documentName + " est trop volumineux")
+          )
+        );
+    }
 
     try {
       let gallery: (IGallery & Document<any, any, IGallery>) | null | undefined;

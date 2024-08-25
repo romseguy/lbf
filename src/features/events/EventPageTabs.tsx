@@ -272,7 +272,6 @@ export const EventPageTabs = ({
                 galleryIndex={0}
                 isCreator={isCreator}
                 isCurrent
-                isGalleryCreator={true}
                 noHeader
                 {...(isMobile ? { px: 3 } : {})}
                 {...(!isBefore(parseISO(event.eventMinDate), new Date())

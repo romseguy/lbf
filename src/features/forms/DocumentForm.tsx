@@ -8,6 +8,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
   Progress,
   Text,
   useColorMode
@@ -38,25 +39,29 @@ import {
 } from "features/api/documentsApi";
 import { getImageDimensions } from "utils/image";
 import { removeProps } from "utils/object";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 type FormValues = {
   fichiers: File[];
   formErrorMessage: { message: string };
 };
 
-const maxFileSize = 10;
+// TODO1 move to .env
+export const maxNumberOfDocumentsPerUser = 10;
+const maxFileSize = 3;
 
 export const DocumentForm = ({
   gallery,
+  remainingDocumentsCount,
   ...props
 }: BoxProps & {
   gallery?: IGallery;
+  remainingDocumentsCount?: number;
   onSubmit?: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
-  const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const [addDocument] = useAddDocumentMutation();
 
@@ -95,7 +100,7 @@ export const DocumentForm = ({
             status: "error"
           });
         const fsMb = file.size / (1024 * 1024);
-        if (fsMb > 10)
+        if (fsMb > maxFileSize)
           return toast({
             title: `${file.name} est trop volumineux`,
             status: "error"
@@ -158,12 +163,20 @@ export const DocumentForm = ({
     >
       <FormControl isInvalid={!!errors["fichiers"]} mb={3}>
         <FormLabel>
-          <Flex>
-            Sélectionner un ou plusieurs fichiers. Taille maximum par fichier :{" "}
-            <Text color="red" ml={1}>
-              10Mo
-            </Text>
-          </Flex>
+          {/* <Text>Sélectionner un ou plusieurs fichiers.</Text> */}
+          {!!remainingDocumentsCount && (
+            <HStack spacing={1}>
+              <ArrowForwardIcon />
+              <Text>Vous pouvez encore ajouter :</Text>
+              <Text color="teal">{remainingDocumentsCount}</Text>
+              <Text>photo(s)</Text>
+            </HStack>
+          )}
+          <HStack spacing={1}>
+            <ArrowForwardIcon />
+            <Text>Taille maximum par photo :</Text>
+            <Text color="teal">{maxFileSize}Mo</Text>
+          </HStack>
         </FormLabel>
 
         {list.length > 0 && (
@@ -217,6 +230,11 @@ export const DocumentForm = ({
                     for (const file of Array.from(files)) {
                       const fsMb = file.size / (1024 * 1024);
                       if (fsMb < maxFileSize) newList = newList.concat([file]);
+                      else
+                        toast({
+                          title: file.name + " est trop volumineux",
+                          status: "error"
+                        });
                     }
                     setList(newList);
                   }

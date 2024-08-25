@@ -277,8 +277,6 @@ export const GalleriesList = ({
               ? gallery._id === currentGallery._id
               : false;
             const isLoading = isGalleryLoading[gallery._id];
-            const isGalleryCreator =
-              props.isCreator || getRefId(gallery) === session?.user.userId;
 
             return (
               <GalleriesListItem
@@ -292,7 +290,6 @@ export const GalleriesList = ({
                 setIsLoading={(isLoading) =>
                   setIsGalleryLoading(isLoading, gallery)
                 }
-                isGalleryCreator={isGalleryCreator}
                 mb={galleryIndex < galleries.length - 1 ? 5 : 0}
                 //onClick={onClick}
                 onEditClick={() => {
