@@ -324,10 +324,11 @@ export const GalleriesListItemHeader = ({
                 <Tooltip placement="bottom" label="Épingler la galerie">
                   <IconButton
                     aria-label="Épingler la galerie"
-                    icon={
-                      gallery.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
-                    }
-                    variant="outline"
+                    // icon={
+                    //   gallery.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
+                    // }
+                    icon={<PushPinIcon />}
+                    variant={gallery.isPinned ? "solid" : "outline"}
                     colorScheme="teal"
                     mr={3}
                     onClick={async (e) => {

@@ -8,12 +8,9 @@ import {
   Alert,
   AlertIcon
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "hooks/useFormPersist";
 import Creatable from "react-select/creatable";
 import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
 import { useEditEventMutation } from "features/api/eventsApi";
@@ -24,24 +21,24 @@ import {
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/api/topicsApi";
-import { useSession } from "hooks/useSession";
+import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { useSession } from "hooks/useSession";
+import { useToast } from "hooks/useToast";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { EEventVisibility, IEvent } from "models/Event";
 import { EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
-import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
-import { AppQuery, AppQueryWithData, Optional } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export const TopicForm = ({
   query,
-  subQuery,
+  //subQuery,
   ...props
 }: {
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
+  //subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isCreator?: boolean;
   isFollowed?: boolean;

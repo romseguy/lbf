@@ -151,6 +151,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
       //#region existing topic
       if (body.topic._id) {
+        console.log(prefix + "existing topic", body.topic._id);
         if (
           !Array.isArray(body.topic.topicMessages) ||
           !body.topic.topicMessages[0]
@@ -218,6 +219,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#endregion
       //#region new topic
       else {
+        console.log(prefix + "new topic");
         // let topicName = body.topic.topicName;
         // const topicWithSameName = await models.Topic.findOne({
         //   topicName
@@ -243,7 +245,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           createdBy: session.user.userId
         });
 
-        //#region add topic to entity and notify entity subscribers
+        //#region add topic to entity
         if (event) {
           await models.Event.updateOne(
             { _id: event._id },
@@ -279,12 +281,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         if (user) {
           let subscription = await models.Subscription.findOne({ user });
 
-          if (!subscription)
+          if (!subscription) {
+            console.log(prefix + "new subscription");
             subscription = await models.Subscription.create({
               user,
               topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
             });
-          else {
+          } else {
+            console.log(prefix + "existing subscription");
             const topicSubscription = subscription.topics?.find(
               ({ topic: t }) => equals(getRefId(t), topic!._id)
             );

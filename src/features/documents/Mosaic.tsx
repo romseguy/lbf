@@ -68,9 +68,10 @@ export const Mosaic = ({
           return (
             <Flex key={`column-${columnIndex}`} flexDir="column">
               {column.map((image, rowIndex) => {
+                //const aspectRatio = image.height / image.width;
+                //const marginBetween = (columnCount - 1) * 24;
                 let marginAround = 2 * (4 * 12 + 24);
                 marginAround = 0;
-                //const marginBetween = (columnCount - 1) * 24;
                 let newMW = screenWidth - marginAround;
 
                 if (screenWidth > pxBreakpoints["2xl"]) {
@@ -79,11 +80,13 @@ export const Mosaic = ({
                   // newMW =
                   //   (screenWidth - marginAround - marginBetween) /
                   //   columnCount;
+
                   newMW =
                     (screenWidth -
                       200 -
                       (columnCount > 1 ? marginBetween : 0)) /
                     columnCount;
+
                   // console.log(
                   //   "1",
                   //   columnCount,
@@ -102,6 +105,12 @@ export const Mosaic = ({
                 }
 
                 let width = image.width > newMW ? newMW : image.width;
+                let height = (width * image.height) / image.width;
+                height =
+                  height > window.innerHeight / 2
+                    ? window.innerHeight / 2
+                    : height;
+
                 // if (columnIndex / (columnCount - 1) !== 1) {
                 //   width -= marginBetween * 12;
                 // }
@@ -133,13 +142,16 @@ export const Mosaic = ({
                     }
                   >
                     <Image
+                      src={image.url}
                       alt={image.name}
                       //ref={imageRefs[image.url]}
-                      src={image.url}
-                      width={`${width}px`}
+                      height={`${height}px`}
+                      maxHeight="100%"
+                      maxWidth="100%"
+                      //width={`${width}px`}
                       borderRadius="12px"
                       cursor="pointer"
-                      //mb={3}
+                      // mb={3}
                       // pb={
                       //   rowIndex !== images.length / columnCount - 1
                       //     ? marginBetween + "px"

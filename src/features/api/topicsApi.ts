@@ -72,6 +72,7 @@ export const topicApi = api.injectEndpoints({
             type: TagTypes.EVENTS,
             id: params.payload.event?._id
           });
+
         return tags;
       }
     }),

@@ -3,29 +3,16 @@ import {
   BoxProps,
   IconButton,
   Tooltip,
-  Flex,
   Spinner,
   Text,
   useColorMode,
   HStack,
   VStack
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { FaBellSlash, FaBell } from "react-icons/fa";
-import {
-  DeleteButton,
-  EditIconButton,
-  PushPinIcon,
-  PushPinSlashIcon
-} from "features/common";
-import { IEntity, isEvent, isOrg } from "models/Entity";
-import { ITopic } from "models/Topic";
-import { ServerError } from "utils/errors";
-import { normalize } from "utils/string";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { FaBell } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import {
   useAddSubscriptionMutation,
   useDeleteSubscriptionMutation
@@ -34,11 +21,17 @@ import {
   useEditTopicMutation,
   useDeleteTopicMutation
 } from "features/api/topicsApi";
-import { ISubscription } from "models/Subscription";
-import { TopicModalState } from "./TopicsList";
+import { DeleteButton, EditIconButton, PushPinIcon } from "features/common";
 import { useSession } from "hooks/useSession";
-import { useSelector } from "react-redux";
+import { useToast } from "hooks/useToast";
+import { IEntity, isEvent, isOrg } from "models/Entity";
+import { ISubscription } from "models/Subscription";
+import { ITopic } from "models/Topic";
 import { selectIsMobile } from "store/uiSlice";
+import { ServerError } from "utils/errors";
+import { normalize } from "utils/string";
+import { AppQuery, AppQueryWithData } from "utils/types";
+import { TopicModalState } from "./TopicsList";
 
 interface TopicsListItemHeaderButtonsProps {
   executeScroll: () => void;
@@ -223,9 +216,16 @@ export const TopicsListItemHeaderButtons = ({
               <Tooltip placement="bottom" label="Épingler la discussion">
                 <IconButton
                   aria-label="Épingler la discussion"
-                  icon={topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />}
-                  variant="outline"
+                  //icon={topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />}
                   colorScheme="teal"
+                  variant={topic.isPinned ? "solid" : "outline"}
+                  icon={
+                    <PushPinIcon
+                      stroke={topic.isPinned ? "white" : "black"}
+                      fill={topic.isPinned ? "white" : "none"}
+                    />
+                  }
+                  isDisabled={!!isEventTopic}
                   onClick={async (e) => {
                     e.stopPropagation();
                     setIsLoading({
@@ -255,7 +255,7 @@ export const TopicsListItemHeaderButtons = ({
             </>
           )}
 
-          {isTopicCreator && (
+          {isTopicCreator && !isEventTopic && (
             <>
               <EditIconButton
                 label="Modifier la discussion"
@@ -267,30 +267,28 @@ export const TopicsListItemHeaderButtons = ({
                 }}
               />
 
-              {!isEventTopic && (
-                <DeleteButton
-                  header={
-                    <>
-                      Êtes vous sûr de vouloir supprimer la discussion
-                      <Text display="inline" color="red" fontWeight="bold">
-                        {` ${topic.topicName}`}
-                      </Text>{" "}
-                      ?
-                    </>
-                  }
-                  isIconOnly
-                  isSmall={false}
-                  label="Supprimer la discussion"
-                  mr={3}
-                  placement="bottom"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteClick();
-                  }}
-                  data-cy="topic-list-item-delete"
-                />
-              )}
+              <DeleteButton
+                header={
+                  <>
+                    Êtes vous sûr de vouloir supprimer la discussion
+                    <Text display="inline" color="red" fontWeight="bold">
+                      {` ${topic.topicName}`}
+                    </Text>{" "}
+                    ?
+                  </>
+                }
+                isIconOnly
+                isSmall={false}
+                label="Supprimer la discussion"
+                mr={3}
+                placement="bottom"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick();
+                }}
+                data-cy="topic-list-item-delete"
+              />
             </>
           )}
         </>
@@ -310,8 +308,9 @@ export const TopicsListItemHeaderButtons = ({
                 ? "Se désabonner de la discussion"
                 : "S'abonner à la discussion"
             }
-            icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
-            variant="outline"
+            //icon={isSubbedToTopic ? <FaBellSlash /> : <FaBell />}
+            icon={<FaBell />}
+            variant={isSubbedToTopic ? "solid" : "outline"}
             colorScheme="blue"
             mr={3}
             onClick={async (e) => {

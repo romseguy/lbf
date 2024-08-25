@@ -17,9 +17,9 @@ import {
   Text,
   HStack
 } from "@chakra-ui/react";
-
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { FaArrowLeft, FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { AppHeading, DarkModeSwitch, Link, LinkShare } from "features/common";
 import { NotificationPopover } from "features/layout";
@@ -31,7 +31,6 @@ import { IUser } from "models/User";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { FaArrowLeft, FaHome } from "react-icons/fa";
 
 export const Nav = ({
   isMobile,

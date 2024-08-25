@@ -2,7 +2,7 @@ import { Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoMdRefresh } from "react-icons/io";
-import { Layout } from "features/layout";
+import { Layout, Header } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
@@ -40,10 +40,8 @@ export const OrgPage = ({
   //#region org
   const org = orgQuery.data;
   const isCreator =
-    org.orgUrl === "nom_de_votre_forum" || // demo page
-    session?.user.userId === getRefId(org) ||
-    session?.user.isAdmin ||
-    false;
+    //org.orgUrl === "nom_de_votre_forum" || // demo page
+    session?.user.userId === getRefId(org) || session?.user.isAdmin || false;
   //#endregion
 
   //#region config
@@ -139,6 +137,25 @@ export const OrgPage = ({
             toggleVisibility={toggleVisibility}
             mx={3}
           />
+
+          {session && (isConfig || isEdit) && (
+            <>
+              <OrgConfigPanel
+                session={session}
+                orgQuery={orgQuery}
+                subQuery={subQuery}
+                isCreator={isCreator}
+                isEdit={isEdit}
+                isEditConfig={isEditConfig}
+                isVisible={isVisible}
+                setIsConfig={setIsConfig}
+                setIsEdit={setIsEdit}
+                toggleVisibility={toggleVisibility}
+              />
+
+              {isMobile && tabs}
+            </>
+          )}
         </Flex>
       )}
 
@@ -146,26 +163,8 @@ export const OrgPage = ({
         <>
           {/* <EntityPageSubscribeButton orgQuery={orgQuery} subQuery={subQuery} /> */}
 
+          <Header entity={org} borderBottomRadius="none" />
           {tabs}
-        </>
-      )}
-
-      {session && (isConfig || isEdit) && (
-        <>
-          <OrgConfigPanel
-            session={session}
-            orgQuery={orgQuery}
-            subQuery={subQuery}
-            isCreator={isCreator}
-            isEdit={isEdit}
-            isEditConfig={isEditConfig}
-            isVisible={isVisible}
-            setIsConfig={setIsConfig}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-          />
-
-          {isMobile && tabs}
         </>
       )}
     </Layout>

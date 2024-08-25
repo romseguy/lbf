@@ -21,13 +21,13 @@ import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 
 export const Header = ({
-  defaultTitle,
+  //defaultTitle,
   entity,
   pageHeader,
   pageTitle,
   ...props
 }: BoxProps & {
-  defaultTitle: string;
+  //defaultTitle: string;
   entity?: IEntity | IUser;
   pageHeader?: React.ReactNode;
   pageTitle?: string;

@@ -114,7 +114,7 @@ export const OrgConfigButtons = ({
       </Flex>
 
       <Flex mb={isMobile ? 3 : 3}>
-        <DeleteButton
+        {/* <DeleteButton
           isDisabled={isDisabled}
           isLoading={deleteQuery.isLoading}
           label={`Supprimer`}
@@ -162,7 +162,7 @@ export const OrgConfigButtons = ({
             </>
           }
           onClick={onDelete}
-        />
+        /> */}
       </Flex>
     </Flex>
   );

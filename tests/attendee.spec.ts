@@ -2,6 +2,10 @@ import { expect } from "@playwright/test";
 import path from "path";
 import { test } from "./attendee.fixtures";
 
+// les participants ne peuvent pas modifier les descriptions qui ne leur appartiennent pas
+// -> il ne peut pas modifier la description de la galerie de l'événement
+// ->
+
 test.describe("event forms", () => {
   test("DocumentForm.onSubmit", async ({ page }) => {
     await page.goto("http://localhost:3000/api/login");

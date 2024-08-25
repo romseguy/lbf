@@ -151,7 +151,7 @@ export const OrgPageHomeTabPanel = ({
       {isAttendee && (
         <Link href={`/${org.orgUrl}/galeries`} shallow>
           <Button colorScheme="orange" mb={5}>
-            Cliquez ici pour envoyer vos photos !
+            Cliquez ici pour déposer vos photos !
           </Button>
         </Link>
       )}

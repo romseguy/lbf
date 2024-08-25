@@ -432,6 +432,7 @@ export const TopicsList = ({
           onCancel={onClose}
           onSubmit={async (topic) => {
             if (topic) {
+              subQuery.refetch();
               const topicName = normalize(topic.topicName);
               const url = `/${entityUrl}/discussions/${topicName}`;
               await router.push(url, url, { shallow: true });
