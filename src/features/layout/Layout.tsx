@@ -6,7 +6,6 @@ import {
   useColorMode,
   useToast
 } from "@chakra-ui/react";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { ReactNode } from "react";
@@ -213,8 +212,6 @@ export const Layout = ({
         />
         <title>{title}</title>
       </Head>
-
-      <GoogleAnalytics gaId="G-ZHN2GV5YB9" />
 
       <ErrorBoundary fallbackRender={Fallback}>{page(children)}</ErrorBoundary>
     </>
