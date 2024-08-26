@@ -28,8 +28,10 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
 import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
-import { IEntity } from "models/Entity";
+import { getRefId, IEntity } from "models/Entity";
 import theme from "features/layout/theme";
+import { equals } from "utils/string";
+import { useSession } from "hooks/useSession";
 
 export const DocumentsListMosaic = ({
   entity,
@@ -56,6 +58,7 @@ export const DocumentsListMosaic = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const { data: session } = useSession();
   const isMobile = useSelector(selectIsMobile);
   const [marginBetween, setMarginBetween] = useState<number>(15);
 
@@ -73,7 +76,8 @@ export const DocumentsListMosaic = ({
         url: `${process.env.NEXT_PUBLIC_FILES}/${doc._id}`,
         height: doc.documentHeight,
         width: doc.documentWidth,
-        bytes: doc.documentBytes
+        bytes: doc.documentBytes,
+        isCreator: equals(getRefId(doc), session?.user.userId)
       };
 
       if (

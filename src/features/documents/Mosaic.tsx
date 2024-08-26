@@ -14,6 +14,7 @@ export type MosaicImage = RemoteImage & {
   index: number;
   id: string;
   name: string;
+  isCreator: boolean;
 };
 
 export const Mosaic = ({
@@ -143,7 +144,7 @@ export const Mosaic = ({
                   >
                     <Image
                       src={image.url}
-                      alt={image.name}
+                      alt={`mosaic-item-${image.name}`}
                       //ref={imageRefs[image.url]}
                       height={`${height}px`}
                       maxHeight="100%"

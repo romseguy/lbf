@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Icon, IconButton } from "@chakra-ui/react";
+import { Box, Flex, Heading, HStack, Icon, IconButton } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoMdRefresh } from "react-icons/io";
@@ -117,29 +117,39 @@ export const OrgPage = ({
     >
       {isCreator && (
         <Box m={3} mb={0} {...(isMobile ? {} : {})}>
-          <Flex>
-            <IconButton
-              aria-label="Actualiser"
-              colorScheme="green"
-              variant="outline"
-              icon={<Icon as={IoMdRefresh} boxSize={7} />}
-              mr={3}
-              onClick={() => {
-                orgQuery.refetch();
-              }}
-            />
-            <Heading>Admin :</Heading>
-          </Flex>
+          <Flex
+            flexDir={isMobile ? "column" : "row"}
+            alignItems={isMobile ? "center" : undefined}
+          >
+            <HStack mb={isMobile ? 3 : 0}>
+              <IconButton
+                aria-label="Actualiser"
+                colorScheme="green"
+                variant="outline"
+                icon={<Icon as={IoMdRefresh} boxSize={7} />}
+                mr={1}
+                onClick={() => {
+                  orgQuery.refetch();
+                }}
+              />
+              <Heading>Admin :</Heading>
+            </HStack>
 
-          <OrgConfigButtons
-            orgQuery={orgQuery}
-            isConfig={isConfig}
-            setIsConfig={setIsConfig}
-            isEdit={isEdit}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-            mx={3}
-          />
+            <OrgConfigButtons
+              orgQuery={orgQuery}
+              isConfig={isConfig}
+              setIsConfig={setIsConfig}
+              isEdit={isEdit}
+              setIsEdit={setIsEdit}
+              toggleVisibility={toggleVisibility}
+              mb={3}
+              {...(isMobile
+                ? {}
+                : {
+                    m: 3
+                  })}
+            />
+          </Flex>
 
           {session && (isConfig || isEdit) && (
             <OrgConfigPanel

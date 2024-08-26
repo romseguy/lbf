@@ -216,7 +216,6 @@ export const TopicsListItemHeaderButtons = ({
               <Tooltip placement="bottom" label="Épingler la discussion">
                 <IconButton
                   aria-label="Épingler la discussion"
-                  //icon={topic.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />}
                   colorScheme="teal"
                   variant={topic.isPinned ? "solid" : "outline"}
                   icon={

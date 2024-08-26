@@ -125,7 +125,6 @@ export const EntityButton = ({
                   ? "green.500"
                   : "blue.500"
               }
-              mr={1}
               css={css`
                 path {
                   fill: ${isDark ? "white" : "white"};
@@ -141,7 +140,6 @@ export const EntityButton = ({
           p={1}
           pr={2}
           onClick={(e) => {
-            console.log("🚀 ~ e:", e);
             if (onClick) onClick(e);
             else if (onClick !== null)
               router.push(entityUrl!, entityUrl, { shallow: true });

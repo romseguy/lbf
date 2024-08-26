@@ -56,29 +56,6 @@ export const OrgConfigButtons = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const [isDeleteOrgEvents, setIsDeleteOrgEvents] = useState(false);
 
-  const onDelete = async () => {
-    try {
-      const deletedOrg = await deleteOrg({
-        orgId: org._id,
-        isDeleteOrgEvents
-      }).unwrap();
-
-      if (deletedOrg) {
-        await router.push(`/`);
-        toast({
-          title: `${orgTypeFull5(deletedOrg.orgType, true)} ${
-            deletedOrg.orgName
-          } a été ${
-            deletedOrg.orgType === EOrgType.NETWORK ? "supprimée" : "déraciné"
-          } !`,
-          status: "success"
-        });
-      }
-    } catch (error) {
-      showBoundary(error);
-    }
-  };
-
   const onEdit = () => {
     setIsConfig(false);
     setIsEdit(!isEdit);
@@ -86,88 +63,35 @@ export const OrgConfigButtons = ({
   };
 
   return (
-    <Flex flexDirection={isMobile ? "column" : "row"} {...props}>
+    <Flex
+      flexDirection={isMobile ? "column" : "row"}
+      alignItems="center"
+      {...props}
+    >
       {!isConfig && (
-        <Flex my={isMobile ? 3 : 3}>
-          <Button
-            colorScheme="teal"
-            leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
-            mr={3}
-            onClick={onEdit}
-            data-cy="orgEdit"
-          >
-            {!isEdit ? "Modifier" : "Retour"}
-          </Button>
-        </Flex>
+        <Button
+          colorScheme="teal"
+          leftIcon={<Icon as={isEdit ? ArrowBackIcon : EditIcon} />}
+          mb={isMobile ? 3 : 0}
+          mr={isMobile ? 0 : 3}
+          onClick={onEdit}
+        >
+          {!isEdit ? "Modifier" : "Retour"}
+        </Button>
       )}
 
       {!isEdit && (
-        <Flex mb={isMobile ? 3 : 3}>
-          <Button
-            colorScheme="orange"
-            leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
-            mr={3}
-            onClick={() => {
-              setIsEdit(false);
-              setIsConfig(!isConfig);
-            }}
-          >
-            {!isConfig ? "Paramètres" : "Retour"}
-          </Button>
-        </Flex>
+        <Button
+          colorScheme="orange"
+          leftIcon={<Icon as={isConfig ? ArrowBackIcon : SettingsIcon} />}
+          onClick={() => {
+            setIsEdit(false);
+            setIsConfig(!isConfig);
+          }}
+        >
+          {!isConfig ? "Paramètres" : "Retour"}
+        </Button>
       )}
-
-      {/*<Flex mb={isMobile ? 3 : 3}>
-         <DeleteButton
-          isDisabled={isDisabled}
-          isLoading={deleteQuery.isLoading}
-          label={`Supprimer`}
-          header={
-            <>
-              Vous êtes sur le point de{" "}
-              {`supprimer ${orgTypeFull5(org.orgType)}`}{" "}
-              <Text display="inline" color="red" fontWeight="bold">
-                {` ${org.orgName}`}
-              </Text>
-            </>
-          }
-          body={
-            <>
-              <Alert status="warning">
-                <AlertIcon />
-                <Box>
-                  Toutes les données associées {orgTypeFull2(org.orgType)}{" "}
-                  seront supprimées. Cette action est{" "}
-                  <strong>irréversible</strong> !
-                </Box>
-              </Alert>
-
-              <Text mb={1} mt={3}>
-                <strong>Confirmez</strong> en saisissant le nom{" "}
-                {orgTypeFull(org.orgType)} :
-              </Text>
-              <Input
-                autoComplete="off"
-                onChange={(e) =>
-                  setIsDisabled(
-                    e.target.value.toLowerCase() !== org.orgName.toLowerCase()
-                  )
-                }
-              />
-
-              {hasItems(org.orgEvents) && (
-                <Checkbox
-                  onChange={(e) => setIsDeleteOrgEvents(e.target.checked)}
-                >
-                  Supprimer les événements associés à{" "}
-                  {orgTypeFull4(org.orgType)}
-                </Checkbox>
-              )}
-            </>
-          }
-          onClick={onDelete}
-        /> 
-      </Flex>*/}
     </Flex>
   );
 };

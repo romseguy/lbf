@@ -25,7 +25,7 @@ import {
 import { useToast } from "hooks/useToast";
 
 import React, { useState } from "react";
-import { DeleteButton, PushPinSlashIcon, PushPinIcon } from "features/common";
+import { DeleteButton, PushPinIcon } from "features/common";
 import { useSession } from "hooks/useSession";
 import { IGallery } from "models/Gallery";
 import { useSelector } from "react-redux";
@@ -324,12 +324,15 @@ export const GalleriesListItemHeader = ({
                 <Tooltip placement="bottom" label="Épingler la galerie">
                   <IconButton
                     aria-label="Épingler la galerie"
-                    // icon={
-                    //   gallery.isPinned ? <PushPinSlashIcon /> : <PushPinIcon />
-                    // }
-                    icon={<PushPinIcon />}
-                    variant={gallery.isPinned ? "solid" : "outline"}
                     colorScheme="teal"
+                    variant={gallery.isPinned ? "solid" : "outline"}
+                    icon={
+                      <PushPinIcon
+                        fill={gallery.isPinned ? "white" : "none"}
+                        stroke={gallery.isPinned || isDark ? "white" : "black"}
+                      />
+                    }
+                    isDisabled={!!isEventGallery}
                     mr={3}
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -358,7 +361,7 @@ export const GalleriesListItemHeader = ({
               </>
             )}
 
-            {isGalleryCreator && (
+            {isGalleryCreator && !isEventGallery && (
               <>
                 <Tooltip placement="bottom" label="Modifier la galerie">
                   <IconButton

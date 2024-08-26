@@ -1,33 +1,24 @@
-import {
-  DeleteIcon,
-  EmailIcon,
-  InfoIcon,
-  UpDownIcon,
-  WarningIcon
-} from "@chakra-ui/icons";
+import { InfoIcon, UpDownIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Flex,
   Icon,
-  IconButton,
   Td,
   Text,
-  Tooltip
+  Tooltip,
+  VStack
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React, { useState } from "react";
-import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
 // import { NotifModalState } from "features/modals/EntityNotifModal";
 import { getCategories, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
-import { EventsListItemVisibility } from "./EventsListItemVisibility";
+//import { EventsListItemVisibility } from "./EventsListItemVisibility";
 
 export const EventsListItem = ({
   deleteEvent,
@@ -222,216 +213,40 @@ export const EventsListItem = ({
       <Td
         borderBottomRightRadius={index === length - 1 ? "lg" : undefined}
         borderWidth={0}
-        p={0}
-        verticalAlign="middle"
+        //p={0}
+        //verticalAlign="middle"
         width="100%"
       >
-        <Flex alignItems="center" pt={1} pr={1}>
-          {/* isApproved */}
-          {showIsApproved && (
-            <>
-              {!event.isApproved && (
-                <Tooltip label="Événement en attente de modération">
-                  <WarningIcon color="orange" />
-                </Tooltip>
-              )}
+        <VStack>
+          <EntityButton event={event} />
 
-              {/* {org && isCreator && (
-                <Tooltip
-                  label={`Envoyer des invitations à cet événement`}
-                  placement="right"
-                  hasArrow
-                >
-                  <IconButton
-                    aria-label={`Envoyer des invitations à cet événement`}
-                    icon={<EmailIcon />}
-                    isLoading={isLoading}
-                    isDisabled={!event.isApproved}
-                    bg="transparent"
-                    height="auto"
-                    minWidth={0}
-                    mx={2}
-                    _hover={{
-                      background: "transparent",
-                      color: "green"
-                    }}
-                    onClick={(e) => {
-                      setNotifyModalState({
-                        ...notifyModalState,
-                        entity: event
-                      });
-                    }}
-                  />
-                </Tooltip>
-              )} */}
-            </>
-          )}
-
-          <Box flexGrow={1} px={2}>
-            {/* eventName */}
-            <GridItem my={2}>
-              {/* <Link
-                className={eventNameClassName}
-                fontSize={["sm", "lg"]}
-                fontWeight="bold"
-                href={`/${encodeURIComponent(event.eventUrl)}`}
-                shallow
-                onMouseEnter={() => setEventNameClassName("rainbow-text")}
-                onMouseLeave={() => setEventNameClassName("")}
+          {
+            event.eventDescription && event.eventDescription.length > 0 ? (
+              <Button
+                colorScheme="teal"
+                leftIcon={<InfoIcon />}
+                fontSize="small"
+                fontWeight="normal"
+                height="auto"
+                m={0}
+                mt={1}
+                p={2}
+                whiteSpace="normal"
+                onClick={() =>
+                  setEventToShow({
+                    ...event,
+                    eventMinDate: formatISO(minDate),
+                    eventMaxDate: maxDate ? formatISO(maxDate) : undefined
+                  })
+                }
               >
-                {event.eventName}
-              </Link> */}
-              <EntityButton event={event} />
-            </GridItem>
-            <GridItem mb={2}>
-              {event.eventDescription && event.eventDescription.length > 0 ? (
-                <Box>
-                  <Button
-                    colorScheme="teal"
-                    leftIcon={<InfoIcon />}
-                    fontSize="small"
-                    fontWeight="normal"
-                    height="auto"
-                    py={2}
-                    whiteSpace="normal"
-                    onClick={() =>
-                      setEventToShow({
-                        ...event,
-                        eventMinDate: formatISO(minDate),
-                        eventMaxDate: maxDate ? formatISO(maxDate) : undefined
-                      })
-                    }
-                  >
-                    Voir la description de l'événement
-                  </Button>
-                </Box>
-              ) : (
-                <Text fontSize="smaller">Aucune description disponible.</Text>
-              )}
-            </GridItem>
+                Voir la description de l'événement
+              </Button>
+            ) : null
 
-            {!org && (
-              <GridItem mb={2}>
-                {hasItems(event.eventOrgs)
-                  ? event.eventOrgs.map((eventOrg) => {
-                      return (
-                        <EntityButton
-                          key={eventOrg._id}
-                          org={eventOrg}
-                          px={2}
-                          py={1}
-                          bg={isDark ? "whiteAlpha.400" : "blackAlpha.200"}
-                        />
-                      );
-                    })
-                  : typeof event.createdBy === "object" && (
-                      <EntityButton
-                        key={event.createdBy._id}
-                        user={event.createdBy}
-                        px={2}
-                        py={1}
-                        bg={isDark ? "whiteAlpha.500" : "blackAlpha.200"}
-                      />
-                    )}
-              </GridItem>
-            )}
-          </Box>
-
-          <Flex alignItems="center">
-            {/* eventVisibility */}
-            {org && (
-              <EventsListItemVisibility
-                eventVisibility={event.eventVisibility}
-              />
-            )}
-
-            {/* eventForwardedFrom */}
-            {/* {session && !event.forwardedFrom ? (
-              <Tooltip label="Rediffuser">
-                <span>
-                  <IconButton
-                    aria-label="Rediffuser"
-                    icon={<FaRetweet />}
-                    bg="transparent"
-                    _hover={{ background: "transparent", color: "green" }}
-                    minWidth={0}
-                    ml={org ? 2 : 0}
-                    onClick={() => {
-                      setEventToForward({
-                        ...event,
-                        eventMinDate: minDate,
-                        eventMaxDate: maxDate
-                      });
-                    }}
-                  />
-                </span>
-              </Tooltip>
-            ) : org &&
-              event.forwardedFrom &&
-              event.forwardedFrom.eventId &&
-              session?.user.userId === event.createdBy ? (
-              <Tooltip label="Annuler la rediffusion">
-                <IconButton
-                  aria-label="Annuler la rediffusion"
-                  icon={<DeleteIcon />}
-                  bg="transparent"
-                  height="auto"
-                  minWidth={0}
-                  ml={2}
-                  mr={3}
-                  _hover={{ background: "transparent", color: "red" }}
-                  onClick={async () => {
-                    const confirmed = confirm(
-                      "Êtes vous sûr de vouloir annuler la rediffusion ?"
-                    );
-
-                    if (confirmed) {
-                      if (event.eventOrgs.length <= 1) {
-                        await deleteEvent({
-                          eventId: event.forwardedFrom?.eventId
-                        }).unwrap();
-                      } else {
-                        await editEvent({
-                          eventId: event.forwardedFrom?.eventId,
-                          payload: {
-                            eventOrgs: event.eventOrgs.filter((eventOrg) =>
-                              typeof eventOrg === "object"
-                                ? eventOrg._id !== org._id
-                                : eventOrg !== org._id
-                            )
-                          }
-                        });
-                        await editOrg({
-                          orgId: org._id,
-                          payload: {
-                            orgEvents: org.orgEvents.filter(
-                              (orgEvent) => orgEvent._id !== event._id
-                            )
-                          }
-                        });
-                      }
-
-                      toast({
-                        title: `La rediffusion a été annulée.`,
-                        status: "success"
-                      });
-                    }
-                  }}
-                />
-              </Tooltip>
-            ) : (
-              event.forwardedFrom &&
-              event.forwardedFrom.eventId &&
-              org && (
-                <Tooltip label={`Rediffusé par ${org.orgName}`}>
-                  <span>
-                    <Icon as={FaRetweet} color="green" ml={2} />
-                  </span>
-                </Tooltip>
-              )
-            )} */}
-          </Flex>
-        </Flex>
+            //<Text fontSize="smaller">Aucune description disponible.</Text>
+          }
+        </VStack>
       </Td>
     </>
   );

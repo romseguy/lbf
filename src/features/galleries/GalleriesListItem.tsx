@@ -54,7 +54,7 @@ export const GalleriesListItem = ({
   const isO = isOrg(entity);
   const isE = isEvent(entity);
   const isGalleryCreator =
-    isCreator || equals(getRefId(entity), session?.user.userId);
+    isCreator || equals(getRefId(gallery), session?.user.userId);
   const attendees = (
     isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : []
   ).find(({ listName }) => listName === "Participants");

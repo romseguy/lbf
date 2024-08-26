@@ -13,27 +13,24 @@ import {
   useColorMode,
   UseDisclosureProps
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { useRouter } from "next/router";
 import React from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
-
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
 import {
   AddTopicPayload,
-  EditTopicPayload,
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/api/topicsApi";
 import { DeleteButton } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
+import { useToast } from "hooks/useToast";
+import { IEntity, isEvent } from "models/Entity";
+import { ITopic } from "models/Topic";
 import { selectScreenHeight } from "store/uiSlice";
 import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
-import { IEntity, isEvent } from "models/Entity";
-import { ITopic } from "models/Topic";
 
 export const MosaicItemFullscrenModal = ({
   entity,
@@ -49,7 +46,7 @@ export const MosaicItemFullscrenModal = ({
   images: MosaicImage[];
   isGalleryCreator?: boolean;
   modalState: UseDisclosureProps & {
-    image: MosaicImage | undefined;
+    image: MosaicImage;
   };
   setModalState: React.Dispatch<
     React.SetStateAction<
@@ -82,7 +79,7 @@ export const MosaicItemFullscrenModal = ({
               aria-label="Image précédente"
               colorScheme="teal"
               icon={<ChevronLeftIcon boxSize={10} />}
-              isDisabled={modalState.image!.index - 1 < 0}
+              isDisabled={modalState.image.index - 1 < 0}
               onClick={() => {
                 //@ts-ignore
                 const index = modalState.image.index - 1;
@@ -98,7 +95,7 @@ export const MosaicItemFullscrenModal = ({
               aria-label="Image suivante"
               colorScheme="teal"
               icon={<ChevronRightIcon boxSize={10} />}
-              isDisabled={modalState.image!.index + 1 >= images.length}
+              isDisabled={modalState.image.index + 1 >= images.length}
               onClick={() => {
                 //@ts-ignore
                 const index = modalState.image.index + 1;
@@ -115,7 +112,7 @@ export const MosaicItemFullscrenModal = ({
             {/* {images[modalState.image.index].url.substring(
                   images[modalState.image.index].url.lastIndexOf("/") + 1
                 )} */}
-            {modalState.image!.name}
+            {modalState.image.name}
           </Text>
 
           <Tooltip label="Télécharger l'image">
@@ -125,22 +122,21 @@ export const MosaicItemFullscrenModal = ({
               icon={<DownloadIcon />}
               onClick={() => {
                 downloadImage(
-                  `${process.env.NEXT_PUBLIC_API}/documents/download?id=${
-                    modalState.image!.id
-                  }&fileName=${modalState.image!.name}`,
-                  modalState.image!.name || ""
+                  `${process.env.NEXT_PUBLIC_API}/documents/download?id=${modalState.image.id}&fileName=${modalState.image.name}`,
+                  modalState.image.name || ""
                 );
               }}
             />
           </Tooltip>
 
-          {isGalleryCreator && (
+          {(isGalleryCreator || modalState.image.isCreator) && (
             <DeleteButton
+              aria-label="Supprimer l'image"
               variant="solid"
               header={
                 <>
                   Êtes vous sûr de vouloir supprimer l'image{" "}
-                  {modalState.image!.name}
+                  {modalState.image.name}
                   {/* <Text display="inline" color="red" fontWeight="bold">
                       {modalState.image.url.match(urlFilenameR)[0]}
                     </Text>{" "} */}
@@ -151,7 +147,7 @@ export const MosaicItemFullscrenModal = ({
               isSmall={false}
               placement="bottom"
               onClick={async () => {
-                const [...parts] = modalState.image!.url.split("/");
+                const [...parts] = modalState.image.url.split("/");
                 const fileName = parts[parts.length - 1];
 
                 try {
@@ -180,11 +176,9 @@ export const MosaicItemFullscrenModal = ({
             onClick={async () => {
               try {
                 const key = isE ? "event" : "org";
-                const topicName = modalState.image!.name;
+                const topicName = modalState.image.name;
                 const topicMessage = {
-                  message: `<img src="${
-                    modalState.image!.url
-                  }" style="max-height: 400px"/>`
+                  message: `<img src="${modalState.image.url}" style="max-height: 400px"/>`
                 };
 
                 const topic = entity[key + "Topics"].find(
@@ -218,9 +212,9 @@ export const MosaicItemFullscrenModal = ({
       onClose={onClose}
     >
       <Image
-        alt={modalState.image!.name}
+        alt={modalState.image.name}
         alignSelf="center"
-        src={images[modalState.image!.index].url}
+        src={images[modalState.image.index].url}
         maxHeight={screenHeight - 72 + "px"}
         //width={`${images[modalState.index].width}px`}
       />

@@ -1,8 +1,8 @@
+import { EditIcon, SettingsIcon } from "@chakra-ui/icons";
 import { Icon, Text, useColorMode } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { useRouter } from "next/router";
 import React from "react";
+import { useSelector } from "react-redux";
 import {
   Column,
   EntityConfigBannerPanel,
@@ -11,17 +11,14 @@ import {
   AppHeading
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
-import { getEventCategories, IOrg } from "models/Org";
+import { EEntityCategoryKey } from "models/Entity";
+import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { selectIsMobile } from "store/uiSlice";
 import { Session } from "utils/auth";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
 import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { IsEditConfig } from "./OrgPage";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
-import { EEntityCategoryKey } from "models/Entity";
-import { EditIcon, SettingsIcon } from "@chakra-ui/icons";
 
 export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
