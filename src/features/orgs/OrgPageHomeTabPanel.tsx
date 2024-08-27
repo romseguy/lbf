@@ -451,7 +451,7 @@ export const OrgPageHomeTabPanel = ({
               <span>
                 <EditIconButton
                   aria-label="Modifier la description"
-                  {...(isMobile ? {} : {})}
+                  {...(isMobile ? { colorScheme: "white" } : {})}
                   ml={3}
                   onClick={(e) => {
                     e.stopPropagation();

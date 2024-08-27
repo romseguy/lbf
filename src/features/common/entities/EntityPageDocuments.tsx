@@ -35,6 +35,7 @@ import { DocumentForm } from "features/forms/DocumentForm";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { useSession } from "hooks/useSession";
 import { isOrg } from "models/Entity";
+import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";

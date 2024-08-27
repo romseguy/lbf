@@ -31,7 +31,7 @@ import { wrapper } from "store";
 import { useGetUsersQuery } from "features/api/usersApi";
 import { getRefId } from "models/Entity";
 
-const isCollapsable = true;
+const isCollapsable = false;
 const initialOrgsQueryParams = {
   orgType: EOrgType.NETWORK,
   populate: "orgs orgTopics.topicMessages createdBy"
@@ -42,20 +42,12 @@ const IndexPage = (props: PageProps) => {
   const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
-  const usersQuery = useGetUsersQuery(
-    { select: "userName" },
-    {
-      selectFromResult: ({ data }) => ({
-        data: data?.filter(({ _id }) => {
-          const userOrg = orgs?.find((org) => getRefId(org) === _id);
-          return !!userOrg;
-        })
-      })
-    }
+
+  const [selectedUserId, setSelectedUserId] = useState(
+    session ? session.user.userId : ""
   );
 
-  //#region local state
-  const [isListOpen, setIsListOpen] = useState(true);
+  //#region orgs
   const sMap: Partial<Record<EOrgVisibility, string>> = {
     [EOrgVisibility.FRONT]: "Accueil",
     [EOrgVisibility.PUBLIC]: "Tous les forums"
@@ -66,30 +58,12 @@ const IndexPage = (props: PageProps) => {
   const [selectedOrgVisibility, setSelectedOrgVisibility] = useState(
     EOrgVisibility.FRONT
   );
-  const [selectedUserId, setSelectedUserId] = useState(
-    session ? session.user.userId : ""
-  );
   useEffect(() => {
     if (selectedUserId) {
       if (session && selectedUserId === session.user.userId)
         setPageTitle("Votre forum");
     } else setPageTitle(sMap[selectedOrgVisibility]);
   }, [selectedOrgVisibility, selectedUserId]);
-
-  let keys = [
-    {
-      key: EOrderKey.orgName,
-      label: `Nom`
-    },
-    {
-      key: EOrderKey.latestActivity,
-      label: "Dernier message"
-    }
-  ];
-  if (!selectedUserId && selectedOrgVisibility === EOrgVisibility.PUBLIC)
-    keys.push({ key: EOrderKey.createdBy, label: "Créé par" });
-  else keys.splice(2, 1);
-
   const [orgsQueryParams, setOrgsQueryParams] = useState(
     initialOrgsQueryParams
   );
@@ -106,15 +80,40 @@ const IndexPage = (props: PageProps) => {
     })
   });
   const { orgs, selectedUserOrgs } = orgsQuery;
-  //#endregion
+  let keys = [
+    {
+      key: EOrderKey.orgName,
+      label: `Nom`
+    },
+    {
+      key: EOrderKey.latestActivity,
+      label: "Dernier message"
+    }
+  ];
+  if (!selectedUserId && selectedOrgVisibility === EOrgVisibility.PUBLIC)
+    keys.push({ key: EOrderKey.createdBy, label: "Créé par" });
+  else keys.splice(2, 1);
 
-  //#region modal
+  //#region users
+  const usersQuery = useGetUsersQuery(
+    { select: "userName" },
+    {
+      selectFromResult: ({ data }) => ({
+        data: data?.filter(({ _id }) => {
+          const userOrg = orgs?.find((org) => getRefId(org) === _id);
+          return !!userOrg;
+        })
+      })
+    }
+  );
+
+  //#region misc
+  const [isListOpen, setIsListOpen] = useState(true);
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
     onClose: closeMapModal
   } = useDisclosure({ defaultIsOpen: false });
-  //#endregion
 
   return (
     <Layout {...props} mainContainer={false} pageTitle={pageTitle}>
@@ -242,63 +241,70 @@ const IndexPage = (props: PageProps) => {
                       )}
                     </>
                   )}
-                  <AppHeading>Une idée de forum ?</AppHeading>
+                  <AppHeading>
+                    <Link href="/a_propos" variant="underline">
+                      En savoir +
+                    </Link>
+                  </AppHeading>
                 </Flex>
 
-                {(!isCollapsed || !isCollapsable) && (
-                  <>
-                    {session ? (
-                      <>
-                        {/* <Text>
+                {
+                  //(!isCollapsed || !isCollapsable)
+                  false && (
+                    <>
+                      {session ? (
+                        <>
+                          {/* <Text>
                               Pour ajouter un forum à <HostTag /> vous devez
                               d'abord créer une planète :
                             </Text> */}
-                        <EntityAddButton
-                          label="Ajoutez une planète"
-                          orgType={EOrgType.NETWORK}
-                          size="md"
-                          mt={3}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <Alert status="info" mt={2}>
-                          <AlertIcon />
+                          <EntityAddButton
+                            label="Ajoutez une planète"
+                            orgType={EOrgType.NETWORK}
+                            size="md"
+                            mt={3}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <Alert status="info" mt={2}>
+                            <AlertIcon />
 
-                          <Flex flexDirection="column">
-                            <Text>
-                              Pour ajouter un forum à <HostTag />, vous devez
-                              d'abord vous connecter :
-                            </Text>
-                            <LoginButton
-                              mt={3}
-                              mr={3}
-                              size={props.isMobile ? "xs" : undefined}
-                              onClick={() => {
-                                router.push("/login", "/login", {
-                                  shallow: true
-                                });
-                              }}
-                            >
-                              Se connecter
-                            </LoginButton>
-                          </Flex>
-                        </Alert>
-                      </>
-                    )}
+                            <Flex flexDirection="column">
+                              <Text>
+                                Pour ajouter un forum à <HostTag />, vous devez
+                                d'abord vous connecter :
+                              </Text>
+                              <LoginButton
+                                mt={3}
+                                mr={3}
+                                size={props.isMobile ? "xs" : undefined}
+                                onClick={() => {
+                                  router.push("/login", "/login", {
+                                    shallow: true
+                                  });
+                                }}
+                              >
+                                Se connecter
+                              </LoginButton>
+                            </Flex>
+                          </Alert>
+                        </>
+                      )}
 
-                    <Flex alignItems="center" mt={3}>
-                      <Link
-                        href="/a_propos"
-                        variant="underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        En savoir plus
-                      </Link>
-                      <ChevronRightIcon />
-                    </Flex>
-                  </>
-                )}
+                      <Flex alignItems="center" mt={3}>
+                        <Link
+                          href="/a_propos"
+                          variant="underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          En savoir plus
+                        </Link>
+                        <ChevronRightIcon />
+                      </Flex>
+                    </>
+                  )
+                }
               </>
             );
           }}

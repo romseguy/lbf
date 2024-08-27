@@ -22,6 +22,7 @@ let cached = global.mongo;
 if (!cached) {
   cached = global.mongo = { conn: null, promise: null };
 }
+console.log(process.env.DATABASE_URL);
 const connection = mongoose.createConnection(process.env.DATABASE_URL, {
   autoIndex: false
 });

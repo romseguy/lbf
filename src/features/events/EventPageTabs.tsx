@@ -183,6 +183,8 @@ export const EventPageTabs = ({
 
         {session && isCreator && (
           <TabPanel aria-hidden>
+            <AppHeading mb={3}>Rappels</AppHeading>
+
             <AppHeading mb={3}>Invitations</AppHeading>
 
             <Column {...columnProps}>

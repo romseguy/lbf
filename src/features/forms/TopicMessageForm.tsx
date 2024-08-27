@@ -148,7 +148,7 @@ export const TopicMessageForm = ({
               return (
                 <RTEditor
                   value={renderProps.value}
-                  placeholder={"Cliquez ici pour répondre..."}
+                  placeholder={"Cliquez ici pour ajouter un message..."}
                   setIsLoading={setIsLoading}
                   height={
                     newHeight < 200 ? 200 : newHeight > 500 ? 500 : newHeight
@@ -196,7 +196,7 @@ export const TopicMessageForm = ({
             }}
             mr={3}
           >
-            Se connecter pour répondre
+            Se connecter pour ajouter un message
           </Button>
         )}
 
@@ -211,7 +211,7 @@ export const TopicMessageForm = ({
               ? "Réponses désactivées"
               : props.topicMessage
               ? "Modifier"
-              : "Répondre"}
+              : "Ajouter un message"}
           </Button>
         )}
       </Flex>

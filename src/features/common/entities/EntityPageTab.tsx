@@ -61,7 +61,7 @@ export const EntityPageTab = ({
         __css={{
           ...(isMobile ? {} : {})
         }}
-        mr={!isMobile && (tab.label === "" || tab.label === "Accueil") ? 0 : 2}
+        mr={!children || tab.label === "" || tab.label === "Accueil" ? 0 : 2}
       />
 
       {children}

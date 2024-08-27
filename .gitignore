@@ -1,16 +1,14 @@
-# dotfiles
-.env*
-
 # node modules
 /node_modules
 yarn-debug.log*
 yarn-error.log*
 
+# dotfiles
+.env*
+
 # build
-tsconfig.tsbuildinfo
-*.zip
-*.tar.gz
-.next
+/.next
+/tsconfig.tsbuildinfo
 **/public/files/**
 **/public/workbox-*.js
 **/public/sw.js
@@ -19,11 +17,13 @@ tsconfig.tsbuildinfo
 **/public/workbox-*.js.map
 
 # misc
+*.zip
+*.tar.gz
 /logs
-*.mongodb.js
-*.mongodb
-TODO
-stuff.json
-stuff.js
-.backup
-.vercel
+/*.mongodb.js
+/*.mongodb
+/TODO
+/stuff.json
+/stuff.js
+/.backup
+/.vercel

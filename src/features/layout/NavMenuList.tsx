@@ -38,7 +38,13 @@ export const NavMenuList = ({
     <MenuList mr={[1, 3]}>
       <MenuItem
         aria-hidden
-        command={`${email}`}
+        command={`${session.user.userName}`}
+        cursor="default"
+        _hover={{ bg: isDark ? "gray.700" : "white" }}
+      />
+      <MenuItem
+        aria-hidden
+        command={`${email} ${session.user.isAdmin ? "(admin)" : ""}`}
         cursor="default"
         _hover={{ bg: isDark ? "gray.700" : "white" }}
       />
@@ -46,23 +52,14 @@ export const NavMenuList = ({
         <>
           <MenuItem
             aria-hidden
-            command={`${session.user.userId}`}
+            command={`${entity ? entity._id : session.user.userId}`}
             cursor="default"
             _hover={{ bg: isDark ? "gray.700" : "white" }}
           />
-          {entity && (
-            <MenuItem
-              aria-hidden
-              command={`${entity._id}`}
-              cursor="default"
-              _hover={{ bg: isDark ? "gray.700" : "white" }}
-            />
-          )}
         </>
       )}
       <Link
         aria-hidden
-        data-cy="my-page"
         onClick={() => {
           router.push(`/${userName}`, `/${userName}`, { shallow: true });
         }}

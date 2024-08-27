@@ -21,7 +21,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { EntityAddButton, EntityButton } from "features/common";
+import { EntityAddButton, EntityButton, Link } from "features/common";
 import { useGetTopicsQuery } from "features/api/topicsApi";
 import {
   useDeleteSubscriptionMutation,
@@ -31,7 +31,7 @@ import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
 import { getRefId } from "models/Entity";
 import { OrgTypes } from "models/Org";
-import { hasItems } from "utils/array";
+import { divideArray, hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { timeAgo } from "utils/date";
 
@@ -121,6 +121,76 @@ const TopicPopoverContent = ({
     }
   }, [refetchSubscription]);
 
+  const pages = divideArray(myTopicsQuery.data, 10);
+  let elements = [];
+  let index = 0;
+
+  //if (topic.org === null || topic.event === null) return null;
+  for (const page of pages) {
+    const els = [];
+    for (const topic of page) {
+      const jsx = (
+        <Box
+          key={topic._id}
+          alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
+          borderColor={isDark ? "gray.600" : "gray.300"}
+          borderRadius="lg"
+          borderStyle="solid"
+          borderWidth="1px"
+          p={1}
+        >
+          <Box
+            display="flex"
+            justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+          >
+            <EntityButton
+              topic={topic}
+              org={topic.org}
+              event={topic.event}
+              p={1}
+              onClick={() => {
+                onClose();
+                router.push(
+                  `/${
+                    topic.org ? topic.org.orgUrl : topic.event?.eventUrl
+                  }/discussions/${topic.topicName}`
+                );
+              }}
+            />
+          </Box>
+
+          {(topic.event || topic.org) && (
+            <>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+                mt={1}
+              >
+                <Text fontSize="smaller" mx={1}>
+                  dans
+                </Text>
+                <EntityButton event={topic.event} org={topic.org} p={1} />
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
+                mt={1}
+              >
+                <Text fontSize="0.7em" fontStyle="italic" mx={1}>
+                  il y a {timeAgo(topic.createdAt).timeAgo}
+                </Text>
+              </Box>
+            </>
+          )}
+        </Box>
+      );
+      els.push(jsx);
+      index++;
+    }
+    elements.push(els);
+  }
   return (
     <>
       <PopoverBody>
@@ -152,86 +222,27 @@ const TopicPopoverContent = ({
             {myTopicsQuery.isLoading || myTopicsQuery.isFetching ? (
               <Spinner />
             ) : hasItems(myTopicsQuery.data) ? (
-              <VStack
-                aria-hidden
-                overflow="auto"
-                height="250px"
-                spacing={2}
-                pr={1}
-              >
-                {myTopicsQuery.data.map((topic, index) => {
-                  if (topic.org === null || topic.event === null) return null;
-                  return (
-                    <Box
-                      key={topic._id}
-                      alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
-                      borderColor={isDark ? "gray.600" : "gray.300"}
-                      borderRadius="lg"
-                      borderStyle="solid"
-                      borderWidth="1px"
-                      p={1}
-                    >
-                      <Box
-                        display="flex"
-                        justifyContent={
-                          index % 2 === 0 ? "flex-start" : "flex-end"
-                        }
-                      >
-                        <EntityButton
-                          topic={topic}
-                          org={topic.org}
-                          event={topic.event}
-                          p={1}
-                          onClick={() => {
-                            onClose();
-                            router.push(
-                              `/${
-                                topic.org
-                                  ? topic.org.orgUrl
-                                  : topic.event?.eventUrl
-                              }/discussions/${topic.topicName}`
-                            );
-                          }}
-                        />
-                      </Box>
-
-                      {(topic.event || topic.org) && (
-                        <>
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={
-                              index % 2 === 0 ? "flex-start" : "flex-end"
-                            }
-                            mt={1}
-                          >
-                            <Text fontSize="smaller" mx={1}>
-                              dans
-                            </Text>
-                            <EntityButton
-                              event={topic.event}
-                              org={topic.org}
-                              p={1}
-                            />
-                          </Box>
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={
-                              index % 2 === 0 ? "flex-start" : "flex-end"
-                            }
-                            mt={1}
-                          >
-                            <Text fontSize="0.7em" fontStyle="italic" mx={1}>
-                              il y a {timeAgo(topic.createdAt).timeAgo}
-                            </Text>
-                          </Box>
-                        </>
-                      )}
-                    </Box>
-                  );
-                })}
-              </VStack>
+              <>
+                <div style={{ textAlign: "center" }}>
+                  <Link
+                    //variant="underline"
+                    fontWeight="bold"
+                    onClick={() => {}}
+                  >
+                    1
+                  </Link>{" "}
+                  2 3 ... 10
+                </div>
+                <VStack
+                  aria-hidden
+                  overflow="auto"
+                  height="250px"
+                  spacing={2}
+                  pr={1}
+                >
+                  {elements[0]}
+                </VStack>
+              </>
             ) : (
               <Text fontSize="smaller">
                 Vous n'avez ajouté aucune discussions.

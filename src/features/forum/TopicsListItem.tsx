@@ -728,7 +728,7 @@ export const TopicsListItem = ({
                           setIsAnswering(true);
                         }}
                       >
-                        Répondre
+                        Ajouter un message
                       </Button>
                     ) : (
                       <Button
@@ -737,7 +737,7 @@ export const TopicsListItem = ({
                           router.push("/login", "/login", { shallow: true });
                         }}
                       >
-                        Se connecter pour répondre
+                        Se connecter pour ajouter un message
                       </Button>
                     )}
                   </>
