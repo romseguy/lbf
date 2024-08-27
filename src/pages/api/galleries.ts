@@ -119,7 +119,7 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
         const attendees = org.orgLists.find(
           ({ listName }) => listName === "Participants"
         );
-        const isAttendee = !!attendees?.subscriptions.find(
+        const isAttendee = !!(attendees?.subscriptions || []).find(
           (sub) => getEmail(sub) === session.user.email
         );
         if (!isAttendee) {

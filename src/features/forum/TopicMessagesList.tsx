@@ -71,6 +71,7 @@ export const TopicMessagesList = ({
             setIsLoading={setIsLoading}
             topic={topic}
             topicMessage={topicMessage}
+            mb={3}
           />
         );
       })}

@@ -88,7 +88,7 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
               const attendees = org.orgLists.find(
                 ({ listName }) => listName === "Participants"
               );
-              isAttendee = !!attendees?.subscriptions.find(
+              isAttendee = !!(attendees?.subscriptions || []).find(
                 (sub) => getEmail(sub) === session.user.email
               );
             }

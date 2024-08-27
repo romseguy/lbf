@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Tooltip, Text } from "@chakra-ui/react";
+import { Avatar, Box, BoxProps, Flex, Tooltip, Text } from "@chakra-ui/react";
 
 import { useRouter } from "next/router";
 import React from "react";
@@ -27,7 +27,7 @@ export const TopicMessagesListItem = ({
   topic,
   topicMessage,
   ...props
-}: {
+}: BoxProps & {
   index: number;
   isDark: boolean;
   isEdit: isEdit;
@@ -57,12 +57,11 @@ export const TopicMessagesListItem = ({
   return (
     <Box
       key={_id}
-      borderRadius={18}
       bg={isDark ? "gray.700" : "#F7FAFC"}
+      borderRadius={18}
       px={3}
       py={2}
-      mb={3}
-      data-cy="topic-message"
+      {...props}
     >
       <Flex alignItems="center">
         <Flex

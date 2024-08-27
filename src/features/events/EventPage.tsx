@@ -2,6 +2,7 @@ import {
   Box,
   Flex,
   Heading,
+  HStack,
   Icon,
   IconButton,
   useColorMode
@@ -130,30 +131,40 @@ export const EventPage = ({
   return (
     <Layout entity={event} isMobile={isMobile}>
       {isCreator && (
-        <Box m={3} mb={0}>
-          <Flex>
-            <IconButton
-              aria-label="Actualiser"
-              colorScheme="green"
-              variant="outline"
-              icon={<Icon as={IoMdRefresh} boxSize={7} />}
-              mr={3}
-              onClick={() => {
-                eventQuery.refetch();
-              }}
-            />
-            <Heading>Admin :</Heading>
-          </Flex>
+        <Box m={3} mb={0} {...(isMobile ? {} : {})}>
+          <Flex
+            flexDir={isMobile ? "column" : "row"}
+            alignItems={isMobile ? "center" : undefined}
+          >
+            <HStack mb={isMobile ? 3 : 0}>
+              <IconButton
+                aria-label="Actualiser"
+                colorScheme="green"
+                variant="outline"
+                icon={<Icon as={IoMdRefresh} boxSize={7} />}
+                mr={1}
+                onClick={() => {
+                  eventQuery.refetch();
+                }}
+              />
+              <Heading>Admin :</Heading>
+            </HStack>
 
-          <EventConfigButtons
-            eventQuery={eventQuery}
-            isConfig={isConfig}
-            setIsConfig={setIsConfig}
-            isEdit={isEdit}
-            setIsEdit={setIsEdit}
-            toggleVisibility={toggleVisibility}
-            mx={3}
-          />
+            <EventConfigButtons
+              eventQuery={eventQuery}
+              isConfig={isConfig}
+              setIsConfig={setIsConfig}
+              isEdit={isEdit}
+              setIsEdit={setIsEdit}
+              toggleVisibility={toggleVisibility}
+              mb={3}
+              {...(isMobile
+                ? {}
+                : {
+                    m: 3
+                  })}
+            />
+          </Flex>
 
           {session && (isConfig || isEdit) && (
             <EventConfigPanel

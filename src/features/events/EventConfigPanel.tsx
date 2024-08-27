@@ -16,7 +16,6 @@ import { EventForm } from "features/forms/EventForm";
 import { IEvent } from "models/Event";
 import { Session } from "utils/auth";
 import { AppQueryWithData } from "utils/types";
-import { EventConfigButtons } from "./EventConfigButtons";
 import { selectIsMobile } from "store/uiSlice";
 import { EEntityCategoryKey } from "models/Entity";
 

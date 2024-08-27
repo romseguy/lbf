@@ -62,7 +62,7 @@ export const GalleriesList = ({
   );
   const isAttendee =
     session?.user.isAdmin ||
-    !!attendees?.subscriptions.find(
+    !!(attendees?.subscriptions || []).find(
       (sub) => getEmail(sub) === session?.user.email
     );
   const entityUrl = org["orgUrl"];

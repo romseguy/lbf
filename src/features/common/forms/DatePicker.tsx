@@ -1,7 +1,5 @@
 import { TimeIcon } from "@chakra-ui/icons";
 import { Button } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { fr } from "date-fns/locale";
 import React, { forwardRef, Ref } from "react";
 import ReactDatePicker, { ReactDatePickerProps } from "react-datepicker";
@@ -93,13 +91,13 @@ export const renderCustomInput = ({
       let cursor = "pointer";
       let isDisabled = false;
 
-      const day = value?.substr(0, 2);
-      const month = value?.substr(3, 2);
-      const year = value?.substr(6, 4);
-      const hours = value?.substr(12, 2);
-      const minutes = value?.substr(15, 2);
+      const now = new Date();
+      const day = value?.substr(0, 2) || now.getDay();
+      const month = value?.substr(3, 2) || now.getMonth();
+      const year = value?.substr(6, 4) || now.getFullYear();
+      const hours = value?.substr(12, 2) || now.getHours();
+      const minutes = value?.substr(15, 2) || now.getMinutes();
       const date = parseISO(`${year}-${month}-${day}T${hours}:${minutes}`);
-
       // if (
       //   label === "repeat" &&
       //   (!eventMinDate || !eventMaxDate)
@@ -129,13 +127,7 @@ export const renderCustomInput = ({
   return <ExampleCustomInput />;
 };
 
-export const DatePicker = ({ ...datePickerProps }: ReactDatePickerProps) => {
-  // let selected = datePickerProps.selected;
-
-  // if (selected === null) {
-  //   selected = new Date();
-  // }
-
+export const DatePicker = ({ selected, ...props }: ReactDatePickerProps) => {
   return (
     <ReactDatePickerStyles isBrowser={isBrowser}>
       <ReactDatePicker
@@ -144,7 +136,8 @@ export const DatePicker = ({ ...datePickerProps }: ReactDatePickerProps) => {
         //selected={selected}
         timeCaption="h"
         onChangeRaw={(e) => e.preventDefault()}
-        {...datePickerProps}
+        selected={typeof selected === "string" ? parseISO(selected) : selected}
+        {...props}
       />
     </ReactDatePickerStyles>
   );

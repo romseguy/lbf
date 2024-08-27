@@ -161,6 +161,7 @@ export const RTEditor = ({
     link_default_target: "_blank",
     min_height: props.minHeight,
     max_height: props.maxHeight || maxHeight,
+    placeholder,
     skin: isDark ? "oxide-dark" : undefined,
     text_patterns: [
       { start: "*", end: "*", format: "italic" },

@@ -101,7 +101,17 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       let org: (IOrg & Document<any, IOrg>) | null | undefined;
 
       if (body.event)
-        event = await models.Event.findOne({ _id: body.event._id });
+        event = await models.Event.findOne({ _id: body.event._id }).populate({
+          path: "eventOrgs",
+          populate: {
+            path: "orgLists",
+            populate: {
+              path: "subscriptions",
+              select: "email",
+              populate: { path: "user", select: "email" }
+            }
+          }
+        });
       else if (body.org)
         org = await models.Org.findOne({ _id: body.org._id }).populate({
           path: "orgLists",
@@ -128,14 +138,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       }
 
       if (!session.user.isAdmin) {
-        const attendees = (
-          org ? org.orgLists : event ? event.eventOrgs[0].orgLists : []
-        ).find(({ listName }) => listName === "Participants");
-        const isAttendee = !!attendees?.subscriptions.find(
-          (sub) => getEmail(sub) === session.user.email
-        );
-        if (!isAttendee) {
-          return res
+        const nok = () =>
+          res
             .status(401)
             .json(
               createEndpointError(
@@ -144,7 +148,23 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
                 )
               )
             );
-        }
+
+        const lists = org
+          ? org.orgLists
+          : event
+          ? event.eventOrgs[0].orgLists
+          : [];
+        if (!hasItems(lists)) return nok();
+
+        const attendees = lists.find(
+          ({ listName }) => listName === "Participants"
+        );
+        if (!attendees || !hasItems(attendees.subscriptions)) return nok();
+
+        const isAttendee = !!attendees.subscriptions.find(
+          (sub) => getEmail(sub) === session.user.email
+        );
+        if (!isAttendee) return nok();
       }
 
       let topic: (ITopic & Document<any, ITopic>) | null | undefined;

@@ -16,8 +16,6 @@ import {
   IconButton,
   InputGroup
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
 import { ErrorMessage } from "@hookform/error-message";
 import {
   addHours,
@@ -31,30 +29,32 @@ import {
 } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useSelector } from "react-redux";
 import ReactSelect from "react-select";
 import { css } from "twin.macro";
 import { Suggestion } from "use-places-autocomplete";
 
+import {
+  AddEventPayload,
+  useAddEventMutation,
+  useEditEventMutation
+} from "features/api/eventsApi";
+import { useGetOrgQuery, useGetOrgsQuery } from "features/api/orgsApi";
 import {
   AddressControl,
   DatePicker,
   EmailControl,
   ErrorMessageText,
   renderCustomInput,
-  RTEditor
+  RTEditor,
+  UrlControl,
+  PhoneControl
 } from "features/common";
-import { UrlControl } from "features/common/forms/UrlControl";
-import { PhoneControl } from "features/common/forms/PhoneControl";
-import {
-  AddEventPayload,
-  useAddEventMutation,
-  useEditEventMutation
-} from "features/api/eventsApi";
 import { formBoxProps } from "features/layout/theme";
 import { withGoogleApi } from "hocs/withGoogleApi";
-import { useGetOrgQuery, useGetOrgsQuery } from "features/api/orgsApi";
 import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
+import { useToast } from "hooks/useToast";
 import {
   IEntityAddress,
   IEntityEmail,
@@ -63,13 +63,12 @@ import {
 } from "models/Entity";
 import { IEvent, EEventVisibility } from "models/Event";
 import { getEventCategories, IOrg } from "models/Org";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
 import { unwrapSuggestion } from "utils/maps";
 import { normalize } from "utils/string";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
 
 type DaysMap = { [key: number]: DayState };
 type DayState = {
@@ -111,27 +110,33 @@ export const EventForm = withGoogleApi({
     const { data: myOrgs } = useGetOrgsQuery({
       createdBy: props.session.user.userId
     });
+    const { data: org } = useGetOrgQuery(
+      { orgUrl: props.orgId || "" },
+      {
+        selectFromResult: (query) => {
+          if (!myOrgs?.find(({ _id }) => _id === props.orgId))
+            return { ...query, data: undefined };
+          return query;
+        }
+      }
+    );
 
     //#region local state
     const [isLoading, setIsLoading] = useState(false);
-
     const [suggestion, setSuggestion] = useState<Suggestion>();
-
-    let hasMonthRepeat = false;
-
-    const [duration, setDuration] = useState<Duration | undefined>();
-    const [canRepeat, setCanRepeat] = useState(false);
-    const [canRepeat1day, setCanRepeat1day] = useState(true);
-
     //#endregion
 
     //#region form
     const defaultValues = {
       eventName: props.eventName || props.event?.eventName || "",
-      eventMinDate: props.event ? parseISO(props.event.eventMinDate) : null,
-      eventMaxDate: props.event?.eventMaxDate
-        ? parseISO(props.event.eventMaxDate)
-        : null,
+      eventMinDate:
+        typeof props.event?.eventMinDate === "string"
+          ? parseISO(props.event.eventMinDate)
+          : props.event?.eventMinDate,
+      eventMaxDate:
+        typeof props.event?.eventMaxDate === "string"
+          ? parseISO(props.event.eventMaxDate)
+          : props.event?.eventMaxDate,
       eventDescription: props.event?.eventDescription || "",
       eventVisibility: props.event?.eventVisibility || EEventVisibility.PUBLIC,
       //eventOrgs: props.event?.eventOrgs || [],
@@ -143,6 +148,9 @@ export const EventForm = withGoogleApi({
       eventWeb: props.event?.eventWeb || [],
       repeat: props.event?.repeat
     };
+    useEffect(() => {
+      if (org) setValue("eventOrg", org);
+    }, [org]);
     const {
       control,
       register,
@@ -183,10 +191,17 @@ export const EventForm = withGoogleApi({
       }
     }, [errors]);
 
-    const eventMinDate = useWatch<Date | null | undefined>({
+    //#region datepicker state
+    const weventMinDate = useWatch<Date | null | undefined>({
       control,
       name: "eventMinDate"
     });
+    const eventMinDate =
+      typeof weventMinDate === "string"
+        ? parseISO(weventMinDate)
+        : weventMinDate;
+    const start = eventMinDate;
+
     useEffect(() => {
       if (!props.event && eventMinDate) {
         if (end) {
@@ -203,43 +218,37 @@ export const EventForm = withGoogleApi({
         }
       }
     }, [eventMinDate]);
-    const eventMaxDate = useWatch<Date | null | undefined>({
+
+    const weventMaxDate = useWatch<Date | null | undefined>({
       control,
       name: "eventMaxDate"
     });
+    const eventMaxDate =
+      typeof weventMaxDate === "string"
+        ? parseISO(weventMaxDate)
+        : weventMaxDate;
+    const [end, setEnd] = useState<Date | null | undefined>(eventMaxDate);
+
     useEffect(() => {
-      if (end?.toISOString() !== eventMaxDate?.toISOString()) {
+      const a = end && end.toISOString ? end.toISOString() : null;
+      const b =
+        eventMaxDate && eventMaxDate.toISOString
+          ? eventMaxDate.toISOString()
+          : null;
+      //if (end?.toISOString() !== eventMaxDate?.toISOString()) {
+      if (a !== b) {
         // console.log("setting end to", eventMaxDate);
         setEnd(eventMaxDate ? eventMaxDate : undefined);
       }
     }, [eventMaxDate]);
-
-    const start = eventMinDate;
-
-    const [end, setEnd] = useState<Date | null | undefined>(eventMaxDate);
-    useEffect(() => {
-      if (start && end) {
-        const newDuration = intervalToDuration({ start, end });
-
-        if (newDuration !== duration) {
-          setDuration(newDuration);
-
-          if (newDuration.days !== undefined) {
-            setCanRepeat1day(newDuration.days === 0);
-            setCanRepeat(newDuration.days === 0 ? true : newDuration.days < 6);
-          }
-        }
-      }
-    }, [start, end]);
+    //#endregion
 
     let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
     eventOrg =
       eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
     const categories = eventOrg ? getEventCategories(eventOrg) : [];
-    const visibilities = eventOrg
-      ? [EEventVisibility.PUBLIC, EEventVisibility.FOLLOWERS]
-      : [];
 
+    //#region event info
     const eventAddress = useWatch<IEntityAddress[]>({
       control,
       name: "eventAddress"
@@ -253,20 +262,7 @@ export const EventForm = withGoogleApi({
       name: "eventPhone"
     });
     const eventWeb = useWatch<IEntityWeb[]>({ control, name: "eventWeb" });
-
-    const { data: org } = useGetOrgQuery(
-      { orgUrl: props.orgId || "" },
-      {
-        selectFromResult: (query) => {
-          if (!myOrgs?.find(({ _id }) => _id === props.orgId))
-            return { ...query, data: undefined };
-          return query;
-        }
-      }
-    );
-    useEffect(() => {
-      if (org) setValue("eventOrg", org);
-    }, [org]);
+    //#endregion
 
     useEffect(() => {
       if (!hasItems(eventAddress)) {
@@ -480,8 +476,6 @@ export const EventForm = withGoogleApi({
 
     const eventMaxDateMinDate = eventMinDate
       ? addHours(eventMinDate, eventMinDuration)
-      : props.event
-      ? addHours(parseISO(props.event.eventMinDate), eventMinDuration)
       : addHours(now, eventMinDuration);
     const highlightDatesStart: Date[] = [];
     if (start) {
@@ -604,14 +598,24 @@ export const EventForm = withGoogleApi({
               name="eventMaxDate"
               control={control}
               //rules={{ required: "Veuillez saisir une date" }}
-              render={({ onChange, value }) => {
+              render={(props) => {
+                const selected =
+                  typeof props.value === "string"
+                    ? parseISO(props.value)
+                    : props.value;
+                console.log("🚀 ~ selected:", selected);
+                console.log("🚀 ~ props.value:", props.value);
                 return (
                   <DatePicker
                     // disabled={!eventMinDate}
                     withPortal={isMobile}
                     customInput={renderCustomInput({ label: "maxDate" })}
-                    selected={value}
-                    onChange={onChange}
+                    //selected={props.value}
+                    selected={selected}
+                    onChange={(e) => {
+                      clearErrors("eventMaxDate");
+                      props.onChange(e);
+                    }}
                     {...eventMaxDatePickerProps}
                   />
                 );

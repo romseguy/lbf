@@ -29,7 +29,7 @@ export const EntityPageTopics = ({
   ).find(({ listName }) => listName === "Participants");
   const isAttendee =
     session?.user.isAdmin ||
-    !!attendees?.subscriptions.find(
+    !!(attendees?.subscriptions || []).find(
       (sub) => getEmail(sub) === session?.user.email
     );
 

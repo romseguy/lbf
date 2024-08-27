@@ -60,7 +60,7 @@ export const GalleriesListItem = ({
   ).find(({ listName }) => listName === "Participants");
   const isAttendee =
     session?.user.isAdmin ||
-    !!attendees?.subscriptions.find(
+    !!(attendees?.subscriptions || []).find(
       (sub) => getEmail(sub) === session?.user.email
     );
   // const galleryId = entity._id;
