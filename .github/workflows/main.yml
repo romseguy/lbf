@@ -3,21 +3,29 @@ on:
   push:
     branches: [ateliers]
 jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - run: yarn
+      - run: yarn compile
   test:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
-      - name: Install dependencies
-        run: yarn
-      - name: Create env file
-        run: |
+          node-version: 18
+          cache: 'yarn'
+      - run: yarn
+      - run: |
           touch .env
+          echo NEXT_PUBLIC_ENV=production >> .env
           echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
           echo NEXT_PUBLIC_URL=http://localhost:3000 >> .env
           echo NEXT_PUBLIC_SHORT_URL=ateliers.lebonforum.fr >> .env
@@ -26,10 +34,9 @@ jobs:
           echo NEXT_PUBLIC_FILES=https://files.lebonforum.fr >> .env
           echo NEXT_PUBLIC_ADMIN_EMAILS=contact@lebonforum.fr >> .env
           echo NEXT_PUBLIC_TITLE=Les ateliers LEO >> .env
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
-      - name: Run Playwright tests
-        run: yarn playwright test
+      #- run: yarn dev:server & sleep 10
+      - run: yarn playwright install chromium
+      - run: yarn playwright test
       - uses: actions/upload-artifact@v4
         if: always()
         with:

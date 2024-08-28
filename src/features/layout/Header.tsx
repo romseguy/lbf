@@ -48,6 +48,19 @@ export const Header = ({
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   let banner: IEntityBanner | undefined;
+  const getBannerHeight = () => {
+    if (!banner || !window) return 140;
+    const ratio = banner.height / banner.width;
+    let h =
+      banner.height > window.innerHeight * 0.75
+        ? window.innerHeight * 0.75
+        : banner.height || 140;
+    const l = h / ratio;
+    if (l > window.innerWidth) {
+      h = window.innerWidth * ratio;
+    }
+    return h;
+  };
   let logo: IEntityLogo | undefined;
   let showTitle = true;
   if (isE) {
@@ -89,6 +102,7 @@ export const Header = ({
           /*background-size: 100% 100%;
           background-repeat: no-repeat;*/
           background-size: cover;
+          background-position: center;
           cursor: pointer;
           height: ${banner.headerHeight}px;
           ${logo ? `` : ``}
@@ -163,11 +177,11 @@ export const Header = ({
           }}
         >
           <Image
-            alt="bannière"
             alignSelf="center"
-            src={(banner.url || banner.base64) as string}
-            height={banner.height || 140}
-            width={banner.width || 1154}
+            src={banner.url || banner.base64}
+            backgroundSize="cover"
+            height={getBannerHeight()}
+            //width={banner.width || 1154}
           />
         </FullscreenModal>
       )}

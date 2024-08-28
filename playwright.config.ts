@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(__dirname, ".env.development.local") });
+dotenv.config({ path: path.resolve(__dirname, ".env.development") });
 const SECOND = 1000;
 
 /**
@@ -90,8 +90,11 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "yarn dev:server",
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: true
+    command:
+      process.env.NEXT_PUBLIC_ENV === "development"
+        ? "yarn dev"
+        : "yarn dev:server",
+    url: "http://localhost:3000",
+    reuseExistingServer: process.env.NEXT_PUBLIC_ENV === "development"
   }
 });

@@ -192,6 +192,8 @@ export const EventPageTabs = ({
               {tabLabel}
               {url === "/galerie" && hasItems(gallery?.galleryDocuments) ? (
                 <Badge ml={2}>{gallery?.galleryDocuments!.length}</Badge>
+              ) : url === "/discussions" && hasItems(event.eventTopics) ? (
+                <Badge ml={2}>{event.eventTopics.length}</Badge>
               ) : null}
             </EntityPageTab>
           );

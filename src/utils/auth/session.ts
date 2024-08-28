@@ -24,11 +24,11 @@ export const devSession: any =
   //   }
   // };
   // admin
-  {
-    user: {
-      email: "contact@lebonforum.fr",
-      userId: "668354c66b0b7a9351b72baf",
-      userName: "admin"
-    }
-  };
-null;
+  // {
+  //   user: {
+  //     email: "contact@lebonforum.fr",
+  //     userId: "668354c66b0b7a9351b72baf",
+  //     userName: "admin"
+  //   }
+  // };
+  null;

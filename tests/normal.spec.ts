@@ -40,7 +40,7 @@ test.describe("org forms", () => {
     const locator = page
       .locator("p")
       .filter({ hasText: /Galerie/ })
-      .nth(1);
+      .nth(0);
     if (locator) {
       await locator.click();
       await page.getByText(/Ajouter des photos/).click();
