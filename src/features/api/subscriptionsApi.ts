@@ -7,9 +7,9 @@ export const subscriptionApi = api.injectEndpoints({
   endpoints: (build) => ({
     addSubscription: build.mutation<ISubscription, AddSubscriptionPayload>({
       query: (payload) => {
-        console.groupCollapsed("addSubscription");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addSubscription");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `subscriptions`,
@@ -43,12 +43,12 @@ export const subscriptionApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, subscriptionId, orgId, topicId }) => {
-        console.groupCollapsed("deleteSubscription");
-        console.log("subscriptionId", subscriptionId);
-        console.log("orgId", orgId);
-        console.log("topicId", topicId);
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("deleteSubscription");
+        //console.log("subscriptionId", subscriptionId);
+        //console.log("orgId", orgId);
+        //console.log("topicId", topicId);
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `subscription/${subscriptionId}`,
@@ -64,7 +64,7 @@ export const subscriptionApi = api.injectEndpoints({
         if (params.orgId) arr.push({ type: "Orgs", id: params.orgId });
 
         //const email = params.email;
-        //console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
+        ////console.log("🚀 ~ file: subscriptionsApi.ts:58 ~ email:", email);
         //if (email) return [{ type: "Subscriptions", email }];
         const id = params.subscriptionId || result?._id;
         if (id) arr.push({ type: "Subscriptions", id });
@@ -87,10 +87,10 @@ export const subscriptionApi = api.injectEndpoints({
       { email?: string; populate?: string }
     >({
       query: ({ email, populate }) => {
-        console.groupCollapsed("getSubscription");
-        console.log("email", typeof email, email);
-        console.log("populate", populate);
-        console.groupEnd();
+        //console.groupCollapsed("getSubscription");
+        //console.log("email", typeof email, email);
+        //console.log("populate", populate);
+        //console.groupEnd();
 
         if (!email) return "";
 

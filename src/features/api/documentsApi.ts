@@ -21,15 +21,18 @@ export const documentApi = api.injectEndpoints({
       { eventId: string } | { orgId: string } | { userId: string } | {}
     >({
       query: (query) => {
-        console.groupCollapsed("getDocuments");
-        if ("eventId" in query) console.log("eventId", query.eventId);
-        if ("orgId" in query) console.log("orgId", query.orgId);
-        if ("userId" in query) console.log("userId", query.userId);
-        console.groupEnd();
+        //console.groupCollapsed("getDocuments");
+        if ("eventId" in query)
+          if ("orgId" in query)
+            //console.log("eventId", query.eventId);
+            if ("userId" in query)
+              //console.log("orgId", query.orgId);
+              //console.log("userId", query.userId);
+              //console.groupEnd();
 
-        return {
-          url: `documents?${objectToQueryString(query)}`
-        };
+              return {
+                url: `documents?${objectToQueryString(query)}`
+              };
       }
     })
   }),

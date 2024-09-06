@@ -22,9 +22,9 @@ export const settingApi = createApi({
   endpoints: (build) => ({
     addSetting: build.mutation<ISetting, AddSettingPayload>({
       query: (payload) => {
-        console.groupCollapsed("addSetting");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addSetting");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `settings`,
@@ -48,8 +48,8 @@ export const settingApi = createApi({
           ? payload._id
           : undefined;
 
-        console.log("editSetting: settingId", id);
-        console.log("editSetting: payload", payload);
+        //console.log("editSetting: settingId", id);
+        //console.log("editSetting: payload", payload);
 
         return {
           url: `setting/${id}`,
@@ -62,9 +62,9 @@ export const settingApi = createApi({
     }),
     getSetting: build.query<ISetting, GetSettingParams>({
       query: ({ settingName, ...query }) => {
-        console.groupCollapsed("getSetting");
-        console.log("settingName", settingName);
-        console.groupEnd();
+        //console.groupCollapsed("getSetting");
+        //console.log("settingName", settingName);
+        //console.groupEnd();
 
         return {
           url: `setting/${settingName}?${objectToQueryString(query)}`
@@ -73,12 +73,12 @@ export const settingApi = createApi({
     }),
     getSettings: build.query<ISetting[], GetSettingsParams | void>({
       query: (query) => {
-        console.groupCollapsed("getSettings");
+        //console.groupCollapsed("getSettings");
         // if (query) {
-        //   console.log("createdBy", query.createdBy);
-        //   console.log("populate", query.populate);
+        //   //console.log("createdBy", query.createdBy);
+        //   //console.log("populate", query.populate);
         // }
-        console.groupEnd();
+        //console.groupEnd();
 
         return {
           url: `settings${query ? `?${objectToQueryString(query)}` : ""}`

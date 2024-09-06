@@ -43,7 +43,7 @@ export const topicApi = api.injectEndpoints({
       }
     >({
       query: ({ payload }) => {
-        console.log("addTopic: payload", payload);
+        //console.log("addTopic: payload", payload);
 
         return {
           url: `topics`,
@@ -75,10 +75,10 @@ export const topicApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, topicId }) => {
-        console.groupCollapsed("addTopicNotif");
-        console.log("addTopicNotif: topicId", topicId);
-        console.log("addTopicNotif: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addTopicNotif");
+        //console.log("addTopicNotif: topicId", topicId);
+        //console.log("addTopicNotif: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `topic/${topicId}`,
@@ -109,10 +109,10 @@ export const topicApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, topicId }) => {
-        console.groupCollapsed("editTopic");
-        console.log("editTopic: topicId", topicId);
-        console.log("editTopic: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("editTopic");
+        //console.log("editTopic: topicId", topicId);
+        //console.log("editTopic: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,
@@ -137,11 +137,11 @@ export const topicApi = api.injectEndpoints({
       { createdBy?: string; populate?: string } | void
     >({
       query: (query) => {
-        console.groupCollapsed("getTopics");
+        //console.groupCollapsed("getTopics");
         if (query) {
-          console.log("query", query);
+          //console.log("query", query);
         }
-        console.groupEnd();
+        //console.groupEnd();
 
         return {
           url: `topics${query ? `?${objectToQueryString(query)}` : ""}`

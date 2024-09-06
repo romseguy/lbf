@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='max_old_space_size=4096' next",
+    "dev": "(cd ../lbf-api && git com && yarn start) & yarn dev:server",
+    "dev:server": "NODE_OPTIONS='max_old_space_size=4096' next",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8000",
     "prebuild": "kill-port --port 8000 && node ./maintenance.js &",
     "build": "next build",
@@ -38,7 +39,7 @@
     "@magic-sdk/admin": "^1.4.1",
     "@nastyox/rando.js": "^2.0.5",
     "@react-icons/all-files": "^4.1.0",
-    "@reduxjs/toolkit": "1.9.5",
+    "@reduxjs/toolkit": "1.9.7",
     "@tinymce/tinymce-react": "^4.3.0",
     "@types/node": "^15.12.2",
     "abort-controller": "^3.0.0",

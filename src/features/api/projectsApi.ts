@@ -16,9 +16,9 @@ export const projectApi = api.injectEndpoints({
   endpoints: (build) => ({
     addProject: build.mutation<IProject, AddProjectPayload>({
       query: (payload) => {
-        console.groupCollapsed("addProject");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addProject");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `projects`,
@@ -46,10 +46,10 @@ export const projectApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, projectId }) => {
-        console.groupCollapsed("addProjectNotif");
-        console.log("addProjectNotif: projectId", projectId);
-        console.log("addProjectNotif: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addProjectNotif");
+        //console.log("addProjectNotif: projectId", projectId);
+        //console.log("addProjectNotif: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `project/${projectId}`,
@@ -83,8 +83,8 @@ export const projectApi = api.injectEndpoints({
           ? payload._id
           : undefined;
 
-        console.log("editProject: projectId", id);
-        console.log("editProject: payload", payload);
+        //console.log("editProject: projectId", id);
+        //console.log("editProject: payload", payload);
 
         return {
           url: `project/${id}`,

@@ -50,13 +50,13 @@ export const userApi = api.injectEndpoints({
     getUser: build.query<IUser, GetUserParams>({
       query: ({ slug, ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;
-        console.groupCollapsed("getUser");
-        console.log("slug", slug);
+        //console.groupCollapsed("getUser");
+        //console.log("slug", slug);
         if (hasQueryParams) {
-          console.log("populate", query.populate);
-          console.log("select", query.select);
+          //console.log("populate", query.populate);
+          //console.log("select", query.select);
         }
-        console.groupEnd();
+        //console.groupEnd();
 
         return {
           url: `user/${slug}${
@@ -72,9 +72,9 @@ export const userApi = api.injectEndpoints({
       query: ({ ...query }) => {
         const hasQueryParams = Object.keys(query).length > 0;
         if (hasQueryParams) {
-          console.groupCollapsed("getUsers");
-          console.log("query", query);
-          console.groupEnd();
+          //console.groupCollapsed("getUsers");
+          //console.log("query", query);
+          //console.groupEnd();
         }
         return {
           url: `users${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`
@@ -97,9 +97,9 @@ export const userApi = api.injectEndpoints({
       { payload?: PostResetPasswordMailPayload; email: string }
     >({
       query: ({ payload = {}, email }) => {
-        console.groupCollapsed("postResetPasswordMail");
-        console.log("email", email);
-        console.groupEnd();
+        //console.groupCollapsed("postResetPasswordMail");
+        //console.log("email", email);
+        //console.groupEnd();
 
         return {
           url: `user/${email}`,

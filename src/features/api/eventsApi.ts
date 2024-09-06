@@ -22,9 +22,9 @@ export const eventApi = api.injectEndpoints({
   endpoints: (build) => ({
     addEvent: build.mutation<IEvent, AddEventPayload<Date>>({
       query: (payload) => {
-        console.groupCollapsed("addEvent");
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addEvent");
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `events`,
@@ -51,10 +51,10 @@ export const eventApi = api.injectEndpoints({
       }
     >({
       query: ({ payload, eventId }) => {
-        console.groupCollapsed("addEventNotif");
-        console.log("addEventNotif: eventId", eventId);
-        console.log("addEventNotif: payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("addEventNotif");
+        //console.log("addEventNotif: eventId", eventId);
+        //console.log("addEventNotif: payload", payload);
+        //console.groupEnd();
 
         return {
           url: `event/${eventId}`,
@@ -93,10 +93,10 @@ export const eventApi = api.injectEndpoints({
           ? payload._id
           : undefined;
 
-        console.groupCollapsed("editEvent");
-        console.log("eventId", id);
-        console.log("payload", payload);
-        console.groupEnd();
+        //console.groupCollapsed("editEvent");
+        //console.log("eventId", id);
+        //console.log("payload", payload);
+        //console.groupEnd();
 
         return {
           url: `event/${id}`,
@@ -117,11 +117,11 @@ export const eventApi = api.injectEndpoints({
     }),
     getEvent: build.query<IEvent, GetEventParams>({
       query: ({ eventUrl, email, populate }) => {
-        console.groupCollapsed("getEvent");
-        console.log("eventUrl", eventUrl);
-        console.log("email", email);
-        console.log("populate", populate);
-        console.groupEnd();
+        //console.groupCollapsed("getEvent");
+        //console.log("eventUrl", eventUrl);
+        //console.log("email", email);
+        //console.log("populate", populate);
+        //console.groupEnd();
 
         return {
           url: email
@@ -138,9 +138,9 @@ export const eventApi = api.injectEndpoints({
     getEvents: build.query<IEvent[], { createdBy: string } | void>({
       query: (query) => {
         if (query) {
-          console.groupCollapsed("getEvents");
-          console.log("createdBy", query.createdBy);
-          console.groupEnd();
+          //console.groupCollapsed("getEvents");
+          //console.log("createdBy", query.createdBy);
+          //console.groupEnd();
         }
 
         return {
