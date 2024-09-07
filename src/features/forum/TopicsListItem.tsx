@@ -20,7 +20,8 @@ import {
   Flex,
   Spinner,
   Text,
-  useToast
+  useToast,
+  HStack
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -377,46 +378,48 @@ export const TopicsListItem = ({
                 </Td>
 
                 <Td>
-                  {topic.topicCategory && (
-                    <Tooltip
-                      label={
-                        !hasCategorySelected
-                          ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                          : ""
-                      }
-                      hasArrow
-                    >
-                      <Button
-                        //alignSelf="flex-start"
-                        colorScheme={hasCategorySelected ? "pink" : "teal"}
-                        fontSize="small"
-                        fontWeight="normal"
-                        height="auto"
-                        mr={1}
-                        py={1}
-                        px={0}
-                        onClick={(e) => {
-                          e.stopPropagation();
-
-                          if (hasCategorySelected)
-                            setSelectedCategories(
-                              selectedCategories!.filter(
-                                (category) => category !== topic.topicCategory
-                              )
-                            );
-                          else if (topic.topicCategory)
-                            setSelectedCategories([
-                              ...(selectedCategories || []),
-                              topic.topicCategory
-                            ]);
-                        }}
+                  <HStack>
+                    {topic.topicCategory && (
+                      <Tooltip
+                        label={
+                          !hasCategorySelected
+                            ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
+                            : ""
+                        }
+                        hasArrow
                       >
-                        {topicCategoryLabel}
-                      </Button>
-                    </Tooltip>
-                  )}
+                        <Button
+                          //alignSelf="flex-start"
+                          colorScheme={hasCategorySelected ? "pink" : "teal"}
+                          size="sm"
+                          fontSize="small"
+                          fontWeight="normal"
+                          height="auto"
+                          py={1}
+                          px={1}
+                          onClick={(e) => {
+                            e.stopPropagation();
 
-                  <Text fontWeight="bold">{topic.topicName}</Text>
+                            if (hasCategorySelected)
+                              setSelectedCategories(
+                                selectedCategories!.filter(
+                                  (category) => category !== topic.topicCategory
+                                )
+                              );
+                            else if (topic.topicCategory)
+                              setSelectedCategories([
+                                ...(selectedCategories || []),
+                                topic.topicCategory
+                              ]);
+                          }}
+                        >
+                          {topicCategoryLabel}
+                        </Button>
+                      </Tooltip>
+                    )}
+
+                    <Text fontWeight="bold">{topic.topicName}</Text>
+                  </HStack>
                 </Td>
               </Tr>
             </Tbody>

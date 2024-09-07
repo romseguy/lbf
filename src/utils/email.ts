@@ -244,6 +244,7 @@ export const createTopicEmailNotif = ({
   topic: ITopic;
   subscriptionId: string;
 }) => {
+  console.log("🚀 ~ topic:", topic);
   const entityName = event ? event.eventName : org?.orgName;
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";

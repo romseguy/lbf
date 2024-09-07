@@ -40,10 +40,10 @@ export const sendMail = async (mail: Mail, session?: Session | null) => {
       }
     };
 
-    if (getEnv() === "production") {
-      const transport = nodemailer.createTransport(server);
-      await transport.sendMail(mail);
-    }
+    //if (getEnv() === "production") {
+    const transport = nodemailer.createTransport(server);
+    await transport.sendMail(mail);
+    //}
 
     console.log(`sent notif to ${mail.to}`, mail);
 

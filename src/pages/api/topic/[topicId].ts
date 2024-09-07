@@ -41,7 +41,10 @@ handler.post<
       body: AddTopicNotifPayload;
     } = req;
 
-    const topic = await models.Topic.findOne({ _id: topicId });
+    const topic = await models.Topic.findOne(
+      { _id: topicId },
+      "+topicMessages"
+    );
 
     if (!topic) {
       return res
@@ -53,7 +56,10 @@ handler.post<
         );
     }
 
-    if (!equals(topic.createdBy, session.user.userId) && !session.user.isAdmin)
+    if (
+      !equals(topic.createdBy, session.user.userId) &&
+      !session.user.isAdmin
+    ) {
       return res
         .status(403)
         .json(
@@ -63,6 +69,7 @@ handler.post<
             )
           )
         );
+    }
 
     let notifications: ITopicNotification[] = [];
 
