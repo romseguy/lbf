@@ -158,23 +158,27 @@ export const EventPageTabs = ({
               tab={tab}
               tabIndex={tabIndex}
               css={css`
-                ${isCurrent &&
-                `
+                ${
+                  isCurrent &&
+                  `
                 border: 5px solid ${
                   isDark ? theme.colors.teal[200] : theme.colors.teal[400]
                 };
                 backgroundcolor: white;
-                  `}
+                  `
+                }
                 path {
-                  fill: ${isDark && isCurrent
-                    ? theme.colors.red[400]
-                    : isDark
-                    ? "white"
-                    : !isDark && isCurrent
-                    ? theme.colors.red[200]
-                    : !isDark //&& url !== "/"
-                    ? "black"
-                    : "none"};
+                  fill: ${
+                    isDark && isCurrent
+                      ? theme.colors.red[400]
+                      : isDark
+                        ? "white"
+                        : !isDark && isCurrent
+                          ? theme.colors.red[200]
+                          : !isDark //&& url !== "/"
+                            ? "black"
+                            : "none"
+                  };
                 }
               `}
               {...(isMobile ? {} : {})}

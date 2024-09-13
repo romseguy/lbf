@@ -257,8 +257,8 @@ export const OrgConfigListsPanel = ({
                           {listName === "Abonnés"
                             ? "abonné"
                             : listName === "Participants"
-                            ? "participant"
-                            : "personne"}
+                              ? "participant"
+                              : "personne"}
                           {subscriptions &&
                             (!subscriptions.length ||
                               subscriptions.length > 1) &&

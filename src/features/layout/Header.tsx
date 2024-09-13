@@ -86,38 +86,44 @@ export const Header = ({
         display: flex;
         padding: 12px;
 
-        ${isMobile
-          ? `
+        ${
+          isMobile
+            ? `
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-end;
         `
-          : `
+            : `
         flex-direction: row;
-        `}
-
-        ${banner &&
         `
+        }
+
+        ${
+          banner &&
+          `
           background-image: url("${banner.base64 || banner.url}");
-          /*background-size: 100% 100%;
-          background-repeat: no-repeat;*/
           background-size: cover;
           background-position: center;
           cursor: pointer;
           height: ${banner.headerHeight}px;
-          ${logo ? `` : ``}
-        `}
 
-        ${!banner &&
+          /*background-size: 100% 100%;
+          background-repeat: no-repeat;*/
+
+          ${logo ? `` : ``}
         `
-          /*background-color: ${
-            isDark ? theme.colors.gray[700] : "lightblue"
-          };*/
+        }
+
+        ${
+          !banner &&
+          `
+          /*background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};*/
           background-color: ${
             isDark ? theme.colors.gray[700] : theme.colors.blackAlpha[50]
           };
           ${logo ? `` : ``}
-        `}
+        `
+        }
       `}
       onClick={(e) => {
         e.stopPropagation();
@@ -150,7 +156,7 @@ export const Header = ({
           alignSelf={isMobile ? undefined : "flex-end"}
           entity={entity}
           pageHeader={pageHeader}
-          pageTitle={pageTitle || defaultTitle}
+          pageTitle={pageTitle || process.env.NEXT_PUBLIC_TITLE}
         />
       )} */}
 

@@ -171,10 +171,10 @@ export const SubscribePopover = ({
               {event
                 ? "à l'événement"
                 : org && org.orgUrl === "forum"
-                ? "au forum"
-                : org
-                ? orgTypeFull2(org.orgType)
-                : ""}
+                  ? "au forum"
+                  : org
+                    ? orgTypeFull2(org.orgType)
+                    : ""}
             </Button>
           )}
         </PopoverTrigger>

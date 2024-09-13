@@ -63,8 +63,8 @@ export const EntityModal = ({
                   event
                     ? CalendarIcon
                     : org?.orgType === EOrgType.NETWORK
-                    ? GrWorkshop
-                    : FaTree
+                      ? GrWorkshop
+                      : FaTree
                 }
                 mr={1}
               />

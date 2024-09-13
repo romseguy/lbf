@@ -78,10 +78,10 @@ export const MapModal = withGoogleApi({
               !canDisplay
                 ? 0
                 : !isOffline && size.defaultSize.enabled
-                ? "calc(100vh - 180px)"
-                : size.fullSize.enabled
-                ? "100vh"
-                : undefined
+                  ? "calc(100vh - 180px)"
+                  : size.fullSize.enabled
+                    ? "100vh"
+                    : undefined
             }
             width={canDisplay ? undefined : "auto"}
           >

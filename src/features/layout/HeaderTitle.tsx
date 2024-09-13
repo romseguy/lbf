@@ -63,8 +63,8 @@ export const HeaderTitle = ({
       entityUrl === "forum"
         ? ChatIcon
         : entity.orgType === EOrgType.NETWORK
-        ? GrWorkshop
-        : FaTree;
+          ? GrWorkshop
+          : FaTree;
     iconColor =
       entity.orgType === EOrgType.NETWORK
         ? entityUrl === "forum"
@@ -131,8 +131,8 @@ export const HeaderTitle = ({
             isE
               ? "de l'événement"
               : isO
-              ? orgTypeFull(entity.orgType)
-              : "du soleil"
+                ? orgTypeFull(entity.orgType)
+                : "du soleil"
           }`}
           ml={2}
           tooltipProps={{ placement: "right" }}
@@ -152,8 +152,8 @@ export const HeaderTitle = ({
             ? "black"
             : "white"
           : isDark
-          ? "whiteAlpha.400"
-          : "blackAlpha.100"
+            ? "whiteAlpha.400"
+            : "blackAlpha.100"
       }
       borderRadius="lg"
       pb={4}

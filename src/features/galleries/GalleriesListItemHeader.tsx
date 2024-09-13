@@ -134,8 +134,8 @@ export const GalleriesListItemHeader = ({
             ? "gray.600"
             : "orange.200"
           : isDark
-          ? "gray.500"
-          : "orange.100"
+            ? "gray.500"
+            : "orange.100"
       }
       cursor="pointer"
       py={1}

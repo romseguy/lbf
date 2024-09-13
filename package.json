@@ -10,8 +10,8 @@
     }
   },
   "scripts": {
-    "dev": "(cd ../lbf-api && yarn dev) & yarn dev:server",
-    "dev:server": "NODE_OPTIONS='max_old_space_size=4096' next",
+    "dev": "(cd ../ateliers-api && yarn dev) & yarn dev:server",
+    "dev:server": "next",
     "test": "playwright test",
     "test:server": "next build && next start -p 3000",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8001",
@@ -104,6 +104,7 @@
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
     "@next/bundle-analyzer": "^12.0.3",
     "@playwright/test": "^1.45.3",
     "@types/babel-plugin-macros": "~3.1.3",

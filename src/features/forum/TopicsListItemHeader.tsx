@@ -58,8 +58,8 @@ export const TopicsListItemHeader = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-    ? entity.orgTopicCategories
-    : [];
+      ? entity.orgTopicCategories
+      : [];
   //#endregion
 
   //#region topic

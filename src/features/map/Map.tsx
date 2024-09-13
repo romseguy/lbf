@@ -119,8 +119,8 @@ export const Map = withGoogleApi({
             id: !orgType
               ? "event"
               : orgType === EOrgType.NETWORK
-              ? "planet"
-              : "trees",
+                ? "planet"
+                : "trees",
             fill: "green",
             height,
             width

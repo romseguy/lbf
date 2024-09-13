@@ -194,9 +194,9 @@ export const DocumentForm = ({
               css={css`
                 th,
                 td {
-                  border-color: ${isDark
-                    ? theme.colors.gray[500]
-                    : theme.colors.gray[200]};
+                  border-color: ${
+                    isDark ? theme.colors.gray[500] : theme.colors.gray[200]
+                  };
                 }
               `}
             />

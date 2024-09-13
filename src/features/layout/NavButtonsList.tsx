@@ -1,10 +1,6 @@
-import {
-  Button,
-  Flex,
-  useColorMode
-} from "@chakra-ui/react";
+import { Button, Flex, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, {  } from "react";
+import React, {} from "react";
 import { FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { css } from "twin.macro";

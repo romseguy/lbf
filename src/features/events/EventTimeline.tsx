@@ -66,8 +66,8 @@ export const EventTimeline = ({
               endTime: endTime
                 ? parseISO(endTime)
                 : eventMaxDate
-                ? setDay(eventMaxDate, dayNumber + 1)
-                : undefined
+                  ? setDay(eventMaxDate, dayNumber + 1)
+                  : undefined
             }
           };
         }
@@ -87,14 +87,14 @@ export const EventTimeline = ({
             {event.repeat === 99
               ? format(day.startDate, "cccc", { locale: fr })
               : Array.isArray(day.monthRepeat) && day.monthRepeat.length > 0
-              ? day.monthRepeat.map((monthRepeatOption) => (
-                  <div key={`monthRepeat-${monthRepeatOption}`}>
-                    Le {monthRepeatOptions[monthRepeatOption]}{" "}
-                    {format(day.startDate, "cccc", { locale: fr })} de chaque
-                    mois
-                  </div>
-                ))
-              : format(day.startDate, "cccc d MMMM", { locale: fr })}
+                ? day.monthRepeat.map((monthRepeatOption) => (
+                    <div key={`monthRepeat-${monthRepeatOption}`}>
+                      Le {monthRepeatOptions[monthRepeatOption]}{" "}
+                      {format(day.startDate, "cccc", { locale: fr })} de chaque
+                      mois
+                    </div>
+                  ))
+                : format(day.startDate, "cccc d MMMM", { locale: fr })}
           </Box>
 
           <Box display="flex" alignItems="center" ml={3} fontWeight="bold">

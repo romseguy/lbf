@@ -74,8 +74,8 @@ export const eventApi = api.injectEndpoints({
         const id = eventId
           ? eventId
           : "_id" in payload
-          ? payload._id
-          : undefined;
+            ? payload._id
+            : undefined;
 
         //console.groupCollapsed("editEvent");
         //console.log("eventId", id);
@@ -111,8 +111,8 @@ export const eventApi = api.injectEndpoints({
           url: email
             ? `event/${eventUrl}/${email}`
             : populate
-            ? `event/${eventUrl}?populate=${populate}`
-            : `event/${eventUrl}`
+              ? `event/${eventUrl}?populate=${populate}`
+              : `event/${eventUrl}`
         };
       },
       providesTags: (result, error, params) => [

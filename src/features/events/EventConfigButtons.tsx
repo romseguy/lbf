@@ -75,52 +75,54 @@ export const EventConfigButtons = ({
         </Flex>
       )}
 
-      <Flex mb={isMobile ? 3 : 0}>
-        <DeleteButton
-          isDisabled={isDisabled}
-          isLoading={deleteQuery.isLoading}
-          label="Supprimer"
-          header={
-            <>
-              Vous êtes sur le point de supprimer l'événement
-              <Text display="inline" color="red" fontWeight="bold">
-                {` ${event.eventName}`}
-              </Text>
-            </>
-          }
-          body={
-            <>
-              Saisissez le nom de l'événement pour confimer sa suppression :
-              <Input
-                autoComplete="off"
-                onChange={(e) =>
-                  setIsDisabled(e.target.value !== event.eventName)
-                }
-              />
-            </>
-          }
-          onClick={async () => {
-            try {
-              const deletedEvent = await deleteEvent({
-                eventId: event._id
-              }).unwrap();
+      {!isConfig && !isEdit && (
+        <Flex mb={isMobile ? 3 : 0}>
+          <DeleteButton
+            isDisabled={isDisabled}
+            isLoading={deleteQuery.isLoading}
+            label="Supprimer"
+            header={
+              <>
+                Vous êtes sur le point de supprimer l'événement
+                <Text display="inline" color="red" fontWeight="bold">
+                  {` ${event.eventName}`}
+                </Text>
+              </>
+            }
+            body={
+              <>
+                Saisissez le nom de l'événement pour confimer sa suppression :
+                <Input
+                  autoComplete="off"
+                  onChange={(e) =>
+                    setIsDisabled(e.target.value !== event.eventName)
+                  }
+                />
+              </>
+            }
+            onClick={async () => {
+              try {
+                const deletedEvent = await deleteEvent({
+                  eventId: event._id
+                }).unwrap();
 
-              if (deletedEvent) {
-                await router.push(`/`);
+                if (deletedEvent) {
+                  await router.push(`/`);
+                  toast({
+                    title: `L'événement ${deletedEvent.eventName} a été supprimé !`,
+                    status: "success"
+                  });
+                }
+              } catch (error: any) {
                 toast({
-                  title: `L'événement ${deletedEvent.eventName} a été supprimé !`,
-                  status: "success"
+                  title: error.data ? error.data.message : error.message,
+                  status: "error"
                 });
               }
-            } catch (error: any) {
-              toast({
-                title: error.data ? error.data.message : error.message,
-                status: "error"
-              });
-            }
-          }}
-        />
-      </Flex>
+            }}
+          />
+        </Flex>
+      )}
     </Flex>
   );
 };

@@ -1,12 +1,9 @@
 // https://raw.githubusercontent.com/chakra-ui/chakra-ui/develop/examples/nextjs-typescript/components/NextChakraLink.tsx
+import NextLink, { LinkProps as NextLinkProps } from "next/link";
 import {
   Link as ChakraLink,
   LinkProps as ChakraLinkProps
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import NextLink, { LinkProps as NextLinkProps } from "next/link";
-import { css } from "twin.macro";
 
 // import { SerializedStyles } from "@emotion/react";
 // declare type Url = string;
@@ -27,8 +24,40 @@ import { css } from "twin.macro";
 // };
 
 export type LinkProps = Partial<NextLinkProps> &
-  ChakraLinkProps & { variant?: "underline" };
+  ChakraLinkProps & { variant?: "underline" | "no-underline" };
 
+export const Link = ({
+  children,
+  // NextLink
+  href,
+  as,
+  replace,
+  scroll,
+  shallow,
+  prefetch,
+  // Chakra
+  onClick,
+  ...props
+}: LinkProps) =>
+  href ? (
+    <NextLink
+      passHref
+      href={href}
+      as={as}
+      replace={replace}
+      scroll={scroll}
+      shallow={shallow}
+      prefetch={prefetch}
+    >
+      {children}
+    </NextLink>
+  ) : onClick ? (
+    <ChakraLink {...props} onClick={onClick}>
+      {children}
+    </ChakraLink>
+  ) : null;
+
+/*
 export const Link = ({
   // NextLink
   href,
@@ -75,9 +104,4 @@ export const Link = ({
     </NextLink>
   );
 };
-
-{
-  /*...(variant === "underline"
-        ? { style: { textDecoration: "underline" } }
-        : {})*/
-}
+*/

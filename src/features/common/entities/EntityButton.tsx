@@ -52,21 +52,23 @@ export const EntityButton = ({
   const entityName = topic
     ? topic.topicName
     : org
-    ? `${
-        org.orgType === EOrgType.TREETOOLS ? OrgTypes[org.orgType] + " : " : ""
-      }${org.orgName}`
-    : event
-    ? event.eventName
-    : user
-    ? user.userName
-    : "";
+      ? `${
+          org.orgType === EOrgType.TREETOOLS
+            ? OrgTypes[org.orgType] + " : "
+            : ""
+        }${org.orgName}`
+      : event
+        ? event.eventName
+        : user
+          ? user.userName
+          : "";
   let entityUrl = org
     ? org.orgUrl
     : event
-    ? event.eventUrl
-    : typeof user === "object"
-    ? user.userName
-    : "";
+      ? event.eventUrl
+      : typeof user === "object"
+        ? user.userName
+        : "";
   if (topic) {
     entityUrl = `${
       entityUrl || getRefId(topic.org) || getRefId(topic.event)
@@ -77,16 +79,16 @@ export const EntityButton = ({
     ? topic
       ? "Aller à la discussion"
       : org
-      ? org.orgUrl === "forum"
-        ? "Aller au forum"
-        : org.orgType
-        ? `Visiter ${orgTypeFull5(org.orgType)}`
-        : ""
-      : event
-      ? "Aller à la page de l'événement"
-      : user
-      ? "Visiter la page de l'utilisateur"
-      : ""
+        ? org.orgUrl === "forum"
+          ? "Aller au forum"
+          : org.orgType
+            ? `Visiter ${orgTypeFull5(org.orgType)}`
+            : ""
+        : event
+          ? "Aller à la page de l'événement"
+          : user
+            ? "Visiter la page de l'utilisateur"
+            : ""
     : "";
 
   if (!entityUrl && !onClick) return null;
@@ -103,27 +105,27 @@ export const EntityButton = ({
                 topic
                   ? ChatIcon
                   : org
-                  ? org.orgUrl === "forum"
-                    ? ChatIcon
-                    : org.orgType === EOrgType.NETWORK
-                    ? GrWorkshop
-                    : FaTree
-                  : event
-                  ? CalendarIcon
-                  : user
-                  ? IoIosPerson
-                  : ChatIcon
+                    ? org.orgUrl === "forum"
+                      ? ChatIcon
+                      : org.orgType === EOrgType.NETWORK
+                        ? GrWorkshop
+                        : FaTree
+                    : event
+                      ? CalendarIcon
+                      : user
+                        ? IoIosPerson
+                        : ChatIcon
               }
               color={
                 topic
                   ? "blue.500"
                   : org
-                  ? org.orgType === EOrgType.NETWORK
-                    ? "blue.500"
-                    : "green.500"
-                  : event
-                  ? "green.500"
-                  : "blue.500"
+                    ? org.orgType === EOrgType.NETWORK
+                      ? "blue.500"
+                      : "green.500"
+                    : event
+                      ? "green.500"
+                      : "blue.500"
               }
               css={css`
                 path {

@@ -89,8 +89,8 @@ export const EventsListCategories = ({
               ? "pink.200"
               : "pink.500"
             : isDark
-            ? "#81E6D9"
-            : "#319795"
+              ? "#81E6D9"
+              : "#319795"
         }
         color={isDark ? "black" : "white"}
         cursor="pointer"
@@ -103,8 +103,8 @@ export const EventsListCategories = ({
               ? "pink.300"
               : "pink.600"
             : isDark
-            ? "#4FD1C5"
-            : "#2C7A7B"
+              ? "#4FD1C5"
+              : "#2C7A7B"
         }}
         onClick={() => {
           setSelectedCategories(

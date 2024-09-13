@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, HStack, Icon, IconButton } from "@chakra-ui/react";
+import { Flex, Heading, HStack, Icon, IconButton } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { IoMdRefresh } from "react-icons/io";
@@ -115,25 +115,37 @@ export const OrgPage = ({
       tabItem={tabItem}
       isMobile={isMobile}
     >
+      {!isConfig && !isEdit && (
+        <>
+          <Header entity={org} borderBottomRadius="none" />
+          {tabs}
+        </>
+      )}
+
       {isCreator && (
-        <Box m={3} mb={0} {...(isMobile ? {} : {})}>
+        <>
           <Flex
-            flexDir={isMobile ? "column" : "row"}
-            alignItems={isMobile ? "center" : undefined}
+            justifyContent="center"
+            my={5}
+            {...(isMobile
+              ? { flexDirection: "column", alignItems: "center" }
+              : {})}
           >
-            <HStack mb={isMobile ? 3 : 0}>
-              <IconButton
-                aria-label="Actualiser"
-                colorScheme="green"
-                variant="outline"
-                icon={<Icon as={IoMdRefresh} boxSize={7} />}
-                mr={1}
-                onClick={() => {
-                  orgQuery.refetch();
-                }}
-              />
-              <Heading>Admin :</Heading>
-            </HStack>
+            {!isConfig && !isEdit && (
+              <HStack mb={isMobile ? 3 : 0}>
+                <IconButton
+                  aria-label="Actualiser"
+                  colorScheme="green"
+                  variant="outline"
+                  icon={<Icon as={IoMdRefresh} boxSize={7} />}
+                  mr={1}
+                  onClick={() => {
+                    orgQuery.refetch();
+                  }}
+                />
+                <Heading>Admin :</Heading>
+              </HStack>
+            )}
 
             <OrgConfigButtons
               orgQuery={orgQuery}
@@ -165,13 +177,6 @@ export const OrgPage = ({
               toggleVisibility={toggleVisibility}
             />
           )}
-        </Box>
-      )}
-
-      {!isConfig && !isEdit && (
-        <>
-          <Header entity={org} borderBottomRadius="none" />
-          {tabs}
         </>
       )}
     </Layout>

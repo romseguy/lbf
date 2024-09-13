@@ -90,8 +90,8 @@ export const getEvents = ({
             const eventMaxDate = otherDay.endTime
               ? parseISO(otherDay.endTime)
               : end
-              ? setDay(end, otherDay.dayNumber + 1)
-              : undefined;
+                ? setDay(end, otherDay.dayNumber + 1)
+                : undefined;
 
             if (
               Array.isArray(otherDay.monthRepeat) &&
@@ -292,8 +292,8 @@ export const getEvents = ({
                 const end = otherDay.endTime
                   ? addWeeks(parseISO(otherDay.endTime), i)
                   : eventMaxDate
-                  ? setDay(eventMaxDate, otherDay.dayNumber + 1)
-                  : undefined;
+                    ? setDay(eventMaxDate, otherDay.dayNumber + 1)
+                    : undefined;
 
                 if (isBefore(today, eventMinDate)) {
                   // console.log(

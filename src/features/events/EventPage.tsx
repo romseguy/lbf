@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { Layout } from "features/layout";
+import { Header, Layout } from "features/layout";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { getEntitySubscription, ISubscription } from "models/Subscription";
@@ -20,8 +20,6 @@ import { EventPageTabs } from "./EventPageTabs";
 import { useSession } from "hooks/useSession";
 import { EventConfigButtons } from "./EventConfigButtons";
 import { IoMdRefresh } from "react-icons/io";
-
-//let isFirstLoad = true;
 
 export const EventPage = ({
   eventQuery,
@@ -130,25 +128,46 @@ export const EventPage = ({
 
   return (
     <Layout entity={event} isMobile={isMobile}>
+      {!isConfig && !isEdit && (
+        <>
+          <Header entity={event} borderBottomRadius="none" />
+          <EventPageTabs
+            currentItemName={tabItem}
+            currentTabLabel={tab}
+            eventQuery={eventQuery}
+            isCreator={isCreator}
+            isFollowed={isFollowed}
+            setIsConfig={setIsConfig}
+            setIsEdit={setIsEdit}
+            subQuery={subQuery}
+          />
+        </>
+      )}
+
       {isCreator && (
-        <Box m={3} mb={0} {...(isMobile ? {} : {})}>
+        <>
           <Flex
-            flexDir={isMobile ? "column" : "row"}
-            alignItems={isMobile ? "center" : undefined}
+            justifyContent="center"
+            my={5}
+            {...(isMobile
+              ? { flexDirection: "column", alignItems: "center" }
+              : {})}
           >
-            <HStack mb={isMobile ? 3 : 0}>
-              <IconButton
-                aria-label="Actualiser"
-                colorScheme="green"
-                variant="outline"
-                icon={<Icon as={IoMdRefresh} boxSize={7} />}
-                mr={1}
-                onClick={() => {
-                  eventQuery.refetch();
-                }}
-              />
-              <Heading>Admin :</Heading>
-            </HStack>
+            {!isConfig && !isEdit && (
+              <HStack mb={isMobile ? 3 : 0}>
+                <IconButton
+                  aria-label="Actualiser"
+                  colorScheme="green"
+                  variant="outline"
+                  icon={<Icon as={IoMdRefresh} boxSize={7} />}
+                  mr={1}
+                  onClick={() => {
+                    eventQuery.refetch();
+                  }}
+                />
+                <Heading>Admin :</Heading>
+              </HStack>
+            )}
 
             <EventConfigButtons
               eventQuery={eventQuery}
@@ -177,20 +196,7 @@ export const EventPage = ({
               toggleVisibility={toggleVisibility}
             />
           )}
-        </Box>
-      )}
-
-      {!isConfig && !isEdit && (
-        <EventPageTabs
-          currentItemName={tabItem}
-          currentTabLabel={tab}
-          eventQuery={eventQuery}
-          isCreator={isCreator}
-          isFollowed={isFollowed}
-          setIsConfig={setIsConfig}
-          setIsEdit={setIsEdit}
-          subQuery={subQuery}
-        />
+        </>
       )}
     </Layout>
   );
