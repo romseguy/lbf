@@ -39,8 +39,8 @@ export const TopicsListItemVisibility = ({
   const suffix = isE
     ? "de " + entity.eventName
     : isO
-    ? `${orgTypeFull(entity.orgType)} "${entity.orgName}"`
-    : "";
+      ? `${orgTypeFull(entity.orgType)} "${entity.orgName}"`
+      : "";
 
   if (Array.isArray(customLists) && customLists.length > 0) {
     icons = [

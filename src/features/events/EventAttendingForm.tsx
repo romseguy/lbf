@@ -42,8 +42,8 @@ export const EventAttendingForm = ({
   const status = isAttending({ email, event })
     ? "success"
     : isNotAttending({ email, event })
-    ? "error"
-    : "info";
+      ? "error"
+      : "info";
 
   const attend = async () => {
     let promptedEmail: string | null = null;

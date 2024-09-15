@@ -28,10 +28,10 @@ export const EntityNotified = ({ entity }: { entity?: IEntity }) => {
   const notifications = isE
     ? entity.eventNotifications
     : isP
-    ? entity.projectNotifications
-    : isT
-    ? entity.topicNotifications
-    : [];
+      ? entity.projectNotifications
+      : isT
+        ? entity.topicNotifications
+        : [];
 
   return (
     <>
@@ -55,8 +55,8 @@ export const EntityNotified = ({ entity }: { entity?: IEntity }) => {
                               status === EEventInviteStatus.PENDING
                                 ? "blue"
                                 : status === EEventInviteStatus.OK
-                                ? "green"
-                                : "red"
+                                  ? "green"
+                                  : "red"
                             }
                             textAlign="center"
                           >
@@ -75,52 +75,52 @@ export const EntityNotified = ({ entity }: { entity?: IEntity }) => {
                     )
                   )
                 : isP
-                ? (notifications as IProjectNotification[]).map(
-                    ({ _id, email, status, createdAt }) => (
-                      <Tr key={_id}>
-                        <Td pl={0}>{email}</Td>
-                        <Td>
-                          <Tag
-                            colorScheme={
-                              status === EProjectInviteStatus.PENDING
-                                ? "blue"
-                                : status === EProjectInviteStatus.OK
-                                ? "green"
-                                : "red"
-                            }
-                            textAlign="center"
-                          >
-                            {EventInviteStatuses[status]}
-                          </Tag>
-                        </Td>
-                        <Td>
-                          {createdAt && (
-                            <Tag colorScheme="green" textAlign="center">
-                              Invitation envoyée le{" "}
-                              {timeAgo(createdAt, true).fullDate}
+                  ? (notifications as IProjectNotification[]).map(
+                      ({ _id, email, status, createdAt }) => (
+                        <Tr key={_id}>
+                          <Td pl={0}>{email}</Td>
+                          <Td>
+                            <Tag
+                              colorScheme={
+                                status === EProjectInviteStatus.PENDING
+                                  ? "blue"
+                                  : status === EProjectInviteStatus.OK
+                                    ? "green"
+                                    : "red"
+                              }
+                              textAlign="center"
+                            >
+                              {EventInviteStatuses[status]}
                             </Tag>
-                          )}
-                        </Td>
-                      </Tr>
+                          </Td>
+                          <Td>
+                            {createdAt && (
+                              <Tag colorScheme="green" textAlign="center">
+                                Invitation envoyée le{" "}
+                                {timeAgo(createdAt, true).fullDate}
+                              </Tag>
+                            )}
+                          </Td>
+                        </Tr>
+                      )
                     )
-                  )
-                : isT
-                ? (notifications as ITopicNotification[]).map(
-                    ({ email: e, createdAt }) => (
-                      <Tr key={e}>
-                        <Td px={0}>{e}</Td>
-                        <Td px={0}>
-                          {createdAt && (
-                            <Tag colorScheme="green" textAlign="center">
-                              Invitation envoyée le{" "}
-                              {timeAgo(createdAt, true).fullDate}
-                            </Tag>
-                          )}
-                        </Td>
-                      </Tr>
-                    )
-                  )
-                : null}
+                  : isT
+                    ? (notifications as ITopicNotification[]).map(
+                        ({ email: e, createdAt }) => (
+                          <Tr key={e}>
+                            <Td px={0}>{e}</Td>
+                            <Td px={0}>
+                              {createdAt && (
+                                <Tag colorScheme="green" textAlign="center">
+                                  Invitation envoyée le{" "}
+                                  {timeAgo(createdAt, true).fullDate}
+                                </Tag>
+                              )}
+                            </Td>
+                          </Tr>
+                        )
+                      )
+                    : null}
             </Tbody>
           </Table>
         </Column>

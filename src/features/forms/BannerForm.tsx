@@ -52,8 +52,8 @@ export const BannerForm = ({
   const entityBanner = isE
     ? entity.eventBanner
     : isO
-    ? entity.orgBanner
-    : undefined;
+      ? entity.orgBanner
+      : undefined;
   const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
 
   //#region form
@@ -180,8 +180,8 @@ export const BannerForm = ({
                     isE
                       ? "de l'événement"
                       : isO
-                      ? orgTypeFull(entity.orgType)
-                      : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                   } a été supprimée !`,
                   status: "success"
                 });
@@ -193,8 +193,8 @@ export const BannerForm = ({
                     isE
                       ? "de l'événement"
                       : isO
-                      ? orgTypeFull(entity.orgType)
-                      : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                   } n'a pas pu être supprimée`,
                   status: "error"
                 });

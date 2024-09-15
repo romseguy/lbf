@@ -297,8 +297,8 @@ export const ProjectsList = ({
                             projectStatus === EProjectStatus.PENDING
                               ? "red"
                               : projectStatus === EProjectStatus.ONGOING
-                              ? "orange"
-                              : "green"
+                                ? "orange"
+                                : "green"
                           }
                           variant="solid"
                           mr={2}
@@ -533,9 +533,9 @@ export const ProjectsList = ({
                                               EProjectInviteStatus.PENDING
                                                 ? "blue"
                                                 : status ===
-                                                  EProjectInviteStatus.OK
-                                                ? "green"
-                                                : "red"
+                                                    EProjectInviteStatus.OK
+                                                  ? "green"
+                                                  : "red"
                                             }
                                           >
                                             {ProjectInviteStatuses[status]}

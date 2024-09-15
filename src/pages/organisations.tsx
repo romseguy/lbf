@@ -37,8 +37,8 @@ const OrganisationsPage = (props: PageProps) => {
             !orgsQuery.data || !orgsQuery.data.length
               ? "Aucune organisations"
               : isOffline
-              ? "Vous devez être connecté à internet pour afficher la carte des organisations"
-              : ""
+                ? "Vous devez être connecté à internet pour afficher la carte des organisations"
+                : ""
           }
           placement="right"
           hasArrow

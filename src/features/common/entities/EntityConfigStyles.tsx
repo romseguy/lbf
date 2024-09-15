@@ -104,8 +104,8 @@ export const EntityConfigStyles = ({
                 isE
                   ? entity.eventStyles.showTitle
                   : isO
-                  ? entity.orgStyles.showTitle
-                  : false
+                    ? entity.orgStyles.showTitle
+                    : false
               }
               isDisabled={isLoading}
               onChange={onShowTitleChange}

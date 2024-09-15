@@ -181,8 +181,8 @@ export const OrgNotifForm = ({
                           const notifications = isT
                             ? entity.topicNotifications
                             : isE
-                            ? entity.eventNotifications
-                            : (entity as IProject).projectNotifications;
+                              ? entity.eventNotifications
+                              : (entity as IProject).projectNotifications;
 
                           if (
                             notifications.find(({ email, phone }) =>

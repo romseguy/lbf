@@ -164,14 +164,14 @@ export const panLimit = (
       x.domain()[0] < panExtent.x[0]
         ? /*minX*/ Infinity
         : x.domain()[1] > panExtent.x[1]
-        ? /*maxX*/ -Infinity
-        : translate[0],
+          ? /*maxX*/ -Infinity
+          : translate[0],
     ty =
       y.domain()[0] < panExtent.y[0]
         ? /*minY*/ Infinity
         : y.domain()[1] > panExtent.y[1]
-        ? /*maxY*/ -Infinity
-        : translate[1];
+          ? /*maxY*/ -Infinity
+          : translate[1];
 
   return [tx, ty];
 };

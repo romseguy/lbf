@@ -56,7 +56,7 @@ export const NavButtonsList = ({
   const isEntityPage =
     Array.isArray(router.query.name) &&
     !unauthorizedEntityUrls.includes(router.query.name[0]);
-  const linkProps: Partial<LinkProps> = {
+  const linkProps = {
     "aria-hidden": true,
     alignSelf: "flex-start"
   };
@@ -212,11 +212,12 @@ export const NavButtonsList = ({
       {/* Événements */}
       {(isMobile || !isEntityPage) && (
         <Link
-          {...linkProps}
+          href="/evenements"
           onClick={() => {
-            router.push("/evenements", "/evenements", { shallow: true });
+            //router.push("/evenements", "/evenements", { shallow: true });
             onClose && onClose();
           }}
+          {...linkProps}
         >
           <Button
             leftIcon={<CalendarIcon />}

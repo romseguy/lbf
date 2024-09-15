@@ -62,6 +62,11 @@ const IndexPage = (props: PageProps) => {
     if (selectedUserId) {
       if (session && selectedUserId === session.user.userId)
         setPageTitle("Votre forum");
+      else
+        setPageTitle(
+          "Forum de " +
+            usersQuery.data?.find(({ _id }) => _id === selectedUserId)?.userName
+        );
     } else setPageTitle(sMap[selectedOrgVisibility]);
   }, [selectedOrgVisibility, selectedUserId]);
   const [orgsQueryParams, setOrgsQueryParams] = useState(

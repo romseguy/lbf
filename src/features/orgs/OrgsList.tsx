@@ -30,12 +30,12 @@ import { useSelector } from "react-redux";
 import { hasItems } from "utils/array";
 
 export enum EOrderKey {
-  "createdAt" = "createdAt",
-  "createdBy" = "createdBy",
-  "icon" = "icon",
-  "latestActivity" = "latestActivity",
-  "orgName" = "orgName",
-  "subscription" = "subscription"
+  createdAt = "createdAt",
+  createdBy = "createdBy",
+  icon = "icon",
+  latestActivity = "latestActivity",
+  orgName = "orgName",
+  subscription = "subscription"
 }
 
 export enum EOrgsListOrder {
@@ -98,8 +98,8 @@ export const OrgsList = ({
     const order = !selectedOrder
       ? "asc"
       : selectedOrder?.key === key && selectedOrder?.order === "asc"
-      ? "desc"
-      : "asc";
+        ? "desc"
+        : "asc";
     _setSelectedOrder({ key, order });
   };
 

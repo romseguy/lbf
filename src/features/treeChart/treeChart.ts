@@ -103,8 +103,8 @@ export const treeChart = (
   const layoutHeight = isFullscreen
     ? maxHeight
     : relativeHeight > window.innerHeight - my
-    ? maxHeight
-    : relativeHeight;
+      ? maxHeight
+      : relativeHeight;
   const layoutWidth = isFullscreen
     ? window.innerWidth - mx
     : window.innerWidth / 2;
@@ -303,8 +303,8 @@ export const treeChart = (
                   ? "white"
                   : "blue"
                 : isDark
-                ? "lightgreen"
-                : "green"
+                  ? "lightgreen"
+                  : "green"
           });
         });
       // .style({

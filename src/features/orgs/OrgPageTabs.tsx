@@ -95,8 +95,8 @@ export const OrgPageTabs = ({
       const url = !tab.label
         ? "/parametres"
         : tab.label === "Accueil"
-        ? "/"
-        : tab.url;
+          ? "/"
+          : tab.url;
       const dt = getDefaultTab({ url });
       const metadata: {} = {};
 
@@ -219,18 +219,20 @@ export const OrgPageTabs = ({
                     <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
                   )
                 : url === "/evenements"
-                ? org.orgEvents.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-                  )
-                : url === "/discussions" || url === "/d"
-                ? org.orgTopics.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
-                  )
-                : url === "/projets"
-                ? org.orgProjects.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
-                  )
-                : ""}
+                  ? org.orgEvents.length > 0 && (
+                      <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
+                    )
+                  : url === "/discussions" || url === "/d"
+                    ? org.orgTopics.length > 0 && (
+                        <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
+                      )
+                    : url === "/projets"
+                      ? org.orgProjects.length > 0 && (
+                          <Badge {...badgeProps}>
+                            {org.orgProjects.length}
+                          </Badge>
+                        )
+                      : ""}
             </EntityPageTab>
             // </Link>
           );

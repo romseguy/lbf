@@ -58,10 +58,10 @@ function renderChart({
     inputNodesCount > 115
       ? 9.5
       : inputNodesCount > 40
-      ? 7.5
-      : inputNodesCount > 15
-      ? 2.5
-      : 1.5;
+        ? 7.5
+        : inputNodesCount > 15
+          ? 2.5
+          : 1.5;
   // console.log(
   //   "🚀 ~ heightBetweenNodesCoeff ~ heightBetweenNodesCoeff:",
   //   heightBetweenNodesCoeff,

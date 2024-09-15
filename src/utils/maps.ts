@@ -172,8 +172,8 @@ export function latLng2World({ lat, lng }: LatLon) {
     y < -1 // .
       ? -1
       : y > 1
-      ? 1
-      : y;
+        ? 1
+        : y;
   return { x, y };
 }
 

@@ -142,7 +142,8 @@ const theme = extendTheme({
         outline: "none",
         color: "inherit",
         _hover: {
-          textDecoration: "none"
+          textDecoration: "underline",
+          fontWeight: "bold"
         },
         _focus: {
           boxShadow: "outline"

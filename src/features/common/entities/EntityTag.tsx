@@ -40,8 +40,8 @@ export const EntityTag = ({
   const label = props.label
     ? props.label
     : isE
-    ? entity.eventName
-    : (entity as IOrg).orgName;
+      ? entity.eventName
+      : (entity as IOrg).orgName;
 
   return (
     <Tag
@@ -51,8 +51,8 @@ export const EntityTag = ({
             ? "pink.200"
             : "pink.500"
           : isDark
-          ? "#81E6D9"
-          : "#319795"
+            ? "#81E6D9"
+            : "#319795"
       }
       color={isDark ? "black" : "white"}
       cursor="pointer"
@@ -65,8 +65,8 @@ export const EntityTag = ({
             ? "pink.300"
             : "pink.600"
           : isDark
-          ? "#4FD1C5"
-          : "#2C7A7B"
+            ? "#4FD1C5"
+            : "#2C7A7B"
       }}
       onClick={(e) => {
         onClick && onClick(e);

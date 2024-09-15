@@ -27,17 +27,16 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
       res.status(404).json(createEndpointError(error));
     }
   })
-  .post<NextApiRequest, NextApiResponse>(async function checkLoggedIn(
-    req,
-    res
-  ) {
-    try {
-      const session = await getSession({ req });
-      res.status(200).json(session);
-    } catch (error) {
-      console.error("POST /check error: ", error);
-      res.status(401).json(createEndpointError(error));
+  .post<NextApiRequest, NextApiResponse>(
+    async function checkLoggedIn(req, res) {
+      try {
+        const session = await getSession({ req });
+        res.status(200).json(session);
+      } catch (error) {
+        console.error("POST /check error: ", error);
+        res.status(401).json(createEndpointError(error));
+      }
     }
-  });
+  );
 
 export default handler;

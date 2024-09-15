@@ -22,17 +22,12 @@ export const documentApi = api.injectEndpoints({
     >({
       query: (query) => {
         //console.groupCollapsed("getDocuments");
-        if ("eventId" in query)
-          if ("orgId" in query)
-            //console.log("eventId", query.eventId);
-            if ("userId" in query)
-              //console.log("orgId", query.orgId);
-              //console.log("userId", query.userId);
-              //console.groupEnd();
+        console.log("🚀 ~ query:", query);
+        //console.groupEnd();
 
-              return {
-                url: `documents?${objectToQueryString(query)}`
-              };
+        return {
+          url: `documents?${objectToQueryString(query)}`
+        };
       }
     })
   }),

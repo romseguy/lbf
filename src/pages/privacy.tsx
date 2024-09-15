@@ -1,16 +1,33 @@
 import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Box, Flex, Heading, Text, Table, Tr, Td } from "@chakra-ui/react";
+import {
+  Badge,
+  Icon,
+  useColorMode,
+  Box,
+  Flex,
+  Heading,
+  Text,
+  Table,
+  Tr,
+  Td
+} from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { AppHeading, Column, ContactLink, Link } from "features/common";
-import { Layout } from "features/layout";
-import { PageProps } from "main";
-import { useScroll } from "hooks/useScroll";
-import { Badge, Icon, useColorMode } from "@chakra-ui/react";
 import { FaGift, FaQuoteLeft } from "react-icons/fa";
-import { Row, HostTag } from "features/common";
-import { useDiskUsage } from "hooks/useDiskUsage";
-import { bytesForHuman } from "utils/string";
+import { css } from "twin.macro";
+import {
+  Row,
+  HostTag,
+  AppHeading,
+  Column,
+  ContactLink,
+  Link
+} from "features/common";
+import { Layout } from "features/layout";
 import theme from "features/layout/theme";
+import { useDiskUsage } from "hooks/useDiskUsage";
+import { useScroll } from "hooks/useScroll";
+import { PageProps } from "main";
+import { bytesForHuman } from "utils/string";
 
 const PrivacyPage = ({ isMobile }: PageProps) => {
   const { colorMode } = useColorMode();
@@ -74,8 +91,8 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
     bg: isDark ? "gray.600" : "lightcyan",
     border: 0,
     fontSize: "sm",
-    p: 2,
-    mb: 3
+    mb: 3,
+    p: 2
   };
   const tableProps = {
     borderWidth: "1px",
@@ -94,16 +111,25 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
   };
 
   return (
-    <Layout isMobile={isMobile} pageTitle="Conditions Générales d'Utilisation">
+    <Layout
+      isMobile={isMobile}
+      pageTitle="Conditions Générales d'Utilisation"
+      css={css`
+        main a {
+          text-decoration: underline !important;
+        }
+      `}
+    >
       <Box m="0 auto" maxWidth="4xl">
         <Row {...rowProps}>
           <Icon as={FaGift} color="green" boxSize={[5, 4]} mr={3} />
           <Flex flexDir="column">
             <Text>
-              <HostTag {...hostTagProps} /> est un service qui utilise un
-              logiciel libre et open-source mis à disposition gratuitement par{" "}
+              <HostTag {...hostTagProps} /> est un service qui fait
+              démonstration d'un logiciel libre et open-source mis à disposition
+              gratuitement par{" "}
               <Link
-                href="https://github.com/romseguy"
+                href="https://romseguy.com"
                 target="_blank"
                 variant="underline"
               >
@@ -129,9 +155,10 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
             </Text>
 
             <Text>
-              Donc si vous ne souhaitez pas confier vos données à{" "}
-              <HostTag {...hostTagProps} /> <ContactLink /> pour savoir comment
-              installer ce logiciel chez vous.
+              Si vous ne souhaitez pas faire confiance à{" "}
+              <HostTag {...hostTagProps} /> pour traiter vos données{" "}
+              <ContactLink /> pour savoir comment installer le logiciel de
+              @romseguy où vous le souhaitez.
             </Text>
           </Flex>
         </Row>
@@ -151,7 +178,9 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
           cursor="pointer"
           onClick={() => setIsTOSCollapsed(!isTOSCollapsed)}
         >
-          <AppHeading pr={1}>Conditions du service</AppHeading>
+          <AppHeading smaller pr={1}>
+            Conditions du service
+          </AppHeading>
 
           {isTOSCollapsed ? (
             <ChevronRightIcon boxSize={10} />
@@ -192,90 +221,80 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
               </Text>
             </Column>
 
-            <AppHeading smaller mb={3}>
-              Engagements
-            </AppHeading>
+            <Column {...columnProps} mt={3} py={1} pb={2}>
+              <AppHeading smaller mb={3}>
+                Engagements
+              </AppHeading>
+              <Table {...tableProps} bg={isDark ? "gray.700" : "transparent"}>
+                <Tr>
+                  <Td>
+                    Votre contenu vous appartient (mais nous vous encourageons à
+                    le publier sous licence libre) ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    <HostTag {...hostTagProps} /> n'exploitera pas vos données
+                    personnelles, sauf pour vous prévenir d'un changement
+                    important sur le service ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td borderWidth={0}>
+                    <HostTag {...hostTagProps} /> ne transmettra ni ne revendra
+                    vos données personnelles ;
+                  </Td>
+                </Tr>
+              </Table>
+            </Column>
 
-            <Table {...tableProps} bg={isDark ? "gray.700" : "transparent"}>
-              <Tr>
-                <Td>
-                  Votre contenu vous appartient (mais nous vous encourageons à
-                  le publier sous licence libre) ;
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  <HostTag {...hostTagProps} /> n'exploitera pas vos données
-                  personnelles, sauf pour vous prévenir d'un changement
-                  important sur le service ;
-                </Td>
-              </Tr>
-              <Tr>
-                <Td borderWidth={0}>
-                  <HostTag {...hostTagProps} /> ne transmettra ni ne revendra
-                  vos données personnelles ;
-                </Td>
-              </Tr>
-            </Table>
-
-            <AppHeading smaller mb={3}>
-              Clauses
-            </AppHeading>
-
-            <Table {...tableProps} bg={isDark ? "gray.700" : "transparent"}>
-              <Tr>
-                <Td>
-                  Clause{" "}
-                  <em>« Si ça casse, nous ne sommes pas obligé de réparer »</em>{" "}
-                  : <HostTag {...hostTagProps} /> propose ce service
-                  gratuitement et librement. Si vous perdez des données, par
-                  votre faute ou par la notre, désolé, mais ça arrive. Nous
-                  ferons ce que nous pouvons pour les récupérer, mais nous ne
-                  nous assignons aucune obligation de résultat. En clair, évitez
-                  de mettre des données sensibles ou importantes sur les
-                  services <HostTag {...hostTagProps} />, car en cas de perte,
-                  nous ne garantissons pas leur récupération ;
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  Clause{" "}
-                  <em>
-                    « Si vous n'êtes pas content·es, vous êtes invité·es à aller
-                    voir ailleurs »
-                  </em>{" "}
-                  : si le service ne vous convient pas, libre à vous d'en
-                  trouver un équivalent (ou meilleur) ailleurs, ou de monter le
-                  votre ;
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  Clause <em>« Tout abus sera puni »</em> : si un·e
-                  utilisateur·ice abuse du service, par exemple en monopolisant
-                  les ressources machines partagées, ou en publiant publiquement
-                  des contenus considérés comme non pertinents, son contenu ou
-                  son compte pourra être supprimé sans avertissement ni
-                  négociation. <HostTag {...hostTagProps} /> reste seul juge de
-                  cette notion « d'abus » dans le but de fournir le meilleur
-                  service possible à l'ensemble de ses utilisateur·ices. Si cela
-                  vous parait anti-démocratique, anti-libriste,
-                  anti-liberté-d'expression, merci de vous référer à la clause
-                  précédente ;
-                </Td>
-              </Tr>
-              <Tr>
-                <Td borderWidth={0}>
-                  Clause « Rien n'est éternel » : le service peut fermer (faute
-                  de fonds pour le maintenir, par exemple), il peuvent être
-                  victime d'intrusion (le « 100 % sécurisé » n'existe pas). Nous
-                  vous encourageons donc à conserver une copie des données qui
-                  vous importent, car <HostTag {...hostTagProps} /> ne saurait
-                  être tenu pour responsable de leur hébergement sans limite de
-                  temps.
-                </Td>
-              </Tr>
-            </Table>
+            <Column {...columnProps} mt={3} py={1} pb={2}>
+              <AppHeading smaller mb={3}>
+                Clauses
+              </AppHeading>
+              <Table {...tableProps} bg={isDark ? "gray.700" : "transparent"}>
+                <Tr>
+                  <Td>
+                    Clause{" "}
+                    <em>
+                      « Si ça casse, nous ne sommes pas obligé de réparer »
+                    </em>{" "}
+                    : <HostTag {...hostTagProps} /> propose ce service
+                    gratuitement et librement. Si vous perdez des données, par
+                    votre faute ou par la notre, désolé, mais ça arrive. Nous
+                    ferons ce que nous pouvons pour les récupérer, mais nous ne
+                    nous assignons aucune obligation de résultat. En clair,
+                    évitez de mettre des données sensibles ou importantes sur
+                    les services <HostTag {...hostTagProps} />, car en cas de
+                    perte, nous ne garantissons pas leur récupération ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td>
+                    Clause <em>« Tout abus sera puni »</em> : si un·e
+                    utilisateur·ice abuse du service, par exemple en
+                    monopolisant les ressources machines partagées, ou en
+                    publiant publiquement des contenus considérés comme non
+                    pertinents, son contenu ou son compte pourra être supprimé
+                    sans avertissement ni négociation.{" "}
+                    <HostTag {...hostTagProps} /> reste seul juge de cette
+                    notion « d'abus » dans le but de fournir le meilleur service
+                    possible à l'ensemble de ses utilisateurs ;
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td borderWidth={0}>
+                    Clause « Rien n'est éternel » : le service peut fermer
+                    (faute de fonds pour le maintenir, par exemple), il peut
+                    être victime d'intrusion (le « 100 % sécurisé » n'existe
+                    pas). Nous vous encourageons donc à conserver une copie des
+                    données qui vous importent, car{" "}
+                    <HostTag {...hostTagProps} /> ne saurait être tenu pour
+                    responsable de leur hébergement sans limite de temps.
+                  </Td>
+                </Tr>
+              </Table>
+            </Column>
           </>
         )}
       </Column>
@@ -309,10 +328,7 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
               We are <HostTag {...hostTagProps} /> ("we", "our", "us"). We're
               committed to protecting and respecting your privacy. If you have
               questions about your personal information please{" "}
-              <Link href="/contact" variant="underline">
-                contact us
-              </Link>
-              .
+              <Link href="/contact">contact us</Link>.
             </p>
             <h2>What information we hold about you</h2>
             <p>The type of data that we collect and process includes:</p>
@@ -368,23 +384,15 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
             <p>
               You have a right to access the personal data we hold about you or
               obtain a copy of it. To do so please{" "}
-              <Link href="/contact" variant="underline">
-                contact us
-              </Link>
-              . If you believe that the information we hold for you is
-              incomplete or inaccurate, you may{" "}
-              <Link href="/contact" variant="underline">
-                contact us
-              </Link>{" "}
-              to ask us to complete or correct that information.
+              <Link href="/contact">contact us</Link>. If you believe that the
+              information we hold for you is incomplete or inaccurate, you may{" "}
+              <Link href="/contact">contact us</Link> to ask us to complete or
+              correct that information.
             </p>
             <p>
               You also have the right to request the erasure of your personal
-              data. Please{" "}
-              <Link href="/contact" variant="underline">
-                contact us
-              </Link>{" "}
-              if you would like us to remove your personal data.
+              data. Please <Link href="/contact">contact us</Link> if you would
+              like us to remove your personal data.
             </p>
             <h2>Acceptance of this policy</h2>
             <p>
@@ -474,10 +482,7 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
               If you do not agree with these terms, please do not register or
               use the Service. Use of the Service constitutes acceptance of
               these terms. If you wish to close your account, please{" "}
-              <Link href="/contact" variant="underline">
-                contact us
-              </Link>
-              .
+              <Link href="/contact">contact us</Link>.
             </p>
           </>
         )}

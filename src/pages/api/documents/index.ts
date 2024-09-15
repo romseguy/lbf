@@ -38,8 +38,8 @@ const handler = nextConnect<NextApiRequest, NextApiResponse>()
         eventId
           ? `?eventId=${eventId}`
           : orgId
-          ? `?orgId=${orgId}`
-          : `?userId=${userId}`
+            ? `?orgId=${orgId}`
+            : `?userId=${userId}`
       );
 
       res.status(200).json(data);

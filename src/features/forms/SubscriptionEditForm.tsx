@@ -115,8 +115,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
 
@@ -137,8 +137,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
       setIsAllProjects(isAllProjects);
@@ -159,8 +159,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
       setIsAllTopics(isAllTopics);
@@ -452,9 +452,7 @@ export const SubscriptionEditForm = ({
             setIsAllTopics(e.target.checked);
           }}
         >
-          {isSelf
-            ? "vous êtes invité à une discussion"
-            : "vous l'invitez à une discussion"}
+          une discussion est ouverte
         </Switch>
 
         <Switch {...switchProps} ml={3} isDisabled>
