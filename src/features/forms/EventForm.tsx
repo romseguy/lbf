@@ -407,11 +407,11 @@ export const EventForm = withGoogleApi({
                 endTime: day.endTime
                   ? day.endTime.toISOString()
                   : day.startDate
-                  ? addHours(
-                      day.startDate,
-                      duration?.hours || eventMinDuration
-                    ).toISOString()
-                  : undefined
+                    ? addHours(
+                        day.startDate,
+                        duration?.hours || eventMinDuration
+                      ).toISOString()
+                    : undefined
               };
             })
         : [];
@@ -526,8 +526,8 @@ export const EventForm = withGoogleApi({
     const eventMaxDateMinDate = eventMinDate
       ? addHours(eventMinDate, eventMinDuration)
       : props.event
-      ? addHours(parseISO(props.event.eventMinDate), eventMinDuration)
-      : addHours(now, eventMinDuration);
+        ? addHours(parseISO(props.event.eventMinDate), eventMinDuration)
+        : addHours(now, eventMinDuration);
     const highlightDatesStart: Date[] = [];
     if (start) {
       for (let i = 1; i <= 10; i++) {
@@ -983,13 +983,15 @@ export const EventForm = withGoogleApi({
               ref={register()}
               placeholder="Ne pas répéter"
               css={css`
-                ${isDark
-                  ? `
+                ${
+                  isDark
+                    ? `
                 color: white;
               `
-                  : `
+                    : `
                 color: black;
-              `}
+              `
+                }
               `}
             >
               <option key="all" value={99}>

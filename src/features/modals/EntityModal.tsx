@@ -60,8 +60,8 @@ export const EntityModal = ({
                   event
                     ? CalendarIcon
                     : org?.orgType === EOrgType.NETWORK
-                    ? FaGlobeEurope
-                    : FaTree
+                      ? FaGlobeEurope
+                      : FaTree
                 }
                 mr={1}
               />

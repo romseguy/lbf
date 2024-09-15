@@ -146,8 +146,8 @@ export const TopicsListItem = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-    ? entity.orgTopicCategories
-    : [];
+      ? entity.orgTopicCategories
+      : [];
   //#endregion
 
   //#region topic
@@ -313,8 +313,8 @@ export const TopicsListItem = ({
               ? "gray.600"
               : "orange.200"
             : isDark
-            ? "gray.500"
-            : "orange.100"
+              ? "gray.500"
+              : "orange.100"
         }
         cursor="pointer"
         py={1}

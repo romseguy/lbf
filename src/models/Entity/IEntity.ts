@@ -24,9 +24,9 @@ export interface IEntityCategory {
 }
 
 export enum EEntityCategoryKey {
-  "eventTopicCategories" = "eventTopicCategories",
-  "orgEventCategories" = "orgEventCategories",
-  "orgTopicCategories" = "orgTopicCategories"
+  eventTopicCategories = "eventTopicCategories",
+  orgEventCategories = "orgEventCategories",
+  orgTopicCategories = "orgTopicCategories"
 }
 
 export enum EEntityTab {

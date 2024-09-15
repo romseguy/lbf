@@ -35,8 +35,8 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
                   : "l'événement"
               } ${org ? org.orgName : event?.eventName}.`
             : topic
-            ? `Vous avez été désabonné de la discussion : ${topic.topicName}`
-            : "Vous n'avez pas pu être désabonné."
+              ? `Vous avez été désabonné de la discussion : ${topic.topicName}`
+              : "Vous n'avez pas pu être désabonné."
           : "Vous n'avez pas pu être désabonné."}
       </Alert>
     </Layout>

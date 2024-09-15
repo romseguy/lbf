@@ -637,4 +637,13 @@ handler.delete<
   }
 });
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "50mb"
+    },
+    responseLimit: "8mb"
+  }
+};
+
 export default handler;

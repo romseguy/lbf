@@ -80,8 +80,8 @@ export const projectApi = api.injectEndpoints({
         const id = projectId
           ? projectId
           : "_id" in payload
-          ? payload._id
-          : undefined;
+            ? payload._id
+            : undefined;
 
         //console.log("editProject: projectId", id);
         //console.log("editProject: payload", payload);

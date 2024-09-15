@@ -59,8 +59,8 @@ const EventsPage = ({ ...props }: PageProps) => {
           !eventsQuery.data || !eventsQuery.data.length
             ? "Aucun événements"
             : isOffline
-            ? "Vous devez être connecté à internet pour afficher la carte des événements"
-            : ""
+              ? "Vous devez être connecté à internet pour afficher la carte des événements"
+              : ""
         }
         hasArrow
         placement="left"

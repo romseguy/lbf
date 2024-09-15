@@ -2,7 +2,7 @@ const path = require("path");
 //const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
 const withPWA = require("next-pwa")({ dest: "public", reloadOnOnline: false });
 //const withPreact = require("next-plugin-preact");
-const withTwin = require('./withTwin.js')
+const withTwin = require("./withTwin.js");
 
 const {
   PHASE_DEVELOPMENT_SERVER,
@@ -12,18 +12,18 @@ const {
 
 let plugins = [
   //withPreact,
-  withTwin,
+  withTwin
   //withPWA,
   // withCustomBabelConfigFile({
   //   babelConfigFile: path.resolve("./babel.config.js")
   // })
-]
+];
 
 if (process.env.ANALYZE) {
   const withBundleAnalyzer = require("@next/bundle-analyzer")({
     enabled: true
   });
-  plugins.unshift(withBundleAnalyzer)
+  plugins.unshift(withBundleAnalyzer);
 }
 
 const nextConfig = {
@@ -42,9 +42,9 @@ const nextConfig = {
   //     }
   //   ]
   // },
-  eslint: {
-    ignoreDuringBuilds: true
-  },
+  // eslint: {
+  //   ignoreDuringBuilds: true
+  // },
   i18n: {
     locales: ["fr-FR"],
     defaultLocale: "fr-FR"
@@ -52,7 +52,7 @@ const nextConfig = {
   swcMinify: false,
   typescript: {
     ignoreBuildErrors: true
-  },
+  }
   // webpack(config, { dev, isServer }) {
   //   if (dev && !isServer) {
   //     const originalEntry = config.entry
@@ -80,13 +80,17 @@ const nextConfig = {
 
 module.exports = (phase, defaultConfig) => {
   if (phase === PHASE_PRODUCTION_SERVER || phase === PHASE_PRODUCTION_BUILD) {
-    plugins.unshift(withPWA)
+    plugins.unshift(withPWA);
   }
-  const config = plugins.reduce((acc, plugin) => {
-    const update = plugin(acc);
-    return typeof update === "function" ? update(phase, defaultConfig) : update;
-  }, { ...nextConfig });
+  const config = plugins.reduce(
+    (acc, plugin) => {
+      const update = plugin(acc);
+      return typeof update === "function"
+        ? update(phase, defaultConfig)
+        : update;
+    },
+    { ...nextConfig }
+  );
 
   return config;
-}
-
+};

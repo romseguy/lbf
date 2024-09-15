@@ -154,8 +154,8 @@ export const LogoForm = ({
                     isE
                       ? "de l'événement"
                       : isO
-                      ? orgTypeFull(entity.orgType)
-                      : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                   } a été supprimé !`,
                   status: "success"
                 });
@@ -167,8 +167,8 @@ export const LogoForm = ({
                     isE
                       ? "de l'événement"
                       : isO
-                      ? orgTypeFull(entity.orgType)
-                      : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                   } n'a pas pu être supprimé`,
                   status: "error"
                 });

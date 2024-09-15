@@ -115,8 +115,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
 
@@ -137,8 +137,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
       setIsAllProjects(isAllProjects);
@@ -159,8 +159,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                ? !!pushNotif
-                : false
+                  ? !!pushNotif
+                  : false
               : false
         );
       setIsAllTopics(isAllTopics);

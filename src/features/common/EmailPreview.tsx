@@ -33,21 +33,21 @@ export const EmailPreview = ({
         subscriptionId: session.user.userId
       })
     : isTopic(entity)
-    ? createTopicEmailNotif({
-        email: session.user.email,
-        event,
-        org,
-        subscriptionId: session.user.userId,
-        topic: entity
-      })
-    : entity
-    ? createProjectEmailNotif({
-        email: session.user.email,
-        org: (entity as IProject).projectOrgs[0],
-        project: entity as IProject,
-        subscriptionId: session.user.userId
-      })
-    : undefined;
+      ? createTopicEmailNotif({
+          email: session.user.email,
+          event,
+          org,
+          subscriptionId: session.user.userId,
+          topic: entity
+        })
+      : entity
+        ? createProjectEmailNotif({
+            email: session.user.email,
+            org: (entity as IProject).projectOrgs[0],
+            project: entity as IProject,
+            subscriptionId: session.user.userId
+          })
+        : undefined;
 
   return (
     <Column bg="#F9F9F9" {...props}>

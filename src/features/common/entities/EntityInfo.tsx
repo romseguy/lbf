@@ -139,14 +139,14 @@ export const EntityInfo = ({
             const icon = url.includes("facebook")
               ? FaFacebook
               : url.includes("instagram")
-              ? FaInstagram
-              : url.includes("twitter")
-              ? FaTwitter
-              : url.includes("youtube")
-              ? FaYoutube
-              : url.includes("t.me") || url.includes("telegram")
-              ? FaTelegram
-              : FaLink;
+                ? FaInstagram
+                : url.includes("twitter")
+                  ? FaTwitter
+                  : url.includes("youtube")
+                    ? FaYoutube
+                    : url.includes("t.me") || url.includes("telegram")
+                      ? FaTelegram
+                      : FaLink;
 
             return (
               <CollapsibleLink

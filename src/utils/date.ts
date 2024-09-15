@@ -134,8 +134,8 @@ export const timeAgo = (
     typeof date === "string"
       ? parseISO(date)
       : date !== undefined
-      ? date
-      : new Date();
+        ? date
+        : new Date();
   const fullDate = fullDateString(end);
   const duration = intervalToDuration({
     start: new Date(),

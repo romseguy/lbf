@@ -37,8 +37,8 @@ export const Marker = ({
         id: isE
           ? "event"
           : isO && item.orgType === EOrgType.NETWORK
-          ? "planet"
-          : "tree",
+            ? "planet"
+            : "tree",
         fill,
         height: 25,
         width: 25

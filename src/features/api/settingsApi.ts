@@ -45,8 +45,8 @@ export const settingApi = createApi({
         const id = settingId
           ? settingId
           : "_id" in payload
-          ? payload._id
-          : undefined;
+            ? payload._id
+            : undefined;
 
         //console.log("editSetting: settingId", id);
         //console.log("editSetting: payload", payload);
