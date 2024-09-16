@@ -53,7 +53,7 @@ import {
   EOrgType,
   orgTypeFull2
 } from "models/Org";
-import { ISubscription } from "models/Subscription";
+import { getEmail, ISubscription } from "models/Subscription";
 import { useAppDispatch } from "store";
 import { selectIsMobile } from "store/uiSlice";
 import { getItem, hasItems } from "utils/array";
@@ -95,7 +95,7 @@ export const OrgPageHomeTabPanel = ({
       .find(({ listName }) => {
         return listName === "Participants";
       })
-      ?.subscriptions.find(({ email }) => email === session?.user.email);
+      ?.subscriptions.find((sub) => getEmail(sub) === session?.user.email);
   const hasInfo =
     hasItems(org.orgAddress) ||
     hasItems(org.orgEmail) ||

@@ -9,7 +9,7 @@ export const test = base.extend({
         method: "post",
         data: {
           email: "coudrelavie@yahoo.fr",
-          hash: "***REMOVED***"
+          hash: process.env.NORMAL_HASH
         }
       });
       const responseHeaders = response.headers();

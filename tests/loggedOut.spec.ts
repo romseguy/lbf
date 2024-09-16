@@ -1,7 +1,7 @@
 import { expect, request, APIRequestContext, test } from "@playwright/test";
 
 test("LoginForm.onSubmit", async ({ page, context, browser, playwright }) => {
-  await page.goto("http://localhost:3000");
+  await page.goto("");
   await expect(page).toHaveTitle(/Connexion – ateliers.lebonforum.fr/);
   await page.getByPlaceholder("Saisir une adresse e-mail...").click();
   await page

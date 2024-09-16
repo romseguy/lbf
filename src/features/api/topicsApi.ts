@@ -147,13 +147,13 @@ export const topicApi = api.injectEndpoints({
         if (params.payload.topic.org)
           tags.push({
             type: TagTypes.ORGS,
-            id: getRefId(params.payload.topic.org)
+            id: getRefId(params.payload.topic.org, "_id")
           });
 
         if (params.payload.topic.event)
           tags.push({
             type: TagTypes.EVENTS,
-            id: getRefId(params.payload.topic.event)
+            id: getRefId(params.payload.topic.event, "_id")
           });
 
         return tags;

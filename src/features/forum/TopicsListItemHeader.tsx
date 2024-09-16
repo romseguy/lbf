@@ -141,71 +141,88 @@ export const TopicsListItemHeaderDetails = ({
   //   !topic.topicNotifications.length || topic.topicNotifications.length > 1
   //     ? "s"
   //     : "";
+
+  const firstMessage = topic.topicMessages[0]
+    ? topic.topicMessages[0].message
+        .replace("<p>", "")
+        .replace("</p>", "")
+        .replace("<br/>", "")
+        .replace("&nbsp;", "")
+        .substring(0, 20)
+    : "";
   //#endregion
 
   return (
-    <Flex
-      alignItems="center"
-      flexWrap="wrap"
-      fontSize="smaller"
-      color={isDark ? "white" : "purple"}
-      ml={isMobile ? 0 : 10}
-    >
-      <Tooltip label="Aller à la page de l'utilisateur">
-        <Link
-          href={`/${topicCreatedByUserName}`}
-          _hover={{
-            color: isDark ? "white" : "white",
-            textDecoration: "underline"
-          }}
-        >
-          {topicCreatedByUserName}
-        </Link>
-      </Tooltip>
-
-      <Box as="span" aria-hidden mx={1}>
-        ·
-      </Box>
-
-      <Tooltip placement="bottom" label={`Discussion créée le ${fullDate}`}>
+    <VStack>
+      <Box>
         <Text
-          cursor="default"
-          // _hover={{
-          //   color: isDark ? "white" : "white"
-          // }}
-          onClick={(e) => e.stopPropagation()}
-          suppressHydrationWarning
-        >
-          {timeAgo}
-        </Text>
-      </Tooltip>
-
-      <Box as="span" aria-hidden mx={1}>
-        ·
+          fontSize="smaller"
+          fontStyle="italic"
+          dangerouslySetInnerHTML={{
+            __html: !firstMessage ? "" : firstMessage + "..."
+          }}
+        />
       </Box>
 
-      <TopicsListItemVisibility
-        query={query}
-        topic={topic}
-        //icon props
-        color={isDark ? "white" : "purple"}
-        cursor="default"
-        css={css`
+      <Box>
+        <HStack>
+          <Tooltip label="Aller à la page de l'utilisateur">
+            <Link
+              href={`/${topicCreatedByUserName}`}
+              _hover={{
+                color: isDark ? "white" : "white",
+                textDecoration: "underline"
+              }}
+            >
+              {topicCreatedByUserName}
+            </Link>
+          </Tooltip>
+
+          <Box as="span" aria-hidden mx={1}>
+            ·
+          </Box>
+
+          <Tooltip placement="bottom" label={`Discussion créée le ${fullDate}`}>
+            <Text
+              cursor="default"
+              // _hover={{
+              //   color: isDark ? "white" : "white"
+              // }}
+              onClick={(e) => e.stopPropagation()}
+              suppressHydrationWarning
+            >
+              {timeAgo}
+            </Text>
+          </Tooltip>
+
+          <Box as="span" aria-hidden mx={1}>
+            ·
+          </Box>
+
+          <TopicsListItemVisibility
+            query={query}
+            topic={topic}
+            //icon props
+            color={isDark ? "white" : "purple"}
+            cursor="default"
+            css={css`
           vertical-align: middle;
         `}
-        onClick={(e) => e.stopPropagation()}
-      />
+            onClick={(e) => e.stopPropagation()}
+          />
 
-      <Box as="span" aria-hidden mx={1}>
-        ·
+          <Box as="span" aria-hidden mx={1}>
+            ·
+          </Box>
+
+          <TopicsListItemShare
+            aria-label="Partager la discussion"
+            topic={topic}
+            color={isDark ? "white" : "purple"}
+          />
+        </HStack>
       </Box>
-
-      <TopicsListItemShare
-        aria-label="Partager la discussion"
-        topic={topic}
-        color={isDark ? "white" : "purple"}
-      />
-    </Flex>
+    </VStack>
   );
 };
 
@@ -345,4 +362,17 @@ export const TopicsListItemHeaderDetails = ({
     </Table>
   )
     */
+}
+
+{
+  /*
+      <Flex
+        alignItems="center"
+        flexWrap="wrap"
+        fontSize="smaller"
+        color={isDark ? "white" : "purple"}
+        ml={isMobile ? 0 : 10}
+      >
+      </Flex>
+  */
 }

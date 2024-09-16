@@ -9,7 +9,7 @@ export const test = base.extend({
         method: "post",
         data: {
           email: "contact@lebonforum.fr",
-          hash: "***REMOVED***"
+          hash: process.env.ADMIN_HASH
         }
       });
       const responseHeaders = response.headers();
