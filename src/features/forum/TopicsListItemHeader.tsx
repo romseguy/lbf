@@ -58,8 +58,8 @@ export const TopicsListItemHeader = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-      ? entity.orgTopicCategories
-      : [];
+    ? entity.orgTopicCategories
+    : [];
   //#endregion
 
   //#region topic
@@ -99,12 +99,34 @@ export const TopicsListItemHeader = ({
 
         {isO && isEventTopic ? <CalendarIcon /> : <Icon as={ChatIcon} />}
 
-        <Text whiteSpace={!isMobile ? "nowrap" : undefined}>
+        <Text
+          as="span"
+          whiteSpace={!isMobile ? "nowrap" : undefined}
+          {...(isEventTopic
+            ? {
+                color: isDark ? "teal.200" : "teal",
+                fontWeight: "bold",
+                fontSize: "larger",
+                pt: 1
+              }
+            : {})}
+        >
           Discussion{isEventTopic && "s de l'événement"} :{" "}
         </Text>
       </HStack>
 
-      <Text fontWeight="bold">{event ? event.eventName : topic.topicName}</Text>
+      <Text
+        as="span"
+        fontWeight="bold"
+        {...(isEventTopic
+          ? {
+              fontSize: "larger",
+              pt: 1
+            }
+          : {})}
+      >
+        {event ? event.eventName : topic.topicName}
+      </Text>
     </>
   );
 
@@ -114,6 +136,7 @@ export const TopicsListItemHeader = ({
         {elements}
       </VStack>
     );
+
   return <HStack {...props}>{elements}</HStack>;
 };
 
@@ -144,16 +167,14 @@ export const TopicsListItemHeaderDetails = ({
 
   const firstMessage = topic.topicMessages[0]
     ? topic.topicMessages[0].message
-        .replace("<p>", "")
-        .replace("</p>", "")
-        .replace("<br/>", "")
+        .replace(/<[^>]*>/g, "")
         .replace("&nbsp;", "")
-        .substring(0, 20)
+        .substring(0, 50)
     : "";
   //#endregion
 
   return (
-    <VStack>
+    <VStack alignItems="flex-start">
       <Box>
         <Text
           fontSize="smaller"
@@ -173,6 +194,7 @@ export const TopicsListItemHeaderDetails = ({
                 color: isDark ? "white" : "white",
                 textDecoration: "underline"
               }}
+              suppressHydrationWarning
             >
               {topicCreatedByUserName}
             </Link>
@@ -206,8 +228,8 @@ export const TopicsListItemHeaderDetails = ({
             color={isDark ? "white" : "purple"}
             cursor="default"
             css={css`
-          vertical-align: middle;
-        `}
+              vertical-align: middle;
+            `}
             onClick={(e) => e.stopPropagation()}
           />
 

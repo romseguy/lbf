@@ -128,7 +128,7 @@ handler.post<NextApiRequest & { body: AddGalleryPayload }, NextApiResponse>(
             .json(
               createEndpointError(
                 new Error(
-                  "Vous devez être inscrit en tant que participant pour ajouter une galerie"
+                  "Il faut avoir participé à un atelier pour ajouter une galerie"
                 )
               )
             );

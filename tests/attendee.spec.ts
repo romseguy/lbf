@@ -6,6 +6,10 @@ import { test } from "./attendee.fixtures";
 // -> il ne peut pas modifier la description de la galerie de l'événement
 // ->
 
+test("login", async ({ page }) => {
+  await page.goto("http://localhost:3000/api/login");
+});
+
 test.describe("event gallery", () => {
   test("user gallery", async ({ page }) => {
     await page.goto("http://localhost:3000/api/login");

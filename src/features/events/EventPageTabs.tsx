@@ -31,7 +31,8 @@ import theme, { scrollbarCss } from "features/layout/theme";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
-import { isBefore, parseISO } from "date-fns";
+import { format, getYear, isBefore, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 import { GalleriesListItem } from "features/galleries/GalleriesListItem";
 import { FaImages } from "react-icons/fa";
 import { useGetGalleryQuery } from "features/api/galleriesApi";
@@ -183,15 +184,36 @@ export const EventPageTabs = ({
               `}
               {...(isMobile ? {} : {})}
               onClick={() => {
+                const minDate = parseISO(event.eventMinDate);
                 const url =
                   tab.url === "/"
                     ? `/${event.eventUrl}`
                     : `/${event.eventUrl}${tab.url}`;
+                if (
+                  tab.url === "/galerie" &&
+                  !isBefore(parseISO(event.eventMinDate), new Date())
+                ) {
+                  const dateFormat =
+                    getYear(minDate) !== getYear(Date.now())
+                      ? "cccc d MMMM yyyy"
+                      : "cccc d MMMM";
+
+                  return toast({
+                    duration: null,
+                    title: `La galerie sera disponible le ${format(
+                      minDate,
+                      dateFormat,
+                      {
+                        locale: fr
+                      }
+                    )}`
+                  });
+                }
+
                 router.push(url, url, {
                   shallow: true
                 });
               }}
-              data-cy={key}
             >
               {tabLabel}
               {url === "/galerie" && hasItems(gallery?.galleryDocuments) ? (
@@ -287,17 +309,17 @@ export const EventPageTabs = ({
                 isCurrent
                 noHeader
                 {...(isMobile ? { px: 3 } : {})}
-                {...(!isBefore(parseISO(event.eventMinDate), new Date())
-                  ? {
-                      //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
-                      onAddDocumentClick: () => {
-                        toast({
-                          title:
-                            "Vous pourrez ajouter des photos seulement après avoir participé à l'atelier"
-                        });
-                      }
-                    }
-                  : {})}
+                // {...(!isBefore(parseISO(event.eventMinDate), new Date())
+                //   ? {
+                //       //TODO1 if (ne fait pas partie de la liste des participants de l'atelier)
+                //       onAddDocumentClick: () => {
+                //         toast({
+                //           title:
+                //             "Vous pourrez ajouter des photos seulement après avoir participé à l'atelier"
+                //         });
+                //       }
+                //     }
+                //   : {})}
               />
             ) : (
               <Spinner />

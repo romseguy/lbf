@@ -180,7 +180,6 @@ export const TopicsListItem = ({
           pl={2}
           pt={isMobile ? 0 : 1}
         >
-          {/* Table */}
           <TopicsListItemHeader
             query={query}
             topic={topic}
@@ -189,7 +188,6 @@ export const TopicsListItem = ({
             setSelectedCategories={setSelectedCategories}
           />
 
-          {/* Details */}
           <TopicsListItemHeaderDetails query={query} topic={topic} />
         </VStack>
 
@@ -219,10 +217,12 @@ export const TopicsListItem = ({
           */}
 
           <TopicMessagesList
-            isEdit={isEdit}
             query={query}
-            setIsEdit={setIsEdit}
             topic={topic}
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            isTopicLoading={isLoading}
+            setIsTopicLoading={setIsLoading}
             px={3}
             pt={3}
           />

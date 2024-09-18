@@ -11,6 +11,7 @@ import { useDeleteEventMutation } from "features/api/eventsApi";
 import { EventConfigVisibility } from "./EventConfigPanel";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { getErrorMessageString } from "utils/query";
 
 export const EventConfigButtons = ({
   eventQuery,
@@ -115,7 +116,10 @@ export const EventConfigButtons = ({
                 }
               } catch (error: any) {
                 toast({
-                  title: error.data ? error.data.message : error.message,
+                  title: getErrorMessageString(
+                    error,
+                    "L'événement n'a pas pu être supprimé"
+                  ),
                   status: "error"
                 });
               }

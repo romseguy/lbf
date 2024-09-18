@@ -16,10 +16,11 @@ import {
   Stack,
   useColorMode
 } from "@chakra-ui/react";
+import axios from "axios";
 import { useToast } from "hooks/useToast";
 
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { css } from "twin.macro";
 import { useEditEventMutation } from "features/api/eventsApi";
@@ -33,14 +34,21 @@ import {
 import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { getRefId, IEntity, isEvent, isOrg } from "models/Entity";
 import { orgTypeFull } from "models/Org";
-import { bannerWidth } from "features/layout/theme";
+import { bannerWidth as defaultBannerWidth } from "features/layout/theme";
 import { handleError } from "utils/form";
-import { Base64Image, getBase64, getMeta } from "utils/image";
+import { getImageDimensions, getMeta } from "utils/image";
 import { AppQueryWithData } from "utils/types";
 import { MB } from "utils/string";
 import { EditIcon } from "@chakra-ui/icons";
+import api, { client } from "utils/api";
+import {
+  AddDocumentPayload,
+  useAddDocumentMutation
+} from "features/api/documentsApi";
+import { useSelector } from "react-redux";
+import { selectScreenWidth } from "store/uiSlice";
 
 export const BannerForm = ({
   query,
@@ -48,21 +56,42 @@ export const BannerForm = ({
 }: (EventConfigVisibility | OrgConfigVisibility) & {
   query: AppQueryWithData<IEntity>;
 }) => {
+  const screenWidth = useSelector(selectScreenWidth);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
   const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
+  const [addDocument] = useAddDocumentMutation();
+
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
   const edit = isE ? editEvent : editOrg;
+  const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
   const entityBanner = isE
     ? entity.eventBanner
     : isO
-      ? entity.orgBanner
+    ? entity.orgBanner
+    : undefined;
+  // const [entityBanner, setEntityBanner] = useState({
+  //   url: process.env.NEXT_PUBLIC_FILES + "/" + entity._id
+  // });
+  // const [entityBanner, setEntityBanner] = useState(
+  //   isE ? entity.eventBanner : isO ? entity.orgBanner : undefined
+  // );
+  const entityBannerUrl =
+    entityBanner && entityBanner.doc
+      ? process.env.NEXT_PUBLIC_FILES + "/" + getRefId(entityBanner.doc, "_id")
       : undefined;
-  const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
+  const entityBannerWidth = 0;
+  // useEffect(() => {
+  //   (async () => {
+  //     const { status } = await api.get(
+  //       process.env.NEXT_PUBLIC_FILES + "/" + entity._id
+  //     );
+  //   })();
+  // }, []);
 
   //#region form
   const {
@@ -80,14 +109,14 @@ export const BannerForm = ({
   //#region form state
   const [isEdit, setIsEdit] = useState(!entityBanner);
   const [isLoading, setIsLoading] = useState(false);
-  const [image, setImage] = useState<Base64Image>();
+  const [imageFile, setImageFile] = useState<File>();
   const [uploadType, setUploadType] = useState<"url" | "local">("local");
   const url = useWatch<string>({ control, name: "url" });
 
   const [heights, setHeights] = useState([
     { label: "Petit", height: 140 },
     { label: "Moyen", height: 240 },
-    { label: "Grand", height: 340 }
+    { label: "Grand", height: 500 }
   ]);
   const defaultHeight = heights[0].height;
   const bannerHeight = entityBanner?.headerHeight || defaultHeight;
@@ -96,6 +125,38 @@ export const BannerForm = ({
   //#endregion
 
   //#region form handlers
+
+  async function postImage() {
+    if (!imageFile) throw new Error("No image");
+
+    try {
+      const { height, width } = await getImageDimensions(imageFile);
+      const payload: AddDocumentPayload = {
+        documentName: entity._id,
+        documentHeight: height,
+        documentWidth: width,
+        documentTime: new Date().getTime(),
+        documentBytes: imageFile.size
+      };
+      const { documentId } = await addDocument(payload).unwrap();
+
+      const data = new FormData();
+      data.append("fileId", documentId);
+      data.append("file", imageFile, imageFile.name);
+      await axios.post(process.env.NEXT_PUBLIC_API2, data, {
+        // onUploadProgress: (ProgressEvent) => {
+        //   setLoaded({
+        //     ...loaded,
+        //     [imageFile.name]: (ProgressEvent.loaded / ProgressEvent.total) * 100
+        //   });
+        // }
+      });
+
+      return documentId;
+    } catch (error) {
+      throw error;
+    }
+  }
   const onChange = () => clearErrors("formErrorMessage");
   const onSubmit = async (form: {
     file?: FileList;
@@ -109,26 +170,32 @@ export const BannerForm = ({
       const key = `${isE ? "event" : "org"}Banner`;
       let payload = {};
 
-      if (form.url) {
-        const { height, width } = await getMeta(form.url);
+      // if (form.url) {
+      //   const { height, width } = await getMeta(form.url);
 
+      //   payload = {
+      //     [key]: {
+      //       url: form.url,
+      //       headerHeight: formHeight,
+      //       height,
+      //       width
+      //     }
+      //   };
+      // } else
+
+      if (imageFile) {
+        const documentId = await postImage();
+        const { width, height } = await getImageDimensions(imageFile);
         payload = {
           [key]: {
-            url: form.url,
-            headerHeight: formHeight,
+            doc: documentId,
             height,
-            width
-          }
-        };
-      } else if (image) {
-        payload = {
-          [key]: {
-            ...image,
+            width,
             headerHeight: formHeight
           }
         };
 
-        setImage(undefined);
+        setImageFile(undefined);
       } else throw new Error("Vous devez choisir une bannière");
 
       await edit({
@@ -136,6 +203,7 @@ export const BannerForm = ({
         [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id
       }).unwrap();
       setIsLoading(false);
+
       toast({
         title: `La bannière ${
           isE ? "de l'événement" : isO ? orgTypeFull(entity.orgType) : ""
@@ -156,11 +224,27 @@ export const BannerForm = ({
   //#endregion
   //#endregion
 
+  // useEffect(() => {
+  //   const el = document.getElementById("banner");
+
+  //   if (el && el.src === process.env.NEXT_PUBLIC_URL + "/") {
+  //     console.log("banner 404");
+  //     setEntityBanner({ url: "" });
+  //   }
+  // }, []);
+
   return (
     <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
       {isLoading && <Spinner />}
 
-      {!isLoading && entityBanner && !isEdit && (
+      {/* <Image
+        id="banner"
+        alt="Bannière"
+        src={entityBannerUrl}
+        fallbackSrc={process.env.NEXT_PUBLIC_URL}
+      /> */}
+
+      {!isLoading && entityBanner && entityBannerUrl && !isEdit && (
         <>
           <HStack>
             <Button
@@ -191,8 +275,8 @@ export const BannerForm = ({
                       isE
                         ? "de l'événement"
                         : isO
-                          ? orgTypeFull(entity.orgType)
-                          : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                     } a été supprimée !`,
                     status: "success"
                   });
@@ -204,8 +288,8 @@ export const BannerForm = ({
                       isE
                         ? "de l'événement"
                         : isO
-                          ? orgTypeFull(entity.orgType)
-                          : ""
+                        ? orgTypeFull(entity.orgType)
+                        : ""
                     } n'a pas pu être supprimée`,
                     status: "error"
                   });
@@ -214,14 +298,21 @@ export const BannerForm = ({
             />
           </HStack>
 
+          {/* <Image
+            id="banner"
+            alt="Bannière"
+            src={entityBannerUrl}
+            fallbackSrc={process.env.NEXT_PUBLIC_URL}
+          /> */}
+
           <Box
             //as="img"
             css={css`
-              background-image: url("${entityBanner.base64 || entityBanner.url}");
+              background-image: url("${entityBannerUrl}");
               background-position: center;
               background-size: cover;
               height: ${entityBanner.headerHeight || defaultHeight}px;
-              /*width: ${bannerWidth}px;*/
+              width: ${entityBannerWidth ? entityBannerWidth + "px" : "100%"};
             `}
             my={5}
           />
@@ -234,11 +325,14 @@ export const BannerForm = ({
               onChange={async (e) => {
                 try {
                   setIsLoading(true);
+
                   const headerHeight = Number(e.target.value);
                   const key = `${isE ? "event" : "org"}Banner`;
                   let payload = {
                     [key]: {
-                      ...entityBanner,
+                      doc: getRefId(entityBanner.doc, "_id"),
+                      height: entityBanner.height,
+                      width: entityBanner.width,
                       headerHeight
                     }
                   };
@@ -246,6 +340,7 @@ export const BannerForm = ({
                     payload,
                     [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id
                   }).unwrap();
+
                   setIsLoading(false);
                 } catch (error) {
                   setIsLoading(false);
@@ -273,7 +368,7 @@ export const BannerForm = ({
         </>
       )}
 
-      {!isLoading && isEdit && (
+      {!isLoading && (isEdit || !entityBannerUrl) && (
         <>
           <RadioGroup name="uploadType" mb={3}>
             <Stack spacing={2}>
@@ -297,7 +392,7 @@ export const BannerForm = ({
             </Stack>
           </RadioGroup>
 
-          {uploadType === "url" && (
+          {/* {uploadType === "url" && (
             <>
               <UrlControl
                 name="url"
@@ -318,11 +413,11 @@ export const BannerForm = ({
                   alt="banner"
                   src={url}
                   height={parseInt(formHeight)}
-                  width={bannerWidth}
+                  width={defaultBannerWidth}
                 />
               )}
             </>
-          )}
+          )} */}
 
           {uploadType === "local" && (
             <>
@@ -337,8 +432,9 @@ export const BannerForm = ({
                   accept="image/*"
                   onChange={async (e) => {
                     if (e.target.files && e.target.files[0]) {
-                      if (e.target.files[0].size < 5 * MB) {
-                        setImage(await getBase64(e.target.files[0]));
+                      const imageFile = e.target.files[0];
+                      if (imageFile.size < 5 * MB) {
+                        setImageFile(imageFile);
                         clearErrors("file");
                       }
                     }
@@ -357,18 +453,16 @@ export const BannerForm = ({
                 </FormErrorMessage>
               </FormControl>
 
-              {image?.base64 && (
+              {/* {image && (
                 <Box
-                  //as="img"
                   css={css`
-                    background-image: url("${image.base64}");
+                    background-image: url("${bannerUrl}");
                     background-position: center;
                     background-size: cover;
                     height: ${formHeight}px;
-                    /*width: ${bannerWidth}px;*/
                   `}
                 />
-              )}
+              )} */}
             </>
           )}
 

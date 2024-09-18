@@ -1,4 +1,4 @@
-import { Box, useColorMode, FlexProps } from "@chakra-ui/react";
+import { Box, useColorMode, FlexProps, Spinner } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
 import React, { useState } from "react";
@@ -11,16 +11,22 @@ import { TopicMessagesListItem } from "./TopicMessagesListItem";
 import { TopicMessagesListItemEdit } from "./TopicMessagesListItemEdit";
 
 export const TopicMessagesList = ({
+  query,
+  topic,
   isEdit,
   setIsEdit,
-  topic,
-  query,
+  isTopicLoading,
+  setIsTopicLoading,
   ...props
 }: FlexProps & {
+  query: AppQuery<IEntity>;
+  topic: ITopic;
   isEdit: isEdit;
   setIsEdit: React.Dispatch<React.SetStateAction<isEdit>>;
-  topic: ITopic;
-  query: AppQuery<IEntity>;
+  isTopicLoading: boolean;
+  setIsTopicLoading: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }) => {
   const { data: session } = useSession();
   const { colorMode } = useColorMode();
@@ -35,46 +41,52 @@ export const TopicMessagesList = ({
 
   return (
     <Box {...props}>
-      {topic.topicMessages.map((topicMessage, index) => {
-        const { _id } = topicMessage;
-        const isEditing =
-          typeof _id === "string" &&
-          Object.keys(isEdit).length > 0 &&
-          isEdit[_id] &&
-          isEdit[_id].isOpen;
+      {isTopicLoading || query.isLoading || query.isFetching ? (
+        <Spinner />
+      ) : (
+        topic.topicMessages.map((topicMessage, index) => {
+          const { _id } = topicMessage;
+          const isEditing =
+            typeof _id === "string" &&
+            Object.keys(isEdit).length > 0 &&
+            isEdit[_id] &&
+            isEdit[_id].isOpen;
 
-        if (isEditing)
+          if (isEditing)
+            return (
+              <TopicMessagesListItemEdit
+                key={`topic-messages-list-item-edit-${index}`}
+                isEdit={isEdit}
+                isLoading={isLoading}
+                mutation={mutation}
+                setIsEdit={setIsEdit}
+                setIsLoading={setIsLoading}
+                topic={topic}
+                topicMessage={topicMessage}
+              />
+            );
+
           return (
-            <TopicMessagesListItemEdit
-              key={`topic-messages-list-item-edit-${index}`}
+            <TopicMessagesListItem
+              key={`topic-messages-list-item-${index}`}
+              index={index}
+              isDark={isDark}
               isEdit={isEdit}
               isLoading={isLoading}
+              isTopicLoading={isTopicLoading}
               mutation={mutation}
+              query={query}
+              session={session}
               setIsEdit={setIsEdit}
               setIsLoading={setIsLoading}
+              setIsTopicLoading={setIsTopicLoading}
               topic={topic}
               topicMessage={topicMessage}
+              mb={3}
             />
           );
-
-        return (
-          <TopicMessagesListItem
-            key={`topic-messages-list-item-${index}`}
-            index={index}
-            isDark={isDark}
-            isEdit={isEdit}
-            isLoading={isLoading}
-            mutation={mutation}
-            query={query}
-            session={session}
-            setIsEdit={setIsEdit}
-            setIsLoading={setIsLoading}
-            topic={topic}
-            topicMessage={topicMessage}
-            mb={3}
-          />
-        );
-      })}
+        })
+      )}
     </Box>
   );
 };

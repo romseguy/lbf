@@ -5,7 +5,7 @@ import { logJson } from "utils/string";
 import { objectToQueryString } from "../query";
 import { Primitive } from "../types";
 
-type ConfigType = { isLoggingDisabled?: boolean };
+type ConfigType = { isLoggingDisabled?: boolean; headers?: any };
 type ParamsType = Record<string, any> | Primitive;
 export type ResponseType<T> = { data?: T; error?: any; status?: number };
 
@@ -34,6 +34,10 @@ async function request(
   try {
     if (!config?.isLoggingDisabled) logJson(prefix, params);
 
+    const defaultHeaders = {
+      "Content-Type": "application/json"
+    };
+
     const options: {
       method: string;
       headers: { [key: string]: string };
@@ -41,7 +45,8 @@ async function request(
     } = {
       method,
       headers: {
-        "Content-Type": "application/json"
+        ...defaultHeaders,
+        ...(config?.headers || {})
       }
     };
 
@@ -49,12 +54,20 @@ async function request(
       if (method === "GET") endpoint += "?" + objectToQueryString(params);
       else options.body = JSON.stringify(params);
 
+    const url = endpoint.includes("http")
+      ? endpoint
+      : `${process.env.NEXT_PUBLIC_API}/${endpoint}`;
+
+    if (!config?.isLoggingDisabled) console.log(`${prefix}: url`, url);
+
     const response = await fetch(
-      endpoint.includes("http")
-        ? endpoint
-        : `${process.env.NEXT_PUBLIC_API}/${endpoint}`,
+      url,
+      //endpoint.includes("http") ? { ...options, mode: "no-cors" } : options
       options
     );
+
+    if (!config?.isLoggingDisabled)
+      console.log(`${prefix}: response`, response);
 
     if (response.status !== 200) {
       const error = await response.json();

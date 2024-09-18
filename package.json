@@ -10,12 +10,12 @@
     }
   },
   "scripts": {
-    "dev": "(cd ../ateliers-api && yarn dev) & yarn dev:server",
-    "dev:server": "next",
+    "dev": "kill-port --port 3002 && (cd ../ateliers-api && yarn dev) & yarn dev:server",
+    "dev:server": "kill-port --port 3000 && next",
     "test": "playwright test",
     "test:server": "next build && next start -p 3000",
     "start": "NODE_OPTIONS='http-server-default-timeout=0' forever ./node_modules/.bin/next start -p 8001",
-    "prebuild": "kill-port --port 8001 && node ./src/server/maintenance.js &",
+    "before": "kill-port --port 8001 && node ./src/server/maintenance.js &",
     "build": "next build",
     "postbuild": "kill-port --port 8001",
     "build:size": "ANALYZE=true next build",

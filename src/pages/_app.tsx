@@ -18,13 +18,7 @@ import { wrapper } from "store";
 import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setIsSessionLoading, setSession } from "store/sessionSlice";
-import {
-  devSession,
-  getAuthToken,
-  sealOptions,
-  TOKEN_NAME,
-  Session
-} from "utils/auth";
+import { getAuthToken, sealOptions, TOKEN_NAME, Session } from "utils/auth";
 import { isServer } from "utils/isServer";
 import { useRouter } from "next/router";
 import { Spinner } from "@chakra-ui/react";
@@ -123,53 +117,29 @@ App.getInitialProps = wrapper.getInitialAppProps(
       let session: Session | undefined;
       let authToken: string | null = null;
 
-      if (devSession && getEnv() === "development") {
-        const user = devSession.user;
-        if (user) {
-          email = user.email;
+      if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
+        const cookie = parse(cookies);
+        authToken = getAuthToken(cookie);
 
-          const isAdmin =
-            typeof email === "string" &&
-            typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"
-              ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").includes(email)
-              : false;
+        if (authToken) {
+          const user = await unseal(authToken, process.env.SECRET, sealOptions);
 
-          session = {
-            user: {
-              ...user,
-              isAdmin
-            }
-          };
-        }
-      } else {
-        if (typeof cookies === "string" && cookies.includes(TOKEN_NAME)) {
-          const cookie = parse(cookies);
-          authToken = getAuthToken(cookie);
+          if (user) {
+            const isAdmin =
+              typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"
+                ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").includes(
+                    user.email
+                  )
+                : false;
 
-          if (authToken) {
-            const user = await unseal(
-              authToken,
-              process.env.SECRET,
-              sealOptions
-            );
+            session = {
+              user: {
+                ...user,
+                isAdmin
+              }
+            };
 
-            if (user) {
-              const isAdmin =
-                typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"
-                  ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").includes(
-                      user.email
-                    )
-                  : false;
-
-              session = {
-                user: {
-                  ...user,
-                  isAdmin
-                }
-              };
-
-              email = user.email;
-            }
+            email = user.email;
           }
         }
       }
@@ -204,3 +174,27 @@ App.getInitialProps = wrapper.getInitialAppProps(
 );
 
 export default App;
+
+{
+  /*
+  if (devSession && getEnv() === "development") {
+    const user = devSession.user;
+    if (user) {
+      email = user.email;
+
+      const isAdmin =
+        typeof email === "string" &&
+        typeof process.env.NEXT_PUBLIC_ADMIN_EMAILS === "string"
+          ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").includes(email)
+          : false;
+
+      session = {
+        user: {
+          ...user,
+          isAdmin
+        }
+      };
+    }
+  }
+*/
+}

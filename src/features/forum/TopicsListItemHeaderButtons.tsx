@@ -32,6 +32,7 @@ import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicModalState } from "./TopicsList";
+import { getErrorMessageString } from "utils/query";
 
 interface TopicsListItemHeaderButtonsProps {
   executeScroll: () => void;
@@ -79,10 +80,10 @@ export const TopicsListItemHeaderButtons = ({
     isE
       ? entity.eventUrl
       : isEventTopic
-        ? topic.event!.eventUrl
-        : isO
-          ? entity.orgUrl
-          : entity._id
+      ? topic.event!.eventUrl
+      : isO
+      ? entity.orgUrl
+      : entity._id
   }/discussions`;
   //#endregion
 
@@ -118,9 +119,10 @@ export const TopicsListItemHeaderButtons = ({
       router.push(baseUrl, baseUrl, { shallow: true });
     } catch (error: ServerError | any) {
       toast({
-        title:
-          error.data.message ||
-          `La discussion ${topic.topicName} n'a pas pu être supprimée`,
+        title: getErrorMessageString(
+          error,
+          `La discussion ${topic.topicName} n'a pas pu être supprimée`
+        ),
         status: "error"
       });
     } finally {
@@ -238,9 +240,10 @@ export const TopicsListItemHeaderButtons = ({
                       query.refetch();
                     } catch (error: ServerError | any) {
                       toast({
-                        title:
-                          error.data.message ||
-                          `La discussion ${topic.topicName} n'a pas pu être épinglée`,
+                        title: getErrorMessageString(
+                          error,
+                          `La discussion ${topic.topicName} n'a pas pu être épinglée`
+                        ),
                         status: "error"
                       });
                     } finally {

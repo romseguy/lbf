@@ -17,6 +17,21 @@ export function getError(query: AppQuery<IEntity>): Error | undefined {
   }
 }
 
+export function getErrorMessageString(
+  error: any,
+  defaultErrorMessage?: string
+) {
+  if (error.message && typeof error.message === "string") {
+    return error.message;
+  }
+
+  if (error.data && typeof error.data.message === "string") {
+    return error.data.message;
+  }
+
+  return defaultErrorMessage;
+}
+
 export function objectToQueryString(obj: { [key: string]: string } | {}) {
   const keys = Object.keys(obj);
 

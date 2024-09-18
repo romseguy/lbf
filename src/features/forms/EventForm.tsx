@@ -111,15 +111,24 @@ export const EventForm = withGoogleApi({
       createdBy: props.session.user.userId
     });
     const { data: org } = useGetOrgQuery(
-      { orgUrl: props.orgId || "" },
-      {
-        selectFromResult: (query) => {
-          if (!myOrgs?.find(({ _id }) => _id === props.orgId))
-            return { ...query, data: undefined };
-          return query;
-        }
-      }
+      { orgUrl: props.orgId || "" }
+      // {
+      //   selectFromResult: (query) => {
+      //     if (!myOrgs?.find(({ _id }) => _id === props.orgId))
+      //       return { ...query, data: undefined };
+      //     return query;
+      //   }
+      // }
     );
+    useEffect(() => {
+      if (org) {
+        setValue("eventOrg", org);
+        if (hasItems(org.orgAddress)) setValue("eventAddress", org.orgAddress);
+        if (hasItems(org.orgEmail)) setValue("eventEmail", org.orgEmail);
+        if (hasItems(org.orgPhone)) setValue("eventPhone", org.orgPhone);
+        if (hasItems(org.orgWeb)) setValue("eventWeb", org.orgWeb);
+      }
+    }, [org]);
 
     //#region local state
     const [isLoading, setIsLoading] = useState(false);
@@ -132,25 +141,23 @@ export const EventForm = withGoogleApi({
       eventMinDate:
         typeof props.event?.eventMinDate === "string"
           ? parseISO(props.event.eventMinDate)
-          : props.event?.eventMinDate,
+          : props.event?.eventMinDate || null,
       eventMaxDate:
         typeof props.event?.eventMaxDate === "string"
           ? parseISO(props.event.eventMaxDate)
-          : props.event?.eventMaxDate,
+          : props.event?.eventMaxDate || null,
       eventDescription: props.event?.eventDescription || "",
       eventVisibility: props.event?.eventVisibility || EEventVisibility.PUBLIC,
       //eventOrgs: props.event?.eventOrgs || [],
-      eventOrg: props.event ? props.event.eventOrgs[0] : {},
+      eventOrg: props.event ? props.event.eventOrgs[0] : org || {},
+      eventAddress: props.event?.eventAddress || org?.orgAddress || [],
+      eventEmail: props.event?.eventEmail || org?.orgEmail || [],
+      eventPhone: props.event?.eventPhone || org?.orgPhone || [],
+      eventWeb: props.event?.eventWeb || org?.orgWeb || [],
+      // UNUSED
       eventCategory: props.event?.eventCategory,
-      eventAddress: props.event?.eventAddress || [],
-      eventEmail: props.event?.eventEmail || [],
-      eventPhone: props.event?.eventPhone || [],
-      eventWeb: props.event?.eventWeb || [],
       repeat: props.event?.repeat
     };
-    useEffect(() => {
-      if (org) setValue("eventOrg", org);
-    }, [org]);
     const {
       control,
       register,
@@ -190,6 +197,12 @@ export const EventForm = withGoogleApi({
           });
       }
     }, [errors]);
+
+    let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
+    eventOrg =
+      eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
+
+    const categories = eventOrg ? getEventCategories(eventOrg) : [];
 
     //#region datepicker state
     const weventMinDate = useWatch<Date | null | undefined>({
@@ -243,11 +256,6 @@ export const EventForm = withGoogleApi({
     }, [eventMaxDate]);
     //#endregion
 
-    let eventOrg = useWatch<IOrg>({ control, name: "eventOrg" });
-    eventOrg =
-      eventOrg && Object.keys(eventOrg).length === 0 ? undefined : eventOrg;
-    const categories = eventOrg ? getEventCategories(eventOrg) : [];
-
     //#region event info
     const eventAddress = useWatch<IEntityAddress[]>({
       control,
@@ -263,45 +271,6 @@ export const EventForm = withGoogleApi({
     });
     const eventWeb = useWatch<IEntityWeb[]>({ control, name: "eventWeb" });
     //#endregion
-
-    useEffect(() => {
-      if (!hasItems(eventAddress)) {
-        if (eventOrg) {
-          if (eventOrg.orgAddress[0]) {
-            setValue("eventAddress", eventOrg.orgAddress);
-          }
-        } else {
-          setValue("eventAddress", []);
-        }
-      }
-      if (!hasItems(eventPhone)) {
-        if (eventOrg) {
-          if (eventOrg.orgPhone[0]) {
-            setValue("eventPhone", eventOrg.orgPhone);
-          }
-        } else {
-          setValue("eventPhone", []);
-        }
-      }
-      if (!hasItems(eventEmail)) {
-        if (eventOrg) {
-          if (eventOrg.orgEmail[0]) {
-            setValue("eventEmail", eventOrg.orgEmail);
-          }
-        } else {
-          setValue("eventEmail", []);
-        }
-      }
-      if (!hasItems(eventWeb)) {
-        if (eventOrg) {
-          if (eventOrg.orgWeb[0]) {
-            setValue("eventWeb", eventOrg.orgWeb);
-          }
-        } else {
-          setValue("eventWeb", []);
-        }
-      }
-    }, [eventOrg]);
 
     //#region form handlers
     const onChange = () => {
@@ -603,8 +572,6 @@ export const EventForm = withGoogleApi({
                   typeof props.value === "string"
                     ? parseISO(props.value)
                     : props.value;
-                console.log("🚀 ~ selected:", selected);
-                console.log("🚀 ~ props.value:", props.value);
                 return (
                   <DatePicker
                     // disabled={!eventMinDate}
@@ -681,7 +648,6 @@ export const EventForm = withGoogleApi({
           //     ? false
           //     : !!eventOrgsRules.required
           // }
-          mb={3}
           visibility="hidden"
           css={css`
             .react-select__input-container {
@@ -732,6 +698,7 @@ export const EventForm = withGoogleApi({
         {/* eventCategory */}
         {eventOrg && hasItems(eventOrg.orgEventCategories) && (
           <FormControl
+            visibility="hidden"
             ref={refs.eventCategory}
             isInvalid={!!errors["eventCategory"]}
             onChange={async (e) => {
@@ -1249,4 +1216,49 @@ export const EventForm = withGoogleApi({
           </FormControl>
         )}
  */
+}
+
+{
+  /*
+  
+  useEffect(() => {
+    if (!hasItems(eventAddress)) {
+      if (eventOrg) {
+        if (eventOrg.orgAddress[0]) {
+          setValue("eventAddress", eventOrg.orgAddress);
+        }
+      } else {
+        setValue("eventAddress", []);
+      }
+    }
+    if (!hasItems(eventPhone)) {
+      if (eventOrg) {
+        if (eventOrg.orgPhone[0]) {
+          setValue("eventPhone", eventOrg.orgPhone);
+        }
+      } else {
+        setValue("eventPhone", []);
+      }
+    }
+    if (!hasItems(eventEmail)) {
+      if (eventOrg) {
+        if (eventOrg.orgEmail[0]) {
+          setValue("eventEmail", eventOrg.orgEmail);
+        }
+      } else {
+        setValue("eventEmail", []);
+      }
+    }
+    if (!hasItems(eventWeb)) {
+      if (eventOrg) {
+        if (eventOrg.orgWeb[0]) {
+          setValue("eventWeb", eventOrg.orgWeb);
+        }
+      } else {
+        setValue("eventWeb", []);
+      }
+    }
+  }, [eventOrg]);
+
+*/
 }

@@ -12,7 +12,7 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import { isBefore, parseISO } from "date-fns";
+import { isAfter, isBefore, parseISO } from "date-fns";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -80,13 +80,16 @@ export const GalleriesList = ({
   const galleries = [
     ...org.orgGalleries.concat(
       //@ts-expect-error
-      org.orgEvents.map((event) => {
-        return {
-          galleryName: event._id,
-          isPinned: true,
-          createdAt: event.eventMinDate
-        };
-      })
+      org.orgEvents
+        .filter((event) => isAfter(new Date(), parseISO(event.eventMinDate)))
+        .map((event) => {
+          return {
+            galleryName: event._id,
+            isPinned: true,
+            createdAt: event.eventMinDate,
+            createdBy: event.createdBy
+          };
+        })
     )
   ].sort((galleryA, galleryB) => {
     if (galleryA.isPinned && !galleryB.isPinned) return -1;
@@ -134,7 +137,7 @@ export const GalleriesList = ({
     if (!isAttendee) {
       return toast({
         title:
-          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter une discussion"
+          "Il faut avoir participé à un atelier pour ajouter une discussion"
       });
     }
 
@@ -144,7 +147,8 @@ export const GalleriesList = ({
 
   return (
     <>
-      <Box>
+      {/* Ajouter une galerie */}
+      <Box m="0 auto">
         <Button
           colorScheme="teal"
           leftIcon={<AddIcon />}
@@ -155,6 +159,7 @@ export const GalleriesList = ({
         </Button>
       </Box>
 
+      {/* Ordre d'affichage */}
       <Box mb={5}>
         <AppHeading smaller>Ordre d'affichage</AppHeading>
 

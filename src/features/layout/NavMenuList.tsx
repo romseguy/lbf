@@ -15,8 +15,9 @@ import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
-import { IEntity } from "models/Entity";
+import { IEntity, isEvent, isOrg } from "models/Entity";
 import { IUser } from "models/User";
+import { getEmail } from "models/Subscription";
 const { getEnv } = require("utils/env");
 
 export const NavMenuList = ({
@@ -34,6 +35,7 @@ export const NavMenuList = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { data: session, setSession, setIsSessionLoading } = useSession();
+  const isO = isOrg(entity);
 
   if (!session) return null;
 
@@ -53,6 +55,21 @@ export const NavMenuList = ({
       />
       {getEnv() === "development" && (
         <>
+          {isO && (
+            <MenuItem
+              command={
+                session?.user.isAdmin ||
+                !!(
+                  entity.orgLists.find(
+                    ({ listName }) => listName === "Participants"
+                  )?.subscriptions || []
+                ).find((sub) => getEmail(sub) === session?.user.email)
+                  ? "isAttendee"
+                  : "notAttendee"
+              }
+            />
+          )}
+
           <MenuItem
             aria-hidden
             command={`${entity ? entity._id : session.user.userId}`}
@@ -86,7 +103,11 @@ export const NavMenuList = ({
           onClick={async () => {
             dispatch(setIsSessionLoading(true));
             dispatch(resetUserEmail());
-            await magic.user.logout();
+
+            if (await magic.user.isLoggedIn()) {
+              await magic.user.logout();
+            }
+
             await api.get("logout");
             dispatch(setSession(null));
             dispatch(setIsSessionLoading(false));

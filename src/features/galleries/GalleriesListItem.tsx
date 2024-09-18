@@ -73,8 +73,7 @@ export const GalleriesListItem = ({
   const onAddDocumentClick = () => {
     if (!isAttendee)
       return toast({
-        title:
-          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter des photos"
+        title: "Il faut avoir participé à un atelier pour ajouter des photos"
       });
 
     const userDocuments = gallery.galleryDocuments.filter((doc) =>

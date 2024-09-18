@@ -3,6 +3,7 @@ import {
   AlertIcon,
   Badge,
   BadgeProps,
+  Box,
   TabPanel,
   TabPanels,
   Tabs,
@@ -42,6 +43,7 @@ import { belongs } from "utils/belongs";
 import { hasItems, sortOn } from "utils/array";
 import { GalleriesList } from "features/galleries/GalleriesList";
 import { OrgPageTopicsTabPanel } from "./OrgPageTopicsTabPanel";
+import { QuestionIcon } from "@chakra-ui/icons";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -210,27 +212,23 @@ export const OrgPageTabs = ({
               //   ? {}
               //   : {})}
               css={css`
-                ${
-                  isCurrent &&
-                  `
+                ${isCurrent &&
+                `
                 border: 5px solid ${
                   isDark ? theme.colors.teal[200] : theme.colors.teal[400]
                 };
                 backgroundcolor: white;
-                  `
-                }
+                  `}
                 path {
-                  fill: ${
-                    isDark && isCurrent
-                      ? theme.colors.purple[500]
-                      : isDark
-                        ? "white"
-                        : !isDark && isCurrent
-                          ? theme.colors.whiteAlpha[900]
-                          : !isDark //&& url !== "/"
-                            ? "black"
-                            : "none"
-                  };
+                  fill: ${isDark && isCurrent
+                    ? theme.colors.purple[500]
+                    : isDark
+                    ? "white"
+                    : !isDark && isCurrent
+                    ? theme.colors.whiteAlpha[900]
+                    : !isDark //&& url !== "/"
+                    ? "black"
+                    : "none"};
                 }
               `}
               {...(isMobile ? {} : {})}
@@ -363,11 +361,20 @@ export const OrgPageTabs = ({
           {!!tabs.find(({ label }) => belongs(label, "Galeries")) && (
             <TabPanel aria-hidden>
               <Column bg={isDark ? "gray.700" : "lightblue"}>
-                {/* <Alert status="info" mb={3}>
-                  <AlertIcon />
-                  Pour envoyer vos photos, ajoutez ou sélectionnez une galerie
-                  ci-dessous :
-                </Alert> */}
+                <Alert
+                  colorScheme="white"
+                  status="info"
+                  m="0 auto"
+                  w={isMobile ? undefined : "50%"}
+                  mb={3}
+                >
+                  <QuestionIcon />
+                  <Box ml={5}>
+                    Pour déposer vos photos, ajoutez ou sélectionnez une galerie
+                    ci-dessous :
+                  </Box>
+                </Alert>
+
                 <GalleriesList
                   query={orgQuery}
                   currentGalleryName={currentItemName}

@@ -9,12 +9,15 @@ import { selectScreenHeight, selectScreenWidth } from "store/uiSlice";
 import { divideArray, hasItems } from "utils/array";
 import * as stringUtils from "utils/string";
 import { useRouter } from "next/router";
+import { isServer } from "utils/isServer";
+import { IUser } from "models/User";
 
 export type MosaicImage = RemoteImage & {
   index: number;
   id: string;
   name: string;
   isCreator: boolean;
+  createdBy?: IUser | string;
 };
 
 export const Mosaic = ({
@@ -108,7 +111,7 @@ export const Mosaic = ({
                 let width = image.width > newMW ? newMW : image.width;
                 let height = (width * image.height) / image.width;
                 height =
-                  height > window.innerHeight / 2
+                  !isServer() && height > window.innerHeight / 2
                     ? window.innerHeight / 2
                     : height;
 

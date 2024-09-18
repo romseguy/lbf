@@ -32,6 +32,10 @@ import { test } from "./admin.fixtures";
 //   await expect(page).toHaveTitle(/Atelier – Photo – ateliers.lebonforum.fr/);
 // });
 
+test("login", async ({ page }) => {
+  await page.goto("http://localhost:3000/api/login");
+});
+
 test("EventForm.onSubmit", async ({ page }) => {
   await page.goto("http://localhost:3000/api/login");
   await page.goto("/photo/agenda");
@@ -52,7 +56,7 @@ test("EventForm.onSubmit", async ({ page }) => {
     page.getByRole("link", { name: /Atelier du 1er janvier/ })
   ).toBeVisible();
 
-  await page.getByLabel("Revenir à l'atelier").click();
+  await page.getByLabel("Revenir à l'accueil").click();
   await expect(page).toHaveURL("/photo");
 
   // await page.getByText(/Discussions/).click();

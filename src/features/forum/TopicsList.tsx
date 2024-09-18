@@ -199,7 +199,7 @@ export const TopicsList = ({
     if (!isAttendee) {
       return toast({
         title:
-          "Vous devez avoir été inscrit en tant que participant de l'atelier pour ajouter une discussion"
+          "Il faut avoir participé à un atelier pour ajouter une discussion"
       });
     }
 

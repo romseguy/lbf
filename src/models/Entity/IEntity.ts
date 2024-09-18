@@ -1,3 +1,4 @@
+import { IDocument } from "models/Document";
 import { IUser } from "models/User";
 import { Base64Image } from "utils/image";
 
@@ -12,7 +13,10 @@ export interface IEntityAddress {
   address: string;
 }
 
-export interface IEntityBanner extends Base64Image {
+export interface IEntityBanner {
+  doc: IDocument;
+  width: number;
+  height: number;
   headerHeight: number;
   mode: "light" | "dark";
   url?: string;

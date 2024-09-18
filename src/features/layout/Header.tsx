@@ -8,6 +8,7 @@ import theme, { logoHeight } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { useToast } from "hooks/useToast";
 import {
+  getRefId,
   IEntity,
   IEntityBanner,
   IEntityLogo,
@@ -42,12 +43,35 @@ export const Header = ({
   //   if (router.asPath === "/") return;
   //   if (Array.isArray(router.query.name) && !!router.query.name[1]) return;
   //   executeScroll();
-  //   console.log("🚀 ~ file: Header.tsx:41 ~ useEffect ~ executeScroll:");
   // }, [router.asPath]);
 
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+
   let banner: IEntityBanner | undefined;
+  let bannerUrl: string | undefined;
+  let logo: IEntityLogo | undefined;
+  let showTitle = true;
+
+  if (isE) {
+    banner = entity.eventBanner;
+    logo = entity.eventLogo;
+    showTitle = entity.eventStyles.showTitle;
+  } else if (isO) {
+    banner = entity.orgBanner;
+    logo = entity.orgLogo;
+    showTitle = entity.orgStyles.showTitle;
+  }
+
+  if (banner) {
+    const docId = getRefId(banner.doc, "_id");
+    if (typeof docId === "string") {
+      bannerUrl = process.env.NEXT_PUBLIC_FILES + "/" + docId;
+    }
+
+    //bannerUrl = banner.url
+  }
+
   const getBannerHeight = () => {
     if (!banner || !window) return 140;
     const ratio = banner.height / banner.width;
@@ -61,17 +85,6 @@ export const Header = ({
     }
     return h;
   };
-  let logo: IEntityLogo | undefined;
-  let showTitle = true;
-  if (isE) {
-    banner = entity.eventBanner;
-    logo = entity.eventLogo;
-    showTitle = entity.eventStyles.showTitle;
-  } else if (isO) {
-    banner = entity.orgBanner;
-    logo = entity.orgLogo;
-    showTitle = entity.orgStyles.showTitle;
-  }
 
   if (!banner && !logo && !showTitle) return null;
 
@@ -86,22 +99,19 @@ export const Header = ({
         display: flex;
         padding: 12px;
 
-        ${
-          isMobile
-            ? `
+        ${isMobile
+          ? `
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-end;
         `
-            : `
+          : `
         flex-direction: row;
-        `
-        }
+        `}
 
-        ${
-          banner &&
-          `
-          background-image: url("${banner.base64 || banner.url}");
+        ${banner &&
+        `
+          background-image: url("${bannerUrl}");
           background-size: cover;
           background-position: center;
           cursor: pointer;
@@ -111,19 +121,18 @@ export const Header = ({
           background-repeat: no-repeat;*/
 
           ${logo ? `` : ``}
-        `
-        }
+        `}
 
-        ${
-          !banner &&
-          `
-          /*background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};*/
+        ${!banner &&
+        `
+          /*background-color: ${
+            isDark ? theme.colors.gray[700] : "lightblue"
+          };*/
           background-color: ${
             isDark ? theme.colors.gray[700] : theme.colors.blackAlpha[50]
           };
           ${logo ? `` : ``}
-        `
-        }
+        `}
       `}
       onClick={(e) => {
         e.stopPropagation();
@@ -184,7 +193,7 @@ export const Header = ({
         >
           <Image
             alignSelf="center"
-            src={banner.url || banner.base64}
+            src={bannerUrl}
             backgroundSize="cover"
             height={getBannerHeight()}
             //width={banner.width || 1154}

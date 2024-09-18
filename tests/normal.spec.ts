@@ -1,6 +1,10 @@
 import { expect } from "@playwright/test";
 import { test } from "./normal.fixtures";
 
+test("login", async ({ page }) => {
+  await page.goto("http://localhost:3000/api/login");
+});
+
 test.describe("event forms", () => {
   test("DocumentForm.onSubmit", async ({ page }) => {
     await page.goto("http://localhost:3000/api/login");

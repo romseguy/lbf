@@ -253,12 +253,18 @@ handler.get<
       .populate([
         {
           path: "galleryDocuments",
-          populate: [{ path: "createdBy", select: "_id userName" }]
+          populate: [
+            {
+              path: "createdBy",
+              select: "_id userName"
+            }
+          ]
         },
         { path: "createdBy", select: "_id userName" }
       ])
       .execPopulate();
 
+    // console.log(prefix + "gallery:", gallery);
     res.status(200).json(gallery);
   } catch (error: any) {
     if (error.kind === "ObjectId")

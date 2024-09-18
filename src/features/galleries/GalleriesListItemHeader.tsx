@@ -25,7 +25,7 @@ import {
 import { useToast } from "hooks/useToast";
 
 import React, { useState } from "react";
-import { DeleteButton, PushPinIcon } from "features/common";
+import { DeleteButton, PushPinIcon, Link } from "features/common";
 import { useSession } from "hooks/useSession";
 import { IGallery } from "models/Gallery";
 import { useSelector } from "react-redux";
@@ -33,15 +33,17 @@ import { selectIsMobile } from "store/uiSlice";
 import { useRouter } from "next/router";
 import { FaFolderOpen, FaFolder, FaImages } from "react-icons/fa";
 import { css } from "twin.macro";
-import { ServerError } from "utils/errors";
 import {
   useDeleteGalleryMutation,
   useEditGalleryMutation
 } from "features/api/galleriesApi";
-import { AppQueryWithData } from "utils/types";
-import { hasItems } from "utils/array";
 import { IEntity } from "models/Entity";
 import { IOrg } from "models/Org";
+import { hasItems } from "utils/array";
+import { ServerError } from "utils/errors";
+import * as dateUtils from "utils/date";
+import { AppQueryWithData } from "utils/types";
+import { getErrorMessageString } from "utils/query";
 
 export const GalleriesListItemHeader = ({
   query,
@@ -88,6 +90,13 @@ export const GalleriesListItemHeader = ({
   const baseUrl = `/${org.orgUrl}/galeries`;
   const hoverColor = isHover ? "white" : "black";
 
+  const { timeAgo, fullDate } = dateUtils.timeAgo(gallery.createdAt, true);
+  const galleryCreatedByUserName =
+    typeof gallery.createdBy === "object"
+      ? gallery.createdBy.userName ||
+        gallery.createdBy.email?.replace(/@.+/, "")
+      : gallery.createdBy || "";
+
   const onDeleteClick = async () => {
     try {
       setIsLoading && setIsLoading(true);
@@ -99,9 +108,10 @@ export const GalleriesListItemHeader = ({
       router.push(baseUrl, baseUrl, { shallow: true });
     } catch (error: ServerError | any) {
       toast({
-        title:
-          error.data.message ||
-          `La galerie « ${gallery!.galleryName} » n'a pas pu être supprimée`,
+        title: getErrorMessageString(
+          error,
+          `La galerie « ${gallery!.galleryName} » n'a pas pu être supprimée`
+        ),
         status: "error"
       });
     } finally {
@@ -134,8 +144,8 @@ export const GalleriesListItemHeader = ({
             ? "gray.600"
             : "orange.200"
           : isDark
-            ? "gray.500"
-            : "orange.100"
+          ? "gray.500"
+          : "orange.100"
       }
       cursor="pointer"
       py={1}
@@ -209,8 +219,29 @@ export const GalleriesListItemHeader = ({
 
               <Td>
                 <HStack>
-                  <Text>Galerie {isEventGallery && "de l'événement"} : </Text>
-                  <Text fontWeight="bold">
+                  <Text
+                    as="span"
+                    whiteSpace={!isMobile ? "nowrap" : undefined}
+                    {...(isEventGallery
+                      ? {
+                          color: isDark ? "teal.200" : "teal",
+                          fontWeight: "bold",
+                          fontSize: "larger"
+                        }
+                      : {})}
+                  >
+                    Galerie {isEventGallery && "de l'événement"} :{" "}
+                  </Text>
+
+                  <Text
+                    as="span"
+                    fontWeight="bold"
+                    {...(isEventGallery
+                      ? {
+                          fontSize: "larger"
+                        }
+                      : {})}
+                  >
                     {event?.eventName || gallery.galleryName}
                   </Text>
                 </HStack>
@@ -227,21 +258,35 @@ export const GalleriesListItemHeader = ({
           color={isDark ? "white" : "purple"}
           ml={10}
         >
+          <Tooltip label="Aller à la page de l'utilisateur">
+            <Link
+              href={`/${galleryCreatedByUserName}`}
+              _hover={{
+                color: isDark ? "white" : "white",
+                textDecoration: "underline"
+              }}
+            >
+              {galleryCreatedByUserName}
+            </Link>
+          </Tooltip>
+          <Box as="span" aria-hidden mx={1}>
+            ·
+          </Box>
+
+          <Tooltip placement="bottom" label={`Discussion créée le ${fullDate}`}>
+            <Text
+              cursor="default"
+              // _hover={{
+              //   color: isDark ? "white" : "white"
+              // }}
+              onClick={(e) => e.stopPropagation()}
+              suppressHydrationWarning
+            >
+              {timeAgo}
+            </Text>
+          </Tooltip>
+
           {/* Un descriptif de la galerie */}
-          {/* <Tooltip label="Aller à la page de l'utilisateur">
-                        <Link
-                          href={`/${galleryCreatedByUserName}`}
-                          _hover={{
-                            color: isDark ? "white" : "white",
-                            textDecoration: "underline"
-                          }}
-                        >
-                          {galleryCreatedByUserName}
-                        </Link>
-                      </Tooltip> */}
-          {/* <Box as="span" aria-hidden mx={1}>
-                        ·
-                      </Box> */}
           {/* <Tooltip
                         placement="bottom"
                         label={`Galerie créée le ${fullDate}`}
@@ -347,9 +392,11 @@ export const GalleriesListItemHeader = ({
                         query.refetch();
                       } catch (error: ServerError | any) {
                         toast({
-                          title:
-                            error.data.message ||
-                            `La galerie ${gallery.galleryName} n'a pas pu être épinglée`,
+                          title: getErrorMessageString(
+                            error,
+
+                            `La galerie ${gallery.galleryName} n'a pas pu être épinglée`
+                          ),
                           status: "error"
                         });
                       } finally {

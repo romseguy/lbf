@@ -26,7 +26,7 @@ if (!cached) {
   cached = global.mongo = { conn: null, promise: null, models: null };
 }
 
-export let db: Db;
+export let db = cached.conn?.db as unknown as Db;
 //@ts-ignore
 export let models: {
   Document: Model<IDocument, {}, {}>;
@@ -53,6 +53,8 @@ export default async function database(
   res: NextApiResponse,
   next: NextHandler
 ) {
+  if (cached.conn) db = cached.conn.db;
+
   if (!cached.models && cached.conn) {
     cached.models = models = {
       Document: cached.conn.model<IDocument>("Document", DocumentSchema),
@@ -99,6 +101,7 @@ export default async function database(
   }
 
   cached.conn = await cached.promise;
+  db = cached.conn.db;
 
   if (!cached.models)
     cached.models = models = {

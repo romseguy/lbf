@@ -4,6 +4,7 @@ import {
   DownloadIcon
 } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   HStack,
   IconButton,
@@ -14,7 +15,7 @@ import {
   UseDisclosureProps
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useDeleteDocumentMutation } from "features/api/documentsApi";
@@ -26,11 +27,12 @@ import {
 import { DeleteButton } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { useToast } from "hooks/useToast";
-import { IEntity, isEvent } from "models/Entity";
+import { getRefId, IEntity, isEvent } from "models/Entity";
 import { ITopic } from "models/Topic";
 import { selectScreenHeight } from "store/uiSlice";
 import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
+import { getErrorMessageString } from "utils/query";
 
 export const MosaicItemFullscrenModal = ({
   entity,
@@ -68,6 +70,7 @@ export const MosaicItemFullscrenModal = ({
   const screenHeight = useSelector(selectScreenHeight);
 
   const isE = isEvent(entity);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <FullscreenModal
@@ -173,8 +176,10 @@ export const MosaicItemFullscrenModal = ({
 
           <Button
             colorScheme="green"
+            isLoading={isLoading}
             onClick={async () => {
               try {
+                setIsLoading(true);
                 const key = isE ? "event" : "org";
                 const topicName = modalState.image.name;
                 const topicMessage = {
@@ -195,10 +200,17 @@ export const MosaicItemFullscrenModal = ({
                   await addTopic({ payload }).unwrap();
                 }
 
-                router.push(`/${entity[key + "Url"]}/discussions/${topicName}`);
+                await router.push(
+                  `/${entity[key + "Url"]}/discussions/${topicName}`
+                );
+                setIsLoading(false);
               } catch (error) {
+                setIsLoading(false);
                 toast({
-                  title: "La discussion n'a pas pu être créée",
+                  title: getErrorMessageString(
+                    error,
+                    "La discussion n'a pas pu être créée"
+                  ),
                   status: "error"
                 });
               }
@@ -206,6 +218,13 @@ export const MosaicItemFullscrenModal = ({
           >
             Commenter
           </Button>
+
+          <Box flexGrow={1} textAlign="right" pr={10}>
+            {modalState.image.createdBy &&
+            typeof modalState.image.createdBy !== "string"
+              ? modalState.image.createdBy.userName
+              : ""}
+          </Box>
         </HStack>
       }
       bodyProps={{ bg: "black" }}

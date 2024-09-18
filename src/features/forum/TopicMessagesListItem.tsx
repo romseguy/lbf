@@ -19,11 +19,13 @@ export const TopicMessagesListItem = ({
   isDark,
   isEdit,
   isLoading,
+  isTopicLoading,
   query,
   mutation,
   session,
   setIsEdit,
   setIsLoading,
+  setIsTopicLoading,
   topic,
   topicMessage,
   ...props
@@ -39,6 +41,10 @@ export const TopicMessagesListItem = ({
   setIsLoading: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   topic: ITopic;
   topicMessage: ITopicMessage;
+  isTopicLoading: boolean;
+  setIsTopicLoading: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }) => {
   const router = useRouter();
   const isMobile = useSelector(selectIsMobile);
@@ -113,12 +119,14 @@ export const TopicMessagesListItem = ({
 
             <DeleteIconButton
               isDisabled={query.isLoading || query.isFetching}
-              isLoading={typeof _id === "string" && isLoading[_id]}
+              //isLoading={typeof _id === "string" && isLoading[_id]}
               placement="bottom"
               header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}
               onClick={async () => {
-                typeof _id === "string" && setIsLoading({ [_id]: true });
-                _id && setIsLoading({ [_id]: true });
+                setIsTopicLoading({ [topic._id]: true });
+
+                // typeof _id === "string" && setIsLoading({ [_id]: true });
+                // _id && setIsLoading({ [_id]: true });
 
                 const payload: EditTopicPayload = {
                   topic: {
@@ -147,10 +155,13 @@ export const TopicMessagesListItem = ({
                     topicId: topic._id
                   }).unwrap();
 
-                  _id && setIsLoading({ [_id]: false });
+                  //_id && setIsLoading({ [_id]: false });
+
+                  setIsTopicLoading({ [topic._id]: false });
                 } catch (error) {
                   // todo
                   console.error(error);
+                  setIsTopicLoading({ [topic._id]: false });
                 }
               }}
             />

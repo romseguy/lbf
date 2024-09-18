@@ -144,7 +144,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             .json(
               createEndpointError(
                 new Error(
-                  "Vous devez être inscrit en tant que participant pour ajouter une discussion"
+                  "Il faut avoir participé à un atelier pour ajouter une discussion"
                 )
               )
             );
@@ -152,8 +152,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         const lists = org
           ? org.orgLists
           : event
-            ? event.eventOrgs[0].orgLists
-            : [];
+          ? event.eventOrgs[0].orgLists
+          : [];
         if (!hasItems(lists)) return nok();
 
         const attendees = lists.find(

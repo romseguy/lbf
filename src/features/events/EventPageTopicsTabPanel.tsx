@@ -64,6 +64,10 @@ export const EventPageTopicsTabPanel = ({
       subQuery={subQuery}
     />
   );
+};
+
+{
+  /*
 
   return (
     <Box css={body}>
@@ -208,4 +212,6 @@ export const EventPageTopicsTabPanel = ({
       </VStack>
     </Box>
   );
-};
+
+*/
+}

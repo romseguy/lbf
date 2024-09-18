@@ -31,6 +31,7 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
   async function addDocument(req, res) {
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /documents `;
     //console.log(prefix + "body", req.body);
+    console.log(prefix);
 
     const session = await getSession({ req });
 
@@ -52,14 +53,10 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
 
     const fsMb = body.documentBytes / (1024 * 1024);
 
-    if (fsMb > 3) {
+    if (!session.user.isAdmin && fsMb > 3) {
       return res
         .status(400)
-        .json(
-          createEndpointError(
-            new Error(body.documentName + " est trop volumineux")
-          )
-        );
+        .json(createEndpointError(new Error("L'image est trop volumineuse")));
     }
 
     try {
@@ -127,7 +124,7 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
           .json(
             createEndpointError(
               new Error(
-                "Vous devez être inscrit en tant que participant pour ajouter une photo"
+                "Il faut avoir participé à un atelier pour ajouter une photo"
               )
             )
           );

@@ -77,7 +77,8 @@ export const DocumentsListMosaic = ({
         height: doc.documentHeight,
         width: doc.documentWidth,
         bytes: doc.documentBytes,
-        isCreator: equals(getRefId(doc), session?.user.userId)
+        isCreator: equals(getRefId(doc), session?.user.userId),
+        createdBy: doc.createdBy
       };
 
       if (

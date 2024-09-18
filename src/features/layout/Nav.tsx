@@ -88,18 +88,19 @@ export const Nav = ({
           </Tooltip>
 
           {isE && (
-            <Tooltip label="Revenir à l'atelier" placement="right">
+            <Tooltip label="Revenir à l'accueil" placement="right">
               <IconButton
-                aria-label="Revenir à l'atelier"
+                aria-label="Revenir à l'accueil"
                 colorScheme="purple"
                 icon={<Icon as={FaHome} boxSize={8} />}
-                onClick={() =>
-                  router.push(
-                    `/${entity.eventOrgs[0].orgUrl}`,
-                    `/${entity.eventOrgs[0].orgUrl}`,
-                    { shallow: true }
-                  )
-                }
+                onClick={() => {
+                  // router.push(
+                  //   `/${entity.eventOrgs[0].orgUrl}`,
+                  //   `/${entity.eventOrgs[0].orgUrl}`,
+                  //   { shallow: true }
+                  // )
+                  router.push(`/photo`, `/photo`, { shallow: true });
+                }}
               />
             </Tooltip>
           )}
@@ -113,12 +114,12 @@ export const Nav = ({
           {pageTitle
             ? pageTitle
             : entity
-              ? isO
-                ? `${entity.orgName}`
-                : isE
-                  ? entity.eventName
-                  : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
-              : process.env.NEXT_PUBLIC_SHORT_URL}
+            ? isO
+              ? `${entity.orgName}`
+              : isE
+              ? entity.eventName
+              : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
+            : process.env.NEXT_PUBLIC_SHORT_URL}
         </Link>
       </AppHeading>
 
@@ -130,8 +131,8 @@ export const Nav = ({
             isE
               ? "de l'événement"
               : isO
-                ? orgTypeFull(entity.orgType)
-                : "de l'utilisateur"
+              ? orgTypeFull(entity.orgType)
+              : "de l'utilisateur"
           }`}
           tooltipProps={{ placement: "right" }}
           variant="outline"
@@ -142,44 +143,48 @@ export const Nav = ({
 
   const SecondCell = (
     <HStack justifyContent="flex-end">
-      {session && (
-        <>
-          <Menu>
-            {/* <Tooltip
+      {isSessionLoading ? (
+        <Spinner />
+      ) : (
+        session && (
+          <>
+            <Menu>
+              {/* <Tooltip
                         label={`Connecté en tant que ${userEmail}`}
                         placement="left"
                       >
                       </Tooltip> */}
-            <MenuButton aria-label="Menu">
-              <Avatar
-                boxSize={12}
-                bgColor={isDark ? undefined : "#2B6CB0"}
-                color={isDark ? undefined : "white"}
-                name={userName}
-                src={
-                  session.user.userImage
-                    ? session.user.userImage.base64
-                    : undefined
-                }
+              <MenuButton aria-label="Menu">
+                <Avatar
+                  boxSize={12}
+                  bgColor={isDark ? undefined : "#2B6CB0"}
+                  color={isDark ? undefined : "white"}
+                  name={userName}
+                  src={
+                    session.user.userImage
+                      ? session.user.userImage.base64
+                      : undefined
+                  }
+                />
+              </MenuButton>
+
+              <NavMenuList
+                entity={entity}
+                email={userEmail}
+                //session={session}
+                userName={userName}
+                zIndex={9999}
               />
-            </MenuButton>
+            </Menu>
 
-            <NavMenuList
-              entity={entity}
-              email={userEmail}
-              //session={session}
-              userName={userName}
-              zIndex={9999}
+            <NotificationPopover
+              isMobile={isMobile}
+              session={session}
+              offset={[isMobile ? -141 : 140, 15]}
+              iconProps={{ ...iconProps, ...{ mr: 0 } }}
             />
-          </Menu>
-
-          <NotificationPopover
-            isMobile={isMobile}
-            session={session}
-            offset={[isMobile ? -141 : 140, 15]}
-            iconProps={{ ...iconProps, ...{ mr: 0 } }}
-          />
-        </>
+          </>
+        )
       )}
 
       <Tooltip
@@ -196,7 +201,15 @@ export const Nav = ({
   return (
     <Box as="nav" {...props}>
       {!isMobile && (
-        <Table role="navigation" css={css`td { border: 0; padding: 0}`}>
+        <Table
+          role="navigation"
+          css={css`
+            td {
+              border: 0;
+              padding: 0;
+            }
+          `}
+        >
           <Tbody>
             <Tr>
               <Td>{FirstCell}</Td>

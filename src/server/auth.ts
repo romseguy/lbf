@@ -1,7 +1,7 @@
 import { unseal } from "@hapi/iron";
 import { IncomingMessage } from "http";
 import { NextApiRequest } from "next";
-import { devSession, Session, getAuthToken, sealOptions } from "utils/auth";
+import { Session, getAuthToken, sealOptions } from "utils/auth";
 import { getEnv } from "utils/env";
 
 export async function getSession(params: {
@@ -19,7 +19,7 @@ export async function getSession(params: {
     session = { user };
   }
 
-  if (getEnv() === "development" && devSession) session = devSession;
+  //if (getEnv() === "development" && devSession) session = devSession;
 
   if (session?.user) {
     session.user.isAdmin =

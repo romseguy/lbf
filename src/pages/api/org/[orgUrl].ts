@@ -257,8 +257,8 @@ handler.get<
           path: "orgGalleries",
           populate: [
             {
-              path: "galleryDocuments"
-              //populate: [{ path: "createdBy", select: "_id userName" }]
+              path: "galleryDocuments",
+              populate: [{ path: "createdBy", select: "_id userName" }]
             },
             { path: "createdBy", select: "_id userName" }
           ]

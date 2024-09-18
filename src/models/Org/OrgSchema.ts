@@ -123,7 +123,10 @@ export const OrgSchema = new Schema<IOrg>(
     },
     orgBanner: {
       type: {
-        base64: String,
+        doc: {
+          type: Schema.Types.ObjectId,
+          ref: "Document"
+        },
         height: Number,
         headerHeight: Number,
         width: Number,
