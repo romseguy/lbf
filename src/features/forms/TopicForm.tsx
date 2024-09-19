@@ -65,8 +65,8 @@ export const TopicForm = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-      ? entity.orgTopicCategories
-      : [];
+    ? entity.orgTopicCategories
+    : [];
   const topicCategory =
     props.topic &&
     props.topic.topicCategory &&
@@ -118,6 +118,8 @@ export const TopicForm = ({
     setIsLoading(true);
 
     let topic: Partial<ITopic> = {
+      event,
+      org,
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
       topicVisibility: (form.topicVisibility || []).map(
@@ -154,8 +156,6 @@ export const TopicForm = ({
         }
 
         let payload: AddTopicPayload = {
-          event,
-          org,
           topic
         };
 
@@ -222,119 +222,122 @@ export const TopicForm = ({
         </FormControl>
       )}
 
-      <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
-        <FormLabel>Catégorie (optionnel)</FormLabel>
-        <Controller
-          name="topicCategory"
-          control={control}
-          render={(renderProps) => {
-            let value = renderProps.value;
+      {isO && (
+        <FormControl isInvalid={!!errors["topicCategory"]} mb={3}>
+          <FormLabel>Catégorie (optionnel)</FormLabel>
+          <Controller
+            name="topicCategory"
+            control={control}
+            render={(renderProps) => {
+              let value = renderProps.value;
 
-            return (
-              <Creatable
-                value={value}
-                onChange={renderProps.onChange}
-                options={
-                  topicCategories.map(({ catId: value, label }) => {
-                    return {
-                      label,
-                      value
-                    };
-                  }) || []
-                }
-                allowCreateWhileLoading
-                formatCreateLabel={(inputValue: string) =>
-                  `Ajouter la catégorie "${inputValue}"`
-                }
-                onCreateOption={async (inputValue: string) => {
-                  if (!props.isCreator) {
-                    toast({
-                      status: "error",
-                      title: `Vous n'avez pas la permission ${
-                        isE
-                          ? "de l'événement"
-                          : isO
+              return (
+                <Creatable
+                  value={value}
+                  onChange={renderProps.onChange}
+                  options={
+                    topicCategories.map(({ catId: value, label }) => {
+                      return {
+                        label,
+                        value
+                      };
+                    }) || []
+                  }
+                  allowCreateWhileLoading
+                  formatCreateLabel={(inputValue: string) =>
+                    `Ajouter la catégorie "${inputValue}"`
+                  }
+                  onCreateOption={async (inputValue: string) => {
+                    if (!props.isCreator) {
+                      toast({
+                        status: "error",
+                        title: `Vous n'avez pas la permission ${
+                          isE
+                            ? "de l'événement"
+                            : isO
                             ? orgTypeFull(entity.orgType)
                             : ""
-                      } pour ajouter une catégorie`
-                    });
-                    return;
-                  }
+                        } pour ajouter une catégorie`
+                      });
+                      return;
+                    }
 
-                  // if (
-                  //   entity.orgTopicCategories.find(
-                  //     (orgTopicsCategory) =>
-                  //       orgTopicsCategory === normalize(inputValue, false)
-                  //   )
-                  // ) {
-                  //   toast({
-                  //     status: "error",
-                  //     title: `Ce nom de catégorie n'est pas disponible`,
-                  //                         //   });
-                  //   return;
-                  // }
+                    // if (
+                    //   entity.orgTopicCategories.find(
+                    //     (orgTopicsCategory) =>
+                    //       orgTopicsCategory === normalize(inputValue, false)
+                    //   )
+                    // ) {
+                    //   toast({
+                    //     status: "error",
+                    //     title: `Ce nom de catégorie n'est pas disponible`,
+                    //                         //   });
+                    //   return;
+                    // }
 
-                  try {
-                    //if (isE) {
-                    //todo
-                    //} else {
-                    const catId = "" + topicCategories.length;
-                    await edit({
-                      [isE ? "eventId" : "orgId"]: entity._id,
-                      payload: {
-                        [isE ? "eventTopicCategories" : "orgTopicCategories"]: [
-                          ...topicCategories,
-                          {
-                            catId,
-                            label: inputValue
-                          }
-                        ]
-                      }
-                    }).unwrap();
-                    //}
+                    try {
+                      //if (isE) {
+                      //todo
+                      //} else {
+                      const catId = "" + topicCategories.length;
+                      await edit({
+                        [isE ? "eventId" : "orgId"]: entity._id,
+                        payload: {
+                          [isE ? "eventTopicCategories" : "orgTopicCategories"]:
+                            [
+                              ...topicCategories,
+                              {
+                                catId,
+                                label: inputValue
+                              }
+                            ]
+                        }
+                      }).unwrap();
+                      //}
 
-                    setValue("topicCategory", {
-                      label: inputValue,
-                      value: catId
-                    });
-                    toast({
-                      status: "success",
-                      title: "La catégorie a été ajoutée !"
-                    });
-                  } catch (error) {
-                    console.error(error);
-                    toast({
-                      status: "error",
-                      title: "La catégorie n'a pas pu être ajoutée"
-                    });
-                  }
-                }}
-                isClearable
-                placeholder="Rechercher ou ajouter une catégorie"
-                noOptionsMessage={() => "Aucun résultat"}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={{
-                  control: (defaultStyles: any) => {
-                    return {
-                      ...defaultStyles,
-                      borderColor: "#e2e8f0"
-                    };
-                  },
-                  placeholder: () => {
-                    return {
-                      color: "#A0AEC0"
-                    };
-                  }
-                }}
-              />
-            );
-          }}
-        />
-        <FormErrorMessage>
-          <ErrorMessage errors={errors} name="topicCategory" />
-        </FormErrorMessage>
-      </FormControl>
+                      setValue("topicCategory", {
+                        label: inputValue,
+                        value: catId
+                      });
+                      toast({
+                        status: "success",
+                        title: "La catégorie a été ajoutée !"
+                      });
+                    } catch (error) {
+                      console.error(error);
+                      toast({
+                        status: "error",
+                        title: "La catégorie n'a pas pu être ajoutée"
+                      });
+                    }
+                  }}
+                  isClearable
+                  placeholder="Rechercher ou ajouter une catégorie"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+          <FormErrorMessage>
+            <ErrorMessage errors={errors} name="topicCategory" />
+          </FormErrorMessage>
+        </FormControl>
+      )}
 
       {org && !isEntityPrivate && (
         <FormControl mb={3}>

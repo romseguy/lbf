@@ -185,14 +185,14 @@ export const MosaicItemFullscrenModal = ({
                 const topicMessage = {
                   message: `<img src="${modalState.image.url}" style="max-height: 400px"/>`
                 };
-
                 const topic = entity[key + "Topics"].find(
                   (topic: ITopic) => topic.topicName === topicName
                 );
+                // add topic only if not already there
                 if (!topic) {
                   const payload: AddTopicPayload = {
-                    [isE ? "event" : "org"]: entity,
                     topic: {
+                      [key]: entity,
                       topicName,
                       topicMessages: [topicMessage]
                     }

@@ -89,7 +89,6 @@ export const TopicMessageForm = ({
     setIsLoading(true);
 
     const payload: AddTopicPayload = {
-      [isO ? "org" : "event"]: { _id: entity._id },
       topic: {
         ...props.topic,
         topicMessages: [
@@ -210,8 +209,8 @@ export const TopicMessageForm = ({
             {isDisabled
               ? "Réponses désactivées"
               : props.topicMessage
-                ? "Modifier"
-                : "Ajouter"}
+              ? "Modifier"
+              : "Ajouter"}
           </Button>
         )}
       </Flex>

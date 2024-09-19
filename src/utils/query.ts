@@ -49,6 +49,7 @@ export function objectToQueryString(obj: { [key: string]: string } | {}) {
     .join("&");
 }
 
+//const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API,
   // credentials: "include",

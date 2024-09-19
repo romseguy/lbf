@@ -16,7 +16,15 @@ import {
 import React from "react";
 import { FaFolder, FaFolderOpen } from "react-icons/fa";
 import { css } from "twin.macro";
-import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
+import { CategoryTag } from "features/common";
+import {
+  EEntityCategoryKey,
+  getCategoryLabel,
+  IEntity,
+  IEntityCategory,
+  isEvent,
+  isOrg
+} from "models/Entity";
 import { ITopic } from "models/Topic";
 import * as dateUtils from "utils/date";
 import { AppQueryWithData } from "utils/types";
@@ -55,14 +63,15 @@ export const TopicsListItemHeader = ({
     ? entity.orgEvents.find(({ _id }) => _id === topic.topicName)
     : undefined;
   const isEventTopic = !!event;
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : isO
-    ? entity.orgTopicCategories
-    : [];
   //#endregion
 
   //#region topic
+  const topicCategories: IEntityCategory[] =
+    entity[
+      isE
+        ? EEntityCategoryKey.eventTopicCategories
+        : EEntityCategoryKey.orgTopicCategories
+    ];
   const hasCategorySelected = !!selectedCategories?.find(
     (category) => category === topic.topicCategory
   );
@@ -71,6 +80,21 @@ export const TopicsListItemHeader = ({
       ? getCategoryLabel(topicCategories, topic.topicCategory)
       : "";
   //#endregion
+
+  const title = (
+    <Text
+      as="span"
+      fontWeight="bold"
+      {...(isEventTopic
+        ? {
+            fontSize: "larger",
+            pt: 1
+          }
+        : {})}
+    >
+      {event ? event.eventName : topic.topicName}
+    </Text>
+  );
 
   const elements = (
     <>
@@ -99,34 +123,54 @@ export const TopicsListItemHeader = ({
 
         {isO && isEventTopic ? <CalendarIcon /> : <Icon as={ChatIcon} />}
 
-        <Text
-          as="span"
-          whiteSpace={!isMobile ? "nowrap" : undefined}
-          {...(isEventTopic
-            ? {
-                color: isDark ? "teal.200" : "teal",
-                fontWeight: "bold",
-                fontSize: "larger",
-                pt: 1
-              }
-            : {})}
-        >
-          Discussion{isEventTopic && "s de l'événement"} :{" "}
-        </Text>
-      </HStack>
+        <VStack spacing={0} alignItems="flex-start" justifyContent="flex-end">
+          <HStack>
+            <Text
+              as="span"
+              whiteSpace={!isMobile ? "nowrap" : undefined}
+              {...(isEventTopic
+                ? {
+                    color: isDark ? "teal.200" : "teal",
+                    fontWeight: "bold",
+                    fontSize: "larger",
+                    pt: 1
+                  }
+                : {})}
+            >
+              Discussion{isEventTopic && "s de l'événement"} :{" "}
+            </Text>
+            {title}
+          </HStack>
 
-      <Text
-        as="span"
-        fontWeight="bold"
-        {...(isEventTopic
-          ? {
-              fontSize: "larger",
-              pt: 1
-            }
-          : {})}
-      >
-        {event ? event.eventName : topic.topicName}
-      </Text>
+          {!event && topic.topicCategory && (
+            <HStack>
+              <Text as="span">Catégorie :</Text>
+              <Text as="span">
+                <CategoryTag
+                  bgColor={
+                    hasCategorySelected
+                      ? isDark
+                        ? "pink.200"
+                        : "pink.500"
+                      : "teal.500"
+                  }
+                  fontWeight={hasCategorySelected ? "bold" : undefined}
+                  tooltipProps={{ placement: "right" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedCategories(
+                      //@ts-expect-error
+                      hasCategorySelected ? [] : [topic.topicCategory]
+                    );
+                  }}
+                >
+                  {topicCategoryLabel}
+                </CategoryTag>
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+      </HStack>
     </>
   );
 
@@ -175,6 +219,7 @@ export const TopicsListItemHeaderDetails = ({
 
   return (
     <VStack alignItems="flex-start">
+      {/* first message preview */}
       <Box>
         <Text
           fontSize="smaller"
@@ -247,154 +292,3 @@ export const TopicsListItemHeaderDetails = ({
     </VStack>
   );
 };
-
-{
-  /*
-  
-            {isCreator && (
-              <>
-                <Box as="span" aria-hidden mx={1}>
-                  ·
-                </Box>
-                <Link
-                      _hover={{
-                        color: isDark ? "white" : "white",
-                        textDecoration: "underline"
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNotifClick(topic);
-                      }}
-                    >
-                <Text cursor="default" onClick={(e) => e.stopPropagation()}>
-                  {topic.topicNotifications.length} participant{s} invité{s}
-                </Text>
-                 </Link>
-              </>
-            )}
-  */
-}
-
-{
-  /*
-  (
-    <Table
-      css={css`
-        td {
-          border: none;
-          padding: 0;
-        }
-        td:last-of-type {
-          width: 100%;
-        }
-      `}
-      {...props}
-    >
-      <Tbody>
-        <Tr>
-          <Td>
-            <Tooltip label={`${topic.topicMessages.length} message(s)`}>
-              <Box pos="relative">
-                {isCurrent ? (
-                  <Icon
-                    as={FaFolderOpen}
-                    //alignSelf="center"
-                    boxSize={7}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                ) : (
-                  <Icon
-                    as={FaFolder}
-                    boxSize={7}
-                    color={isDark ? "teal.200" : "teal"}
-                    mr={2}
-                  />
-                )}
-                {topic.topicMessages.length > 0 && (
-                  <Badge
-                    bgColor={isDark ? "teal.600" : "teal.100"}
-                    color={isDark ? "white" : "black"}
-                    pos="absolute"
-                    variant="solid"
-                    left={1}
-                  >
-                    {topic.topicMessages.length}
-                  </Badge>
-                )}
-              </Box>
-            </Tooltip>
-          </Td>
-
-          <Td >
-            {isO && isEventTopic ? (
-              <CalendarIcon mr={1} mt={-1} />
-            ) : (
-              <Icon as={ChatIcon} mr={1} mt={0} />
-            )}
-            <Text>Discussions {isEventTopic && "de l'événement"} : </Text>
-          </Td>
-
-          <Td>
-            {topic.topicCategory && (
-              <Tooltip
-                label={
-                  !hasCategorySelected
-                    ? `Afficher les discussions de la catégorie ${topicCategoryLabel}`
-                    : ""
-                }
-                hasArrow
-              >
-                <Button
-                  //alignSelf="flex-start"
-                  colorScheme={hasCategorySelected ? "pink" : "teal"}
-                  fontSize="small"
-                  fontWeight="normal"
-                  height="auto"
-                  mr={1}
-                  py={1}
-                  px={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-
-                    if (hasCategorySelected)
-                      setSelectedCategories(
-                        selectedCategories!.filter(
-                          (category) => category !== topic.topicCategory
-                        )
-                      );
-                    else if (topic.topicCategory)
-                      setSelectedCategories([
-                        ...(selectedCategories || []),
-                        topic.topicCategory
-                      ]);
-                  }}
-                >
-                  {topicCategoryLabel}
-                </Button>
-              </Tooltip>
-            )}
-
-            <Text fontWeight="bold">
-              {event ? event.eventName : topic.topicName}
-            </Text>
-          </Td>
-        </Tr>
-      </Tbody>
-    </Table>
-  )
-    */
-}
-
-{
-  /*
-      <Flex
-        alignItems="center"
-        flexWrap="wrap"
-        fontSize="smaller"
-        color={isDark ? "white" : "purple"}
-        ml={isMobile ? 0 : 10}
-      >
-      </Flex>
-  */
-}

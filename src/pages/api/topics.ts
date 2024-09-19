@@ -97,11 +97,14 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         body: AddTopicPayload;
       } = req;
 
+      const _id = getRefId(body.topic.org || body.topic.event, "_id");
+      //console.log(prefix + _id);
+
       let event: (IEvent & Document<any, IEvent>) | null | undefined;
       let org: (IOrg & Document<any, IOrg>) | null | undefined;
 
-      if (body.event)
-        event = await models.Event.findOne({ _id: body.event._id }).populate({
+      if (body.topic.event)
+        event = await models.Event.findOne({ _id }).populate({
           path: "eventOrgs",
           populate: {
             path: "orgLists",
@@ -112,8 +115,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             }
           }
         });
-      else if (body.org)
-        org = await models.Org.findOne({ _id: body.org._id }).populate({
+      else if (body.topic.org)
+        org = await models.Org.findOne({ _id }).populate({
           path: "orgLists",
           populate: {
             path: "subscriptions",
@@ -172,6 +175,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#region existing topic
       if (body.topic._id) {
         console.log(prefix + "existing topic", body.topic._id);
+
         if (
           !Array.isArray(body.topic.topicMessages) ||
           !body.topic.topicMessages[0]
@@ -240,6 +244,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       //#region new topic
       else {
         console.log(prefix + "new topic");
+
         // let topicName = body.topic.topicName;
         // const topicWithSameName = await models.Topic.findOne({
         //   topicName

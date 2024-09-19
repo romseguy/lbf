@@ -1,25 +1,14 @@
-import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
-import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
 import { globalEmail } from "pages/_app";
-import baseQuery, { objectToQueryString } from "utils/query";
-import { Optional } from "utils/types";
+import { objectToQueryString } from "utils/query";
 import { api, TagTypes } from "./";
 
-//const baseQueryWithRetry = retry(baseQuery, { maxRetries: 10 });
-
 export interface AddTopicPayload {
-  // topic: Optional<
-  //   Omit<ITopic, "topicNotifications" | "createdBy">,
-  //   "_id" | "topicMessages"
-  // >;
   topic: Partial<ITopic>;
-  org?: Partial<IOrg>;
-  event?: Partial<IEvent>;
 }
 
 export interface AddTopicNotifPayload {
@@ -61,16 +50,16 @@ export const topicApi = api.injectEndpoints({
           { type: TagTypes.SUBSCRIPTIONS, id: globalEmail }
         ];
 
-        if (params.payload.org?._id)
+        if (params.payload.topic.org)
           tags.push({
             type: TagTypes.ORGS,
-            id: params.payload.org?._id
+            id: getRefId(params.payload.topic.org, "_id")
           });
 
-        if (params.payload.event?._id)
+        if (params.payload.topic.event)
           tags.push({
             type: TagTypes.EVENTS,
-            id: params.payload.event?._id
+            id: getRefId(params.payload.topic.event, "_id")
           });
 
         return tags;

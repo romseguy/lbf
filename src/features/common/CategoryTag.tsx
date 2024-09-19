@@ -1,25 +1,36 @@
-import { Tag, TagProps, useColorMode } from "@chakra-ui/react";
+import {
+  Tooltip,
+  TooltipProps,
+  Tag,
+  TagProps,
+  useColorMode
+} from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
-import React, { ReactNodeArray } from "react";
+import React, { PropsWithChildren } from "react";
 
 export const CategoryTag = ({
   children,
+  tooltipProps,
   ...props
-}: TagProps & {
-  children: React.ReactNode | ReactNodeArray;
-}) => {
+}: PropsWithChildren<TagProps & { tooltipProps?: Partial<TooltipProps> }>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
   return (
-    <Tag
-      {...props}
-      variant="solid"
-      bgColor={isDark ? "pink.200" : "pink.500"}
-      color={isDark ? "black" : "white"}
+    <Tooltip
+      label={`Afficher les discussions de la catégorie "${children}"`}
+      hasArrow
+      {...tooltipProps}
     >
-      {children}
-    </Tag>
+      <Tag
+        variant="solid"
+        bgColor={isDark ? "pink.200" : "pink.500"}
+        color={isDark ? "black" : "white"}
+        {...props}
+      >
+        {children}
+      </Tag>
+    </Tooltip>
   );
 };
