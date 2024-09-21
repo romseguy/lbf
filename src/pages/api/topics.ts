@@ -17,6 +17,7 @@ import { createEndpointError } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { getEmail } from "models/Subscription";
+import { IDocument } from "models/Document";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -80,6 +81,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
   async function addTopic(req, res) {
     const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /topics `;
     //console.log(prefix + "body", req.body);
+    //res.status(200).json({});
     console.log(prefix);
 
     const session = await getSession({ req });
@@ -245,28 +247,33 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
       else {
         console.log(prefix + "new topic");
 
-        // let topicName = body.topic.topicName;
-        // const topicWithSameName = await models.Topic.findOne({
-        //   topicName
-        // });
-        // if (topicWithSameName) {
-        //   const uid = org
-        //     ? org.orgTopics.length + 1
-        //     : event
-        //     ? event.eventTopics.length + 1
-        //     : randomNumber(3);
-        //   topicName = `${topicName}-${uid}`;
-        // }
+        let document: (IDocument & Document<any, IDocument>) | null | undefined;
+
+        if (body.topic.document) {
+          document = await models.Document.findOne({
+            _id: body.topic.document
+          });
+
+          if (!document) {
+            return res
+              .status(400)
+              .json(
+                createEndpointError(
+                  new Error("Le document associé à la discussion n'existe pas")
+                )
+              );
+          }
+        }
 
         topic = await models.Topic.create({
           ...body.topic,
-          //topicName,
+          document,
+          event,
+          org,
           topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
             ...topicMessage,
             createdBy: session.user.userId
           })),
-          event,
-          org,
           createdBy: session.user.userId
         });
 

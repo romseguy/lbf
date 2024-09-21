@@ -161,7 +161,7 @@ export const MosaicItemFullscrenModal = ({
                     status: "success",
                     isClosable: true
                   });
-                  setModalState({ ...modalState, isOpen: false });
+                  onClose();
                   //onDelete && onDelete();
                 } catch (error) {
                   console.error(error);
@@ -186,13 +186,15 @@ export const MosaicItemFullscrenModal = ({
                   message: `<img src="${modalState.image.url}" style="max-height: 400px"/>`
                 };
                 const topic = entity[key + "Topics"].find(
-                  (topic: ITopic) => topic.topicName === topicName
+                  (topic: ITopic) =>
+                    getRefId(topic.document, "_id") === modalState.image.id
                 );
                 // add topic only if not already there
                 if (!topic) {
                   const payload: AddTopicPayload = {
                     topic: {
                       [key]: entity,
+                      document: modalState.image.id,
                       topicName,
                       topicMessages: [topicMessage]
                     }

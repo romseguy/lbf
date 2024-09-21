@@ -25,6 +25,7 @@ import {
   duplicateError
 } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
+import { hasItems } from "utils/array";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -408,7 +409,7 @@ handler.put<
 >(async function editOrg(req, res) {
   const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /org/[orgUrl] `;
   console.log(prefix + "query", req.query);
-  logJson(prefix + "body", req.body);
+  //logJson(prefix + "body", req.body);
   const session = await getSession({ req });
 
   if (!session) {
@@ -468,10 +469,44 @@ handler.put<
     if (Array.isArray(body)) {
       for (const key of body) {
         if (key.includes(".") && key.includes("=")) {
-          // orgLists.listName=string
           const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
 
           if (matches && matches.length === 4) {
+            // orgLists.listName=string
+            // orgTopicCategories.catId=0
+
+            if (
+              !isCreator &&
+              ["orgLists", "orgTopicCategores"].includes(matches[1])
+            ) {
+              return res
+                .status(401)
+                .json(
+                  createEndpointError(
+                    new Error(
+                      `Vous devez être administrateur pour effectuer cette action`
+                    )
+                  )
+                );
+            }
+
+            if (matches[1] === "orgTopicCategories") {
+              org = await org.populate("orgTopics").execPopulate();
+              const topicsBelongingToCategories = org.orgTopics.filter((t) => {
+                return t.topicCategory === matches[3];
+              });
+              if (hasItems(topicsBelongingToCategories)) {
+                await models.Topic.updateMany(
+                  {
+                    _id: {
+                      $in: topicsBelongingToCategories.map((t) => t._id)
+                    }
+                  },
+                  { $set: { topicCategory: "" } }
+                );
+              }
+            }
+
             update = {
               $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
             };
@@ -544,9 +579,7 @@ handler.put<
             .json(
               createEndpointError(
                 new Error(
-                  `Vous n'avez pas la permission ${orgTypeFull(
-                    org.orgType
-                  )} pour gérer les catégories de discussions`
+                  `Vous devez être administrateur pour effectuer cette action`
                 )
               )
             );
@@ -554,7 +587,6 @@ handler.put<
       }
     }
 
-    //logJson(`PUT /org/${_id}:`, update || body);
     org = await models.Org.findOneAndUpdate({ _id }, update || body);
 
     if (!org) {
@@ -562,7 +594,7 @@ handler.put<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'atelier ${_id} n'a pas pu être modifiée`)
+            new Error(`L'atelier ${_id} n'a pas pu être modifié`)
           )
         );
     }

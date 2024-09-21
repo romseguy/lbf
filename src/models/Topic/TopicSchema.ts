@@ -4,6 +4,10 @@ import { ITopic } from "./ITopic";
 
 export const TopicSchema = new Schema<ITopic>(
   {
+    document: {
+      type: Schema.Types.ObjectId,
+      ref: "Document"
+    },
     event: {
       type: Schema.Types.ObjectId,
       ref: "Event"

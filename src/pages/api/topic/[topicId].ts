@@ -197,7 +197,7 @@ handler.put<
 >(async function editTopic(req, res) {
   const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /topic/[topicId] `;
   console.log(prefix + "query", req.query);
-  console.log(prefix + "body", req.body);
+  //console.log(prefix + "body", req.body);
 
   const session = await getSession({ req });
   if (!session) {

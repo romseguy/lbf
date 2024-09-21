@@ -1,3 +1,4 @@
+import { IDocument } from "models/Document";
 import { getRefId } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
@@ -8,7 +9,7 @@ import { objectToQueryString } from "utils/query";
 import { api, TagTypes } from "./";
 
 export interface AddTopicPayload {
-  topic: Partial<ITopic>;
+  topic: Omit<Partial<ITopic>, "document"> & { document?: string | IDocument };
 }
 
 export interface AddTopicNotifPayload {

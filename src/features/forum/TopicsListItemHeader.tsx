@@ -32,6 +32,7 @@ import { TopicsListItemShare } from "./TopicsListItemShare";
 import { TopicsListItemVisibility } from "./TopicsListItemVisibility";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
+import { hasItems } from "utils/array";
 
 interface TopicsListItemHeader {
   isCurrent: boolean;
@@ -209,12 +210,17 @@ export const TopicsListItemHeaderDetails = ({
   //     ? "s"
   //     : "";
 
-  const firstMessage = topic.topicMessages[0]
-    ? topic.topicMessages[0].message
-        .replace(/<[^>]*>/g, "")
-        .replace("&nbsp;", "")
-        .substring(0, 50)
-    : "";
+  const length = 450;
+  let firstMessage;
+  if (hasItems(topic.topicMessages)) {
+    firstMessage = topic.topicMessages[0].message
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, "");
+    if (firstMessage.length > length) {
+      const sub = firstMessage.substring(0, length);
+      firstMessage = sub.substring(0, sub.lastIndexOf(" "));
+    }
+  }
   //#endregion
 
   return (
