@@ -1,4 +1,5 @@
 import {
+  Text,
   Input,
   Button,
   FormControl,
@@ -6,7 +7,9 @@ import {
   FormErrorMessage,
   Flex,
   Alert,
-  AlertIcon
+  AlertIcon,
+  Switch,
+  HStack
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -71,6 +74,7 @@ export const TopicForm = ({
     props.topic &&
     props.topic.topicCategory &&
     topicCategories.find(({ catId }) => catId === props.topic!.topicCategory);
+  const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   //#endregion
 
@@ -340,54 +344,20 @@ export const TopicForm = ({
       )}
 
       {org && !isEntityPrivate && (
-        <FormControl mb={3}>
-          <FormLabel>Visibilité (optionnel)</FormLabel>
-          <Controller
-            name="topicVisibility"
-            control={control}
-            defaultValue={
-              props.topic?.topicVisibility.map((listName) => ({
-                label: listName,
-                value: listName
-              })) || []
-            }
-            render={(renderProps) => {
-              return (
-                <MultiSelect
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={
-                    org.orgLists.map(({ listName }) => ({
-                      label: listName,
-                      value: listName
-                    })) || []
-                  }
-                  allOptionLabel="Toutes les listes"
-                  //closeMenuOnSelect={false}
-                  placeholder="Sélectionner une ou plusieurs listes"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                />
-              );
-            }}
-          />
-        </FormControl>
+        <>
+          <FormLabel>Paramètres de la discussion</FormLabel>
+          <FormControl mb={3}>
+            <HStack>
+              <FormLabel fontWeight="normal" m={0}>
+                Rendre la discussion visible aux participants seulement
+              </FormLabel>
+              <Switch
+                isChecked={isChecked}
+                onChange={() => setIsChecked(!isChecked)}
+              />
+            </HStack>
+          </FormControl>
+        </>
       )}
 
       {/*hasItems(topicVisibility) && (
@@ -437,4 +407,54 @@ export const TopicForm = ({
 {
   /* {org && org.orgUrl !== "forum" && (
       )} */
+}
+
+{
+  /*
+          <Controller
+            name="topicVisibility"
+            control={control}
+            defaultValue={
+              props.topic?.topicVisibility.map((listName) => ({
+                label: listName,
+                value: listName
+              })) || []
+            }
+            render={(renderProps) => {
+              return (
+                <MultiSelect
+                  value={renderProps.value}
+                  onChange={renderProps.onChange}
+                  options={
+                    org.orgLists.map(({ listName }) => ({
+                      label: listName,
+                      value: listName
+                    })) || []
+                  }
+                  allOptionLabel="Toutes les listes"
+                  //closeMenuOnSelect={false}
+                  placeholder="Sélectionner une ou plusieurs listes"
+                  noOptionsMessage={() => "Aucun résultat"}
+                  isClearable
+                  isSearchable
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (defaultStyles: any) => {
+                      return {
+                        ...defaultStyles,
+                        borderColor: "#e2e8f0"
+                      };
+                    },
+                    placeholder: () => {
+                      return {
+                        color: "#A0AEC0"
+                      };
+                    }
+                  }}
+                />
+              );
+            }}
+          />
+  */
 }

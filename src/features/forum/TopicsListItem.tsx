@@ -77,16 +77,16 @@ export const TopicsListItem = ({
     isE
       ? entity.eventUrl
       : isO
-        ? topic.event
-          ? topic.event.eventUrl
-          : entity.orgUrl
-        : entity._id
+      ? topic.event
+        ? topic.event.eventUrl
+        : entity.orgUrl
+      : entity._id
   }/discussions`;
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-      ? entity.orgTopicCategories
-      : [];
+    ? entity.orgTopicCategories
+    : [];
   //#endregion
 
   //#region local
@@ -155,8 +155,8 @@ export const TopicsListItem = ({
               ? "gray.600"
               : "orange.200"
             : isDark
-              ? "gray.500"
-              : "orange.100"
+            ? "gray.500"
+            : "orange.100"
         }
         cursor="pointer"
         _hover={{ bg: isDark ? "#314356" : "orange.300" }}
@@ -188,7 +188,11 @@ export const TopicsListItem = ({
             setSelectedCategories={setSelectedCategories}
           />
 
-          <TopicsListItemHeaderDetails query={query} topic={topic} />
+          <TopicsListItemHeaderDetails
+            query={query}
+            topic={topic}
+            isCurrent={isCurrent}
+          />
         </VStack>
 
         <TopicsListItemHeaderButtons

@@ -304,13 +304,12 @@ handler.put<
       body: EditGalleryPayload;
     } = req;
 
-    let _id: string | undefined;
+    let _id = req.query.galleryId;
     let gallery = await models.Gallery.findOne({
-      galleryName: req.query.galleryId
+      galleryName: _id
     });
 
     if (!gallery) {
-      _id = req.query.galleryId;
       gallery = await models.Gallery.findOne({ _id });
       if (!gallery)
         return res
@@ -339,6 +338,17 @@ handler.put<
       { _id },
       body.gallery
     );
+
+    if (!editedGallery) {
+      return res
+        .status(400)
+        .json(
+          createEndpointError(
+            new Error(`L'atelier ${_id} n'a pas pu être modifié`)
+          )
+        );
+    }
+
     res.status(200).json(editedGallery);
   } catch (error) {
     res.status(500).json(createEndpointError(error));

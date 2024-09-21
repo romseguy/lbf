@@ -188,11 +188,13 @@ export const TopicsListItemHeader = ({
 interface TopicsListItemHeaderDetailsProps {
   query: AppQueryWithData<IEntity>;
   topic: ITopic;
+  isCurrent: boolean;
 }
 
 export const TopicsListItemHeaderDetails = ({
   query,
   topic,
+  isCurrent,
   ...props
 }: Omit<FlexProps, "onClick"> & TopicsListItemHeaderDetailsProps) => {
   const { colorMode } = useColorMode();
@@ -226,15 +228,17 @@ export const TopicsListItemHeaderDetails = ({
   return (
     <VStack alignItems="flex-start">
       {/* first message preview */}
-      <Box>
-        <Text
-          fontSize="smaller"
-          fontStyle="italic"
-          dangerouslySetInnerHTML={{
-            __html: !firstMessage ? "" : firstMessage + "..."
-          }}
-        />
-      </Box>
+      {!isCurrent && (
+        <Box>
+          <Text
+            fontSize="smaller"
+            fontStyle="italic"
+            dangerouslySetInnerHTML={{
+              __html: !firstMessage ? "" : firstMessage + "..."
+            }}
+          />
+        </Box>
+      )}
 
       <Box>
         <HStack>

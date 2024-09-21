@@ -55,9 +55,12 @@ export default class Document extends NextDocument {
             sizes="512x512"
           />
 
-          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-          <meta name="apple-mobile-web-app-title" content="Kolik" />
+          <meta
+            name="apple-mobile-web-app-title"
+            content={process.env.NEXT_PUBLIC_TITLE}
+          />
           <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
           <link rel="mask-icon" href="/icons/icon.svg" color="#000000" />
           <link
