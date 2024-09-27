@@ -17,7 +17,7 @@ export const AppHeading = forwardRef(
     {
       children,
       fontFamily = theme.fonts.roboto,
-      noContainer,
+      noContainer = false,
       smaller,
       ...props
     }: HeadingProps & {

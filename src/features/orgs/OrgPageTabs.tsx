@@ -1,28 +1,25 @@
+import { QuestionIcon } from "@chakra-ui/icons";
 import {
   Alert,
-  AlertIcon,
   Badge,
   BadgeProps,
   Box,
   TabPanel,
   TabPanels,
   Tabs,
+  Tooltip,
   useColorMode
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { css } from "twin.macro";
+import { isBefore, parseISO, subDays } from "date-fns";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   Column,
   ColumnProps,
   EntityPageTab,
-  EntityPageTabList,
-  EntityPageTopics
+  EntityPageTabList
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
+import { GalleriesList } from "features/galleries/GalleriesList";
 import theme, { scrollbarCss } from "features/layout/theme";
 import { useSession } from "hooks/useSession";
 import {
@@ -33,17 +30,18 @@ import {
   IOrgTabWithMetadata
 } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
+import { css } from "twin.macro";
+import { hasItems, sortOn } from "utils/array";
+import { belongs } from "utils/belongs";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
 import { OrgPageHomeTabPanel } from "./OrgPageHomeTabPanel";
-import { useSelector } from "react-redux";
-import { selectIsMobile } from "store/uiSlice";
-import { belongs } from "utils/belongs";
-import { hasItems, sortOn } from "utils/array";
-import { GalleriesList } from "features/galleries/GalleriesList";
 import { OrgPageTopicsTabPanel } from "./OrgPageTopicsTabPanel";
-import { QuestionIcon } from "@chakra-ui/icons";
 
 export const OrgPageTabs = ({
   currentItemName,
@@ -74,18 +72,25 @@ export const OrgPageTabs = ({
   const router = useRouter();
   const { data: session } = useSession();
 
-  const badgeProps: BadgeProps = {
-    colorScheme: "teal",
-    variant: "solid",
-    ml: 1
-  };
-  const columnProps: ColumnProps = {
-    bg: isDark ? "gray.700" : "lightblue"
-  };
-  const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
+  const orgEventsToCome = org.orgEvents.filter((event) => {
+    if (isBefore(new Date(), parseISO(event.eventMinDate))) return true;
+  });
+  const fiveDaysAgo = subDays(new Date(), 5);
+  const orgGalleriesLast = org.orgGalleries.filter((gallery) => {
+    if (isBefore(parseISO(gallery.createdAt), fiveDaysAgo)) {
+      return false;
+    }
+    return true;
+  });
+  const orgTopicsLast = org.orgTopics.filter((topic) => {
+    if (isBefore(parseISO(topic.createdAt), fiveDaysAgo)) {
+      return false;
+    }
+    return true;
+  });
   const orgTabs = [...(org.orgTabs || defaultTabs)];
-  //.filter((tab) => tab.label === "" && !session ? false : true);
+
   //#region tabs
   const tabs: IOrgTabWithMetadata[] = orgTabs
     //.sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]))
@@ -146,12 +151,15 @@ export const OrgPageTabs = ({
   >(tabs.map((t) => ({ ...t, checked: true })));
   //#endregion
 
-  // const events = org.orgEvents.map((event) => ({
-  //   eventName: event.eventName,
-  //   eventTopics: event.eventTopics.map((topic) => ({
-  //     topicName: topic.topicName
-  //   }))
-  // }));
+  const badgeProps: BadgeProps = {
+    colorScheme: "teal",
+    variant: "solid",
+    ml: 1
+  };
+
+  const columnProps: ColumnProps = {
+    bg: isDark ? "gray.700" : "lightblue"
+  };
 
   return (
     <Tabs
@@ -212,27 +220,23 @@ export const OrgPageTabs = ({
               //   ? {}
               //   : {})}
               css={css`
-                ${
-                  isCurrent &&
-                  `
+                ${isCurrent &&
+                `
                 border: 5px solid ${
                   isDark ? theme.colors.teal[200] : theme.colors.teal[400]
                 };
                 backgroundcolor: white;
-                  `
-                }
+                  `}
                 path {
-                  fill: ${
-                    isDark && isCurrent
-                      ? theme.colors.purple[500]
-                      : isDark
-                        ? "white"
-                        : !isDark && isCurrent
-                          ? theme.colors.whiteAlpha[900]
-                          : !isDark //&& url !== "/"
-                            ? "black"
-                            : "none"
-                  };
+                  fill: ${isDark && isCurrent
+                    ? theme.colors.purple[500]
+                    : isDark
+                    ? "white"
+                    : !isDark && isCurrent
+                    ? theme.colors.whiteAlpha[900]
+                    : !isDark //&& url !== "/"
+                    ? "black"
+                    : "none"};
                 }
               `}
               {...(isMobile ? {} : {})}
@@ -244,23 +248,37 @@ export const OrgPageTabs = ({
               data-cy={key}
             >
               {label}
-              {url === "/agenda" && hasItems(org.orgEvents) && (
-                <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
+              {url === "/agenda" && hasItems(orgEventsToCome) && (
+                <Tooltip
+                  label={`${orgEventsToCome.length} date${
+                    orgEventsToCome.length !== 1 ? "s" : ""
+                  } à venir`}
+                >
+                  <Badge {...badgeProps}>{orgEventsToCome.length}</Badge>
+                </Tooltip>
               )}
 
-              {(url === "/discussions" || url === "/d") &&
-                (hasItems(org.orgTopics) || hasItems(org.orgEvents)) && (
-                  <Badge {...badgeProps}>
-                    {org.orgTopics.length + org.orgEvents.length}
-                  </Badge>
-                )}
+              {(url === "/discussions" || url === "/d") && (
+                <Tooltip
+                  label={`${orgTopicsLast.length} nouvelle${
+                    orgTopicsLast.length !== 1 ? "s" : ""
+                  } discussion${
+                    orgTopicsLast.length !== 1 ? "s" : ""
+                  } dans les 5 dernier jours`}
+                >
+                  <Badge {...badgeProps}>{orgTopicsLast.length}</Badge>
+                </Tooltip>
+              )}
 
-              {url === "/galeries" &&
-                (hasItems(org.orgGalleries) || hasItems(org.orgEvents)) && (
-                  <Badge {...badgeProps}>
-                    {org.orgGalleries.length + org.orgEvents.length}
-                  </Badge>
-                )}
+              {url === "/galeries" && (
+                <Tooltip
+                  label={`${orgGalleriesLast.length} nouvelle${
+                    orgGalleriesLast.length !== 1 ? "s" : ""
+                  } galeries dans les 5 dernier jours`}
+                >
+                  <Badge {...badgeProps}>{orgGalleriesLast.length}</Badge>
+                </Tooltip>
+              )}
 
               {/* {url === "/galeries"
                 ? Array.isArray(documentsQuery.data) &&
@@ -392,166 +410,3 @@ export const OrgPageTabs = ({
     </Tabs>
   );
 };
-
-{
-  /* {session && isCreator && (
-            <TabPanel aria-hidden>
-              <AppHeading mb={3}>
-                Fonctionnalités {orgTypeFull(org.orgType)}
-              </AppHeading>
-
-              {defaultTabs
-                .filter((defaultTab) => defaultTab.label !== "")
-                .map((defaultTab) => {
-                  const label = Array.isArray(defaultTab.label)
-                    ? defaultTab.label[0]
-                    : defaultTab.label;
-
-                  return (
-                    <Flex
-                      key={"tab-" + label}
-                      alignItems="center"
-                      mb={1}
-                      maxWidth="fit-content"
-                    >
-                      <Switch
-                        isChecked={
-                          !!tabsState.find(
-                            (t) =>
-                              belongs(t.label, defaultTab.label) && t.checked
-                          )
-                        }
-                        isDisabled={label === "Accueil"}
-                        mr={1}
-                        onChange={async (e) => {
-                          const newTabs = tabsState.map((t) =>
-                            t.label === defaultTab.label
-                              ? { ...t, checked: e.target.checked }
-                              : t
-                          );
-                          setTabsState(newTabs);
-
-                          let orgTabs;
-
-                          if (
-                            e.target.checked &&
-                            !org.orgTabs?.find(
-                              ({ label }) => label === defaultTab.label
-                            )
-                          ) {
-                            orgTabs = [
-                              ...tabs.map(({ label, url }) => ({
-                                label,
-                                url
-                              })),
-                              {
-                                label: defaultTab.label,
-                                url: defaultTab.url
-                              }
-                            ];
-                          } else {
-                            orgTabs = newTabs
-                              .filter(({ checked }) => !!checked)
-                              .map(({ label, url }) => ({ label, url }));
-                          }
-
-                          setCurrentTabIndex(orgTabs.length - 1);
-
-                          await editOrg({
-                            orgId: org._id,
-                            payload: { orgTabs }
-                          });
-                        }}
-                      />
-                      <Input
-                        defaultValue={label}
-                        isDisabled
-                        // onChange={(e) => {
-                        //   let changed = false;
-                        //   const newTabs = tabsState.map((t) => {
-                        //     if (t.label === defaultTab.label) {
-                        //       if (e.target.value !== t.label) changed = true;
-                        //       return {
-                        //         ...t,
-                        //         label: e.target.value
-                        //       };
-                        //     }
-                        //     return t;
-                        //   });
-
-                        //   if (changed) setTabsState(newTabs);
-                        // }}
-                      />
-                    </Flex>
-                  );
-                })}
-            </TabPanel>
-          )} */
-}
-
-{
-  /* <VStack spacing={3}>
-                {org.orgEvents.map((event) => (
-                  <Column key={event._id}>
-                    <VStack spacing={3}>
-                      <EntityButton event={event} />
-                      <Tooltip label="Aller à la galerie" hasArrow>
-                        <span>
-                          <Button
-                            //aria-hidden
-                            colorScheme="blue"
-                            cursor="pointer"
-                            height="auto"
-                            m={0}
-                            p={1}
-                            pr={2}
-                            textAlign="left"
-                            whiteSpace="normal"
-                            onClick={(e) => {
-                              router.push(
-                                "/" + event.eventUrl + "/galerie",
-                                "/" + event.eventUrl + "/galerie",
-                                { shallow: true }
-                              );
-                            }}
-                          >
-                            <Icon
-                              as={FaImages}
-                              color="green.500"
-                              mr={1}
-                              css={css`
-                                path {
-                                  fill: ${isDark ? "white" : "white"};
-                                }
-                              `}
-                            />
-                            Galerie photo
-                          </Button>
-                        </span>
-                      </Tooltip>
-                    </VStack>
-                  </Column>
-                ))}
-              </VStack> */
-}
-
-{
-  /* {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
-            <TabPanel aria-hidden>
-              <Flex alignItems="center" mb={3}>
-                <Icon as={FaTools} boxSize={6} mr={3} />
-                <AppHeading>Projets</AppHeading>
-              </Flex>
-
-              <Column {...columnProps}>
-                <ProjectsList
-                  org={org}
-                  orgQuery={orgQuery}
-                  subQuery={subQuery}
-                  isCreator={isCreator}
-                  isFollowed={isFollowed}
-                />
-              </Column>
-            </TabPanel>
-          )} */
-}

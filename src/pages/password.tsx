@@ -77,7 +77,9 @@ const PasswordPage = ({ ...props }: PageProps & {}) => {
 
       dispatch(resetUserEmail());
       dispatch(setSession(null));
-      await magic.user.logout();
+      if (await magic.user.isLoggedIn()) {
+        await magic.user.logout();
+      }
       await api.get("logout");
       router.push("/login", "/login", { shallow: false });
 

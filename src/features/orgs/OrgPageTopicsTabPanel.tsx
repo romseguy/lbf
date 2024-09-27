@@ -1,6 +1,7 @@
 import { EntityPageTopics } from "features/common";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import { hasItems } from "utils/array";
 import { AppQueryWithData, AppQuery } from "utils/types";
 
 export const OrgPageTopicsTabPanel = ({
@@ -18,17 +19,22 @@ export const OrgPageTopicsTabPanel = ({
 }) => {
   const entity = query.data;
   const topics = entity.orgTopics.concat(
-    entity.orgEvents.map((event) => ({
-      _id: event._id,
-      event,
-      isPinned: true,
-      topicName: event._id,
-      topicMessages: [],
-      topicNotifications: [],
-      topicVisibility: [],
-      createdAt: event.eventMinDate,
-      createdBy: event.createdBy
-    }))
+    entity.orgEvents
+      .filter((event) => {
+        if (!hasItems(event.eventTopics)) return false;
+        return true;
+      })
+      .map((event) => ({
+        _id: event._id,
+        event,
+        isPinned: true,
+        topicName: event._id,
+        topicMessages: [],
+        topicNotifications: [],
+        topicVisibility: [],
+        createdAt: event.eventMinDate,
+        createdBy: event.createdBy
+      }))
   );
 
   return (

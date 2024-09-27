@@ -111,8 +111,7 @@ export const TopicsList = ({
               belongsToCategory = true;
           }
 
-          if (isE || (isO && entity.orgUrl === "forum"))
-            return belongsToCategory;
+          if (isE) return belongsToCategory;
 
           if (Array.isArray(selectedLists) && selectedLists.length > 0) {
             if (hasItems(topic.topicVisibility)) {

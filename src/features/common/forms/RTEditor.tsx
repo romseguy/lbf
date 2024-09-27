@@ -53,6 +53,7 @@ const bindEvent = (
 
 export const RTEditor = ({
   defaultValue,
+  maxImageHeight = 337,
   placeholder,
   readOnly,
   value,
@@ -61,6 +62,7 @@ export const RTEditor = ({
   ...props
 }: IAllProps["init"] & {
   defaultValue?: string;
+  maxImageHeight?: number;
   setIsLoading?: (bool: boolean) => void;
   value?: string;
   onBlur?: (html: string) => void;
@@ -143,6 +145,10 @@ export const RTEditor = ({
       hr {
         border-top-width: 3px;
         margin: 0 24px;
+      }
+      img {
+        max-width: 100%;
+        height: ${maxImageHeight}px;
       }
       p {
         margin: 0;

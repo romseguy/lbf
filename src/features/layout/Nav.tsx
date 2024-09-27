@@ -114,12 +114,12 @@ export const Nav = ({
           {pageTitle
             ? pageTitle
             : entity
-              ? isO
-                ? `${entity.orgName}`
-                : isE
-                  ? entity.eventName
-                  : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
-              : process.env.NEXT_PUBLIC_SHORT_URL}
+            ? isO
+              ? `${entity.orgName}`
+              : isE
+              ? entity.eventName
+              : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
+            : process.env.NEXT_PUBLIC_SHORT_URL}
         </Link>
       </AppHeading>
 
@@ -131,8 +131,8 @@ export const Nav = ({
             isE
               ? "de l'événement"
               : isO
-                ? orgTypeFull(entity.orgType)
-                : "de l'utilisateur"
+              ? orgTypeFull(entity.orgType)
+              : "de l'utilisateur"
           }`}
           tooltipProps={{ placement: "right" }}
           variant="outline"
@@ -142,7 +142,7 @@ export const Nav = ({
   );
 
   const SecondCell = (
-    <HStack justifyContent="flex-end">
+    <HStack justifyContent="flex-end" spacing={3}>
       {isSessionLoading ? (
         <Spinner />
       ) : (
@@ -154,7 +154,7 @@ export const Nav = ({
                         placement="left"
                       >
                       </Tooltip> */}
-              <MenuButton aria-label="Menu">
+              <MenuButton aria-label="Menu" ml={3}>
                 <Avatar
                   boxSize={12}
                   bgColor={isDark ? undefined : "#2B6CB0"}
@@ -181,7 +181,7 @@ export const Nav = ({
               isMobile={isMobile}
               session={session}
               offset={[isMobile ? -141 : 140, 15]}
-              iconProps={{ ...iconProps, ...{ mr: 0 } }}
+              iconProps={{ ...iconProps, ...{} }}
             />
           </>
         )

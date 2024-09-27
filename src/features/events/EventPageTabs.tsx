@@ -31,7 +31,7 @@ import theme, { scrollbarCss } from "features/layout/theme";
 import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
-import { format, getYear, isBefore, parseISO } from "date-fns";
+import { format, getYear, isBefore, parseISO, subDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { GalleriesListItem } from "features/galleries/GalleriesListItem";
 import { FaImages } from "react-icons/fa";
@@ -67,6 +67,13 @@ export const EventPageTabs = ({
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const event = eventQuery.data;
+  const eventTopicsLast = event.eventTopics.filter((topic) => {
+    const fiveDaysAgo = subDays(new Date(), 5);
+    if (isBefore(parseISO(topic.createdAt), fiveDaysAgo)) {
+      return false;
+    }
+    return true;
+  });
 
   //#region tabs
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
@@ -159,27 +166,23 @@ export const EventPageTabs = ({
               tab={tab}
               tabIndex={tabIndex}
               css={css`
-                ${
-                  isCurrent &&
-                  `
+                ${isCurrent &&
+                `
                 border: 5px solid ${
                   isDark ? theme.colors.teal[200] : theme.colors.teal[400]
                 };
                 backgroundcolor: white;
-                  `
-                }
+                  `}
                 path {
-                  fill: ${
-                    isDark && isCurrent
-                      ? theme.colors.red[400]
-                      : isDark
-                        ? "white"
-                        : !isDark && isCurrent
-                          ? theme.colors.red[200]
-                          : !isDark //&& url !== "/"
-                            ? "black"
-                            : "none"
-                  };
+                  fill: ${isDark && isCurrent
+                    ? theme.colors.red[400]
+                    : isDark
+                    ? "white"
+                    : !isDark && isCurrent
+                    ? theme.colors.red[200]
+                    : !isDark //&& url !== "/"
+                    ? "black"
+                    : "none"};
                 }
               `}
               {...(isMobile ? {} : {})}
@@ -219,7 +222,15 @@ export const EventPageTabs = ({
               {url === "/galerie" && hasItems(gallery?.galleryDocuments) ? (
                 <Badge ml={2}>{gallery?.galleryDocuments!.length}</Badge>
               ) : url === "/discussions" && hasItems(event.eventTopics) ? (
-                <Badge ml={2}>{event.eventTopics.length}</Badge>
+                <Tooltip
+                  label={`${eventTopicsLast.length} nouvelle${
+                    eventTopicsLast.length !== 1 ? "s" : ""
+                  } discussion${
+                    eventTopicsLast.length !== 1 ? "s" : ""
+                  } dans les 5 dernier jours`}
+                >
+                  <Badge ml={2}>{eventTopicsLast.length}</Badge>
+                </Tooltip>
               ) : null}
             </EntityPageTab>
           );

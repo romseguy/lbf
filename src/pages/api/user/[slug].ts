@@ -165,6 +165,9 @@ handler.put<
     body: EditUserPayload;
   } = req;
 
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /user/${slug} `;
+  console.log(prefix);
+
   if (!session && !body.password) {
     return res
       .status(401)
@@ -176,16 +179,12 @@ handler.put<
       if (!body.passwordSalt)
         return res.status(400).json(createEndpointError(new Error("No salt")));
 
-      const user = await models.User.findOneAndUpdate(
-        { email: slug },
-        { ...body, securityCode: null, securityCodeSalt: null }
-      );
+      // const user = await models.User.findOneAndUpdate(
+      //   { email: slug },
+      //   { ...body, securityCode: null, securityCodeSalt: null }
+      // );
 
-      return res.status(200).json(user);
-    }
-
-    if (body.userName) {
-      body.userName = normalize(body.userName);
+      // return res.status(200).json(user);
     }
 
     let selector: {
@@ -193,13 +192,16 @@ handler.put<
       email?: string;
       phone?: string;
       userName?: string;
-    } = { userName: slug };
+    } = {};
 
     if (emailR.test(slug)) {
       selector = { email: slug };
     } else if (phoneR.test(slug)) {
       selector = { phone: slug };
+    } else {
+      selector = { userName: slug };
     }
+
     let user = await models.User.findOne(selector);
 
     if (!user) {
@@ -215,9 +217,20 @@ handler.put<
       }
     }
 
-    if (body.userName && body.userName !== user.userName) {
-      const user = await models.User.findOne({ userName: body.userName });
-      if (user) throw duplicateError();
+    console.log(prefix + "found user : " + user.userName);
+
+    if (body.userName) {
+      console.log(prefix + "new username : " + body.userName);
+      body.userName = normalize(body.userName);
+
+      if (body.userName !== user.userName) {
+        const user = await models.User.findOne({ userName: body.userName });
+
+        if (user) {
+          console.log(prefix + "new username already taken!");
+          throw duplicateError();
+        }
+      }
     }
 
     logJson(`PUT /user/${slug}: selector`, selector);
