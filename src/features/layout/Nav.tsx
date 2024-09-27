@@ -114,12 +114,12 @@ export const Nav = ({
           {pageTitle
             ? pageTitle
             : entity
-            ? isO
-              ? `${entity.orgName}`
-              : isE
-              ? entity.eventName
-              : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
-            : process.env.NEXT_PUBLIC_SHORT_URL}
+              ? isO
+                ? `${entity.orgName}`
+                : isE
+                  ? entity.eventName
+                  : process.env.NEXT_PUBLIC_SHORT_URL + router.asPath
+              : process.env.NEXT_PUBLIC_SHORT_URL}
         </Link>
       </AppHeading>
 
@@ -131,8 +131,8 @@ export const Nav = ({
             isE
               ? "de l'événement"
               : isO
-              ? orgTypeFull(entity.orgType)
-              : "de l'utilisateur"
+                ? orgTypeFull(entity.orgType)
+                : "de l'utilisateur"
           }`}
           tooltipProps={{ placement: "right" }}
           variant="outline"

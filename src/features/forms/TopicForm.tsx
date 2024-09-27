@@ -68,8 +68,8 @@ export const TopicForm = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-    ? entity.orgTopicCategories
-    : [];
+      ? entity.orgTopicCategories
+      : [];
   const topicCategory =
     props.topic &&
     props.topic.topicCategory &&
@@ -259,8 +259,8 @@ export const TopicForm = ({
                           isE
                             ? "de l'événement"
                             : isO
-                            ? orgTypeFull(entity.orgType)
-                            : ""
+                              ? orgTypeFull(entity.orgType)
+                              : ""
                         } pour ajouter une catégorie`
                       });
                       return;

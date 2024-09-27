@@ -72,8 +72,8 @@ export const BannerForm = ({
   const entityBanner = isE
     ? entity.eventBanner
     : isO
-    ? entity.orgBanner
-    : undefined;
+      ? entity.orgBanner
+      : undefined;
   // const [entityBanner, setEntityBanner] = useState({
   //   url: process.env.NEXT_PUBLIC_FILES + "/" + entity._id
   // });
@@ -275,8 +275,8 @@ export const BannerForm = ({
                       isE
                         ? "de l'événement"
                         : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                          ? orgTypeFull(entity.orgType)
+                          : ""
                     } a été supprimée !`,
                     status: "success"
                   });
@@ -288,8 +288,8 @@ export const BannerForm = ({
                       isE
                         ? "de l'événement"
                         : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                          ? orgTypeFull(entity.orgType)
+                          : ""
                     } n'a pas pu être supprimée`,
                     status: "error"
                   });

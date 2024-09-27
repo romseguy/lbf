@@ -87,7 +87,7 @@ test.describe("org forms", () => {
     await page.getByText(/Galeries/).click();
     await expect(page).toHaveURL("/photo/galeries");
     await page
-      .locator("p")
+      .locator("span")
       .filter({ hasText: /Galerie/ })
       .nth(1)
       .click();

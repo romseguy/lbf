@@ -1,18 +1,19 @@
 import axios from "axios";
 import cors from "cors";
 import https from "https";
+import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { createEndpointError } from "utils/errors";
 import { AddDocumentPayload } from "features/api/documentsApi";
+import { DOCUMENTS_LIMIT_PER_USER } from "models/Document";
+import { getRefId } from "models/Entity";
+import { IGallery } from "models/Gallery";
+import { getEmail } from "models/Subscription";
 import { getSession } from "server/auth";
 import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
-import { getRefId } from "models/Entity";
-import { normalize } from "utils/string";
-import { IGallery } from "models/Gallery";
-import { Document } from "mongoose";
-import { getEmail } from "models/Subscription";
+import { createEndpointError } from "utils/errors";
+import { equals, normalize } from "utils/string";
 
 const agent = new https.Agent({
   rejectUnauthorized: false,
@@ -69,6 +70,22 @@ handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
         gallery = await models.Gallery.findOne({ _id: body.gallery._id });
 
         if (gallery) {
+          const userDocuments = gallery.galleryDocuments.filter((doc) =>
+            equals(session.user.userId, getRefId(doc))
+          );
+
+          if (userDocuments.length >= DOCUMENTS_LIMIT_PER_USER) {
+            return res
+              .status(400)
+              .json(
+                createEndpointError(
+                  new Error(
+                    `Vous avez atteint la limite de ${DOCUMENTS_LIMIT_PER_USER} photos pour cette galerie`
+                  )
+                )
+              );
+          }
+
           if (gallery.org) {
             orgId = getRefId(gallery.org, "_id");
 

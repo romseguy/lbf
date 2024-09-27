@@ -46,8 +46,6 @@ type FormValues = {
   formErrorMessage: { message: string };
 };
 
-// TODO1 move to .env
-export const maxNumberOfDocumentsPerUser = 10;
 const maxFileSize = 3;
 
 export const DocumentForm = ({

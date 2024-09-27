@@ -42,7 +42,7 @@ test.describe("org forms", () => {
     await page.goto("/photo/galeries");
     await expect(page).toHaveURL("/photo/galeries");
     const locator = page
-      .locator("p")
+      .locator("span")
       .filter({ hasText: /Galerie/ })
       .nth(0);
     if (locator) {

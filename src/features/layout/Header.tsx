@@ -99,18 +99,21 @@ export const Header = ({
         display: flex;
         padding: 12px;
 
-        ${isMobile
-          ? `
+        ${
+          isMobile
+            ? `
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-end;
         `
-          : `
+            : `
         flex-direction: row;
-        `}
-
-        ${banner &&
         `
+        }
+
+        ${
+          banner &&
+          `
           background-image: url("${bannerUrl}");
           background-size: cover;
           background-position: center;
@@ -121,18 +124,19 @@ export const Header = ({
           background-repeat: no-repeat;*/
 
           ${logo ? `` : ``}
-        `}
-
-        ${!banner &&
         `
-          /*background-color: ${
-            isDark ? theme.colors.gray[700] : "lightblue"
-          };*/
+        }
+
+        ${
+          !banner &&
+          `
+          /*background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};*/
           background-color: ${
             isDark ? theme.colors.gray[700] : theme.colors.blackAlpha[50]
           };
           ${logo ? `` : ``}
-        `}
+        `
+        }
       `}
       onClick={(e) => {
         e.stopPropagation();

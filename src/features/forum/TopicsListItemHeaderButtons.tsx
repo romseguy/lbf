@@ -80,10 +80,10 @@ export const TopicsListItemHeaderButtons = ({
     isE
       ? entity.eventUrl
       : isEventTopic
-      ? topic.event!.eventUrl
-      : isO
-      ? entity.orgUrl
-      : entity._id
+        ? topic.event!.eventUrl
+        : isO
+          ? entity.orgUrl
+          : entity._id
   }/discussions`;
   //#endregion
 

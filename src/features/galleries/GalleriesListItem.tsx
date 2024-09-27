@@ -3,13 +3,11 @@ import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Button } from "features/common";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
-import {
-  DocumentForm,
-  maxNumberOfDocumentsPerUser
-} from "features/forms/DocumentForm";
+import { DocumentForm } from "features/forms/DocumentForm";
 import { useScroll } from "hooks/useScroll";
 import { useSession } from "hooks/useSession";
 import { useToast } from "hooks/useToast";
+import { DOCUMENTS_LIMIT_PER_USER } from "models/Document";
 import { getRefId, IEntity, isEvent, isOrg } from "models/Entity";
 import { IGallery } from "models/Gallery";
 import { getEmail } from "models/Subscription";
@@ -80,9 +78,9 @@ export const GalleriesListItem = ({
       equals(session?.user.userId, getRefId(doc))
     );
 
-    if (userDocuments.length >= maxNumberOfDocumentsPerUser) {
+    if (userDocuments.length >= DOCUMENTS_LIMIT_PER_USER) {
       return toast({
-        title: `Vous avez atteint la limite de ${maxNumberOfDocumentsPerUser} photos pour cet atelier`
+        title: `Vous avez atteint la limite de ${DOCUMENTS_LIMIT_PER_USER} photos pour cet atelier`
       });
     }
 
@@ -168,7 +166,7 @@ export const GalleriesListItem = ({
                 remainingDocumentsCount={
                   isO
                     ? undefined
-                    : maxNumberOfDocumentsPerUser -
+                    : DOCUMENTS_LIMIT_PER_USER -
                       gallery.galleryDocuments.filter((doc) =>
                         equals(session?.user.userId, getRefId(doc))
                       ).length
