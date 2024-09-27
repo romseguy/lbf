@@ -103,11 +103,9 @@ export const NavMenuList = ({
           onClick={async () => {
             dispatch(setIsSessionLoading(true));
             dispatch(resetUserEmail());
-
             if (await magic.user.isLoggedIn()) {
               await magic.user.logout();
             }
-
             await api.get("logout");
             dispatch(setSession(null));
             dispatch(setIsSessionLoading(false));

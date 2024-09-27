@@ -12,105 +12,71 @@ export const EventsListToggle = ({
   showPreviousEvents,
   setShowPreviousEvents,
   currentEvents,
-  nextEvents,
-  showNextEvents,
-  setShowNextEvents,
   ...props
 }: SpaceProps & {
   previousEvents: IEvent<Date>[];
   showPreviousEvents: boolean;
   setShowPreviousEvents: (show: boolean) => void;
   currentEvents: IEvent<Date>[];
-  nextEvents: IEvent<Date>[];
-  showNextEvents: boolean;
-  setShowNextEvents: (show: boolean) => void;
 }) => {
-  if (!previousEvents.length && !currentEvents.length && !nextEvents.length)
-    return null;
+  if (!previousEvents.length && !currentEvents.length) return null;
 
   return (
     <Flex flexWrap="wrap" mt={-3} {...props}>
       <Box flexGrow={1} mt={3}>
-        {!showNextEvents && (
-          <>
-            {!showPreviousEvents && previousEvents.length > 0 && (
-              <Button
-                aria-label="Voir les événéments passés"
-                colorScheme="pink"
-                leftIcon={<ArrowBackIcon />}
-                height="auto"
-                fontSize="smaller"
-                whiteSpace="normal"
-                py={2}
-                onClick={() => {
-                  setShowPreviousEvents(true);
-                }}
-              >
-                Voir les événéments passés
-              </Button>
-            )}
+        {!showPreviousEvents && previousEvents.length > 0 && (
+          <Button
+            aria-label="Voir les événéments passés"
+            colorScheme="pink"
+            leftIcon={<ArrowBackIcon />}
+            height="auto"
+            fontSize="smaller"
+            whiteSpace="normal"
+            py={2}
+            onClick={() => {
+              setShowPreviousEvents(true);
+            }}
+          >
+            Voir les événéments passés
+          </Button>
+        )}
 
-            {showPreviousEvents && (
-              <Button
-                aria-label="Revenir aux événements des 7 prochains jours"
-                colorScheme="pink"
-                fontSize="smaller"
-                height="auto"
-                py={2}
-                rightIcon={<ArrowForwardIcon />}
-                whiteSpace="normal"
-                onClick={() => {
-                  setShowPreviousEvents(false);
-                }}
-              >
-                Revenir aux événements des 7 prochains jours
-              </Button>
-            )}
-          </>
+        {showPreviousEvents && (
+          <Button
+            aria-label="Retour"
+            colorScheme="pink"
+            fontSize="smaller"
+            height="auto"
+            py={2}
+            rightIcon={<ArrowForwardIcon />}
+            whiteSpace="normal"
+            onClick={() => {
+              setShowPreviousEvents(false);
+            }}
+          >
+            Retour
+          </Button>
         )}
       </Box>
 
-      <Box mt={3}>
+      {/* <Box mt={3}>
         {!showPreviousEvents && (
-          <>
-            {!showNextEvents && nextEvents.length > 0 && (
-              <Button
-                aria-label="Voir les événéments suivants"
-                colorScheme="pink"
-                fontSize="smaller"
-                height="auto"
-                py={2}
-                leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
-                rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
-                whiteSpace="normal"
-                onClick={() => {
-                  setShowNextEvents(!showNextEvents);
-                }}
-              >
-                Voir les événéments suivants
-              </Button>
-            )}
-
-            {showNextEvents && (
-              <Button
-                aria-label="Revenir aux événements des 7 prochains jours"
-                colorScheme="pink"
-                fontSize="smaller"
-                height="auto"
-                py={2}
-                leftIcon={showNextEvents ? <ArrowBackIcon /> : undefined}
-                rightIcon={!showNextEvents ? <ArrowForwardIcon /> : undefined}
-                whiteSpace="normal"
-                onClick={() => {
-                  setShowNextEvents(!showNextEvents);
-                }}
-              >
-                Revenir aux événements des 7 prochains jours
-              </Button>
-            )}
-          </>
+          <Button
+            aria-label="Revenir aux événements des 7 prochains jours"
+            colorScheme="pink"
+            fontSize="smaller"
+            height="auto"
+            py={2}
+            rightIcon={<ArrowForwardIcon />}
+            whiteSpace="normal"
+            onClick={() => {
+              //setShowNextEvents(!showNextEvents);
+            }}
+          >
+            Retour
+          </Button>
         )}
-      </Box>
+      </Box> */}
     </Flex>
   );
 };

@@ -58,8 +58,6 @@ const EventsListTable = ({
   orgQuery,
   showPreviousEvents,
   setShowPreviousEvents,
-  showNextEvents,
-  setShowNextEvents,
   // modal props
   eventToForward,
   setEventToForward,
@@ -79,8 +77,6 @@ const EventsListTable = ({
   setOrigin: React.Dispatch<React.SetStateAction<LatLon | undefined>>;
   showPreviousEvents: boolean;
   setShowPreviousEvents: React.Dispatch<React.SetStateAction<boolean>>;
-  showNextEvents: boolean;
-  setShowNextEvents: React.Dispatch<React.SetStateAction<boolean>>;
   // modal props
   eventToForward: IEvent<Date> | null;
   setEventToForward: React.Dispatch<React.SetStateAction<IEvent<Date> | null>>;
@@ -131,7 +127,7 @@ const EventsListTable = ({
   const [showLocationButton, setShowLocationButton] = useState(!!city);
   //#endregion
 
-  const { previousEvents, currentEvents, nextEvents } = getEvents({
+  const { previousEvents, currentEvents } = getEvents({
     events,
     isCreator,
     origin,
@@ -262,15 +258,12 @@ const EventsListTable = ({
         </Flex>
       )}
 
-      {(previousEvents.length > 0 || nextEvents.length > 0) && (
+      {previousEvents.length > 0 && (
         <EventsListToggle
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
           currentEvents={currentEvents}
-          nextEvents={nextEvents}
-          showNextEvents={showNextEvents}
-          setShowNextEvents={setShowNextEvents}
           mb={5}
         />
       )}
@@ -304,8 +297,8 @@ const EventsListTable = ({
                             ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                            ? "orange.100"
-                            : "orange.50"
+                          ? "orange.100"
+                          : "orange.50"
                       }
                     >
                       <EventsListItem
@@ -322,7 +315,7 @@ const EventsListTable = ({
         </Table>
       )}
 
-      {!showPreviousEvents && !showNextEvents && (
+      {!showPreviousEvents && (
         <>
           {currentEvents.length > 0 ? (
             <>
@@ -354,8 +347,8 @@ const EventsListTable = ({
                                   ? "gray.600"
                                   : "gray.500"
                                 : index % 2 === 0
-                                  ? "orange.100"
-                                  : "orange.50"
+                                ? "orange.100"
+                                : "orange.50"
                             }
                           >
                             <EventsListItem
@@ -400,7 +393,7 @@ const EventsListTable = ({
                     ))}
                   </>
                 ) : (
-                  " dans les 7 prochains jours."
+                  " à venir."
                 )}
               </Box>
             </Alert>
@@ -408,67 +401,16 @@ const EventsListTable = ({
         </>
       )}
 
-      {showNextEvents && (
-        <Table>
-          <Tbody>
-            {nextEvents
-              .sort((a, b) => compareAsc(a.eventMinDate, b.eventMinDate))
-              .map((event, index) => {
-                const minDate = event.eventMinDate;
-                const addGridHeader =
-                  !currentDateN ||
-                  getDayOfYear(currentDateN) < getDayOfYear(minDate);
-                currentDateN = minDate;
-
-                return (
-                  <React.Fragment key={`event-${index}`}>
-                    {addGridHeader && (
-                      <EventsListHeader
-                        borderTopRadius={index === 0 ? "lg" : undefined}
-                        bg={isDark ? "gray.800" : "orange.200"}
-                        minDate={minDate}
-                      />
-                    )}
-
-                    <Tr
-                      bg={
-                        isDark
-                          ? index % 2 === 0
-                            ? "gray.600"
-                            : "gray.500"
-                          : index % 2 === 0
-                            ? "orange.100"
-                            : "orange.50"
-                      }
-                    >
-                      <EventsListItem
-                        {...eventsListItemProps}
-                        event={event}
-                        index={index}
-                        length={nextEvents.length}
-                      />
-                    </Tr>
-                  </React.Fragment>
-                );
-              })}
-          </Tbody>
-        </Table>
-      )}
-
-      {((showPreviousEvents && previousEvents.length > 0) ||
-        showNextEvents ||
+      {/* {((showPreviousEvents && previousEvents.length > 0) ||
         currentEvents.length > 0) && (
         <EventsListToggle
           previousEvents={previousEvents}
           showPreviousEvents={showPreviousEvents}
           setShowPreviousEvents={setShowPreviousEvents}
           currentEvents={currentEvents}
-          nextEvents={nextEvents}
-          showNextEvents={showNextEvents}
-          setShowNextEvents={setShowNextEvents}
           mt={3}
         />
-      )}
+      )} */}
     </>
   );
 };
@@ -497,14 +439,12 @@ export const EventsList = ({
 
   //#region local state
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
-  const [showNextEvents, setShowNextEvents] = useState(false);
   useEffect(() => {
     if (setTitle) {
       if (showPreviousEvents) setTitle("Événements précédents");
-      else if (showNextEvents) setTitle("Événements suivants");
       else setTitle();
     }
-  }, [showPreviousEvents, showNextEvents]);
+  }, [showPreviousEvents]);
   //#endregion
 
   //#region local storage sync
@@ -623,8 +563,6 @@ export const EventsList = ({
         orgQuery={orgQuery}
         showPreviousEvents={showPreviousEvents}
         setShowPreviousEvents={setShowPreviousEvents}
-        showNextEvents={showNextEvents}
-        setShowNextEvents={setShowNextEvents}
         // modal props
         eventToForward={eventToForward}
         setEventToForward={setEventToForward}
