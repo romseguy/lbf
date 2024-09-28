@@ -27,11 +27,11 @@ import { hasItems } from "utils/array";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { Mosaic, MosaicImage } from "./Mosaic";
 import { UserGallery } from "./UserGallery";
-import { MosaicItemFullscrenModal } from "./MosaicItemFullscrenModal";
 import { getRefId, IEntity } from "models/Entity";
 import theme from "features/layout/theme";
 import { equals } from "utils/string";
 import { useSession } from "hooks/useSession";
+import { DocumentsListModal } from "./DocumentsListModal";
 
 export const DocumentsListMosaic = ({
   entity,
@@ -252,7 +252,7 @@ export const DocumentsListMosaic = ({
       )}
 
       {modalState.isOpen && modalState.image && (
-        <MosaicItemFullscrenModal
+        <DocumentsListModal
           entity={entity}
           images={images}
           isGalleryCreator={isGalleryCreator}

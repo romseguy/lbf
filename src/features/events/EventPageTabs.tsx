@@ -69,7 +69,7 @@ export const EventPageTabs = ({
   const event = eventQuery.data;
   const eventTopicsLast = event.eventTopics.filter((topic) => {
     const fiveDaysAgo = subDays(new Date(), 5);
-    if (isBefore(parseISO(topic.createdAt), fiveDaysAgo)) {
+    if (isBefore(parseISO(topic.createdAt || ""), fiveDaysAgo)) {
       return false;
     }
     return true;
@@ -221,7 +221,7 @@ export const EventPageTabs = ({
               {tabLabel}
               {url === "/galerie" && hasItems(gallery?.galleryDocuments) ? (
                 <Badge ml={2}>{gallery?.galleryDocuments!.length}</Badge>
-              ) : url === "/discussions" && hasItems(event.eventTopics) ? (
+              ) : url === "/discussions" && hasItems(eventTopicsLast) ? (
                 <Tooltip
                   label={`${eventTopicsLast.length} nouvelle${
                     eventTopicsLast.length !== 1 ? "s" : ""

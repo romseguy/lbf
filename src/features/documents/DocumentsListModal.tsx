@@ -34,7 +34,7 @@ import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
 import { getErrorMessageString } from "utils/query";
 
-export const MosaicItemFullscrenModal = ({
+export const DocumentsListModal = ({
   entity,
   images,
   isGalleryCreator = false,

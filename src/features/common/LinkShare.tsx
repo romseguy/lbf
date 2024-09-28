@@ -19,7 +19,6 @@ export const LinkShare = ({
   url: string;
   tooltipProps?: Partial<TooltipProps>;
 }) => {
-  console.log("🚀 ~ props:", props);
   const toast = useToast({ position: "top" });
 
   return (

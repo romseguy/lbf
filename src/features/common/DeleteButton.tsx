@@ -20,6 +20,7 @@ import React from "react";
 
 export const DeleteButton = ({
   "aria-label": ariaLabel = "Supprimer",
+  hasTooltip = true,
   isDisabled,
   isIconOnly,
   isLoading,
@@ -33,6 +34,7 @@ export const DeleteButton = ({
   ...props
 }: Omit<IconButtonProps, "aria-label"> & {
   "aria-label"?: string;
+  hasTooltip?: boolean;
   header?: React.ReactNode;
   body?: React.ReactNode;
   isDisabled?: boolean;
@@ -60,23 +62,31 @@ export const DeleteButton = ({
       minWidth: 0
     };
 
+  const ib = (
+    <IconButton
+      aria-label={ariaLabel}
+      colorScheme="red"
+      icon={<DeleteIcon />}
+      isLoading={isLoading}
+      {...CSSObject}
+      {...props}
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpen();
+      }}
+    />
+  );
+
   return (
     <>
       {isIconOnly ? (
-        <Tooltip label={label} placement={placement} hasArrow={hasArrow}>
-          <IconButton
-            aria-label={ariaLabel}
-            colorScheme="red"
-            icon={<DeleteIcon />}
-            isLoading={isLoading}
-            {...CSSObject}
-            {...props}
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen();
-            }}
-          />
-        </Tooltip>
+        hasTooltip ? (
+          <Tooltip label={label} placement={placement} hasArrow={hasArrow}>
+            {ib}
+          </Tooltip>
+        ) : (
+          ib
+        )
       ) : (
         <Button
           {...props}

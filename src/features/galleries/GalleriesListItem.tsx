@@ -140,15 +140,14 @@ export const GalleriesListItem = ({
                 </Alert>
               )}
 
-              {((isE && hasItems(gallery.galleryDocuments)) ||
-                (!isE && hasItems(gallery.galleryDocuments))) && (
+              {hasItems(gallery.galleryDocuments) && (
                 <DocumentsListMosaic
                   entity={entity}
                   gallery={gallery}
                   isGalleryCreator={isGalleryCreator}
                   isLoading={isAdd}
                   position="top"
-                  groupByUser={isE}
+                  groupByUser
                   onDelete={() => {
                     if (isO) query.refetch();
                   }}
@@ -164,12 +163,10 @@ export const GalleriesListItem = ({
                 p={3}
                 gallery={gallery}
                 remainingDocumentsCount={
-                  isO
-                    ? undefined
-                    : DOCUMENTS_LIMIT_PER_USER -
-                      gallery.galleryDocuments.filter((doc) =>
-                        equals(session?.user.userId, getRefId(doc))
-                      ).length
+                  DOCUMENTS_LIMIT_PER_USER -
+                  gallery.galleryDocuments.filter((doc) =>
+                    equals(session?.user.userId, getRefId(doc))
+                  ).length
                 }
                 onSubmit={() => {
                   // TODO1

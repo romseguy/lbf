@@ -78,13 +78,13 @@ export const OrgPageTabs = ({
   });
   const fiveDaysAgo = subDays(new Date(), 5);
   const orgGalleriesLast = org.orgGalleries.filter((gallery) => {
-    if (isBefore(parseISO(gallery.createdAt), fiveDaysAgo)) {
+    if (isBefore(parseISO(gallery.createdAt || ""), fiveDaysAgo)) {
       return false;
     }
     return true;
   });
   const orgTopicsLast = org.orgTopics.filter((topic) => {
-    if (isBefore(parseISO(topic.createdAt), fiveDaysAgo)) {
+    if (isBefore(parseISO(topic.createdAt || ""), fiveDaysAgo)) {
       return false;
     }
     return true;
@@ -258,19 +258,20 @@ export const OrgPageTabs = ({
                 </Tooltip>
               )}
 
-              {(url === "/discussions" || url === "/d") && (
-                <Tooltip
-                  label={`${orgTopicsLast.length} nouvelle${
-                    orgTopicsLast.length !== 1 ? "s" : ""
-                  } discussion${
-                    orgTopicsLast.length !== 1 ? "s" : ""
-                  } dans les 5 dernier jours`}
-                >
-                  <Badge {...badgeProps}>{orgTopicsLast.length}</Badge>
-                </Tooltip>
-              )}
+              {(url === "/discussions" || url === "/d") &&
+                hasItems(orgTopicsLast) && (
+                  <Tooltip
+                    label={`${orgTopicsLast.length} nouvelle${
+                      orgTopicsLast.length !== 1 ? "s" : ""
+                    } discussion${
+                      orgTopicsLast.length !== 1 ? "s" : ""
+                    } dans les 5 dernier jours`}
+                  >
+                    <Badge {...badgeProps}>{orgTopicsLast.length}</Badge>
+                  </Tooltip>
+                )}
 
-              {url === "/galeries" && (
+              {url === "/galeries" && hasItems(orgGalleriesLast) && (
                 <Tooltip
                   label={`${orgGalleriesLast.length} nouvelle${
                     orgGalleriesLast.length !== 1 ? "s" : ""
@@ -279,25 +280,6 @@ export const OrgPageTabs = ({
                   <Badge {...badgeProps}>{orgGalleriesLast.length}</Badge>
                 </Tooltip>
               )}
-
-              {/* {url === "/galeries"
-                ? Array.isArray(documentsQuery.data) &&
-                  documentsQuery.data.length > 0 && (
-                    <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
-                  )
-                : url === "/agenda"
-                ? org.orgEvents.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-                  )
-                : url === "/discussions" || url === "/d"
-                ? org.orgTopics.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
-                  )
-                : url === "/projets"
-                ? org.orgProjects.length > 0 && (
-                    <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
-                  )
-                : ""} */}
             </EntityPageTab>
           );
         })}

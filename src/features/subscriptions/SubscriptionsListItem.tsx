@@ -1,7 +1,7 @@
 import { Spinner, Td, Tooltip, Tr } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
-import { DeleteButton, Link } from "features/common";
+import { DeleteButton, EditIconButton, Link } from "features/common";
 import { getUser } from "features/api/usersApi";
 import { orgTypeFull } from "models/Org";
 import {
@@ -20,9 +20,11 @@ export const SubscriptionsListItem = ({
   orgQuery,
   isSubscriptionLoading,
   setIsSubscriptionLoading,
-  subscription
+  subscription,
+  onEditClick
 }: SubscriptionsListProps & {
   subscription: ISubscription;
+  onEditClick: () => void;
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -155,7 +157,14 @@ export const SubscriptionsListItem = ({
                 />
               </Tooltip> */}
 
+              <EditIconButton
+                colorScheme="green"
+                mr={3}
+                onClick={onEditClick}
+              />
+
               <DeleteButton
+                hasTooltip={false}
                 header={
                   <>
                     Êtes-vous sûr de vouloir supprimer {phone || email}{" "}
@@ -164,7 +173,6 @@ export const SubscriptionsListItem = ({
                 }
                 isIconOnly
                 isSmall={false}
-                variant="outline"
                 onClick={async () => {
                   try {
                     setIsSubscriptionLoading({
@@ -193,8 +201,6 @@ export const SubscriptionsListItem = ({
                     });
                   }
                 }}
-                label="Supprimer"
-                data-cy="orgUnsubscribe"
               />
             </>
             {/* )} */}

@@ -165,9 +165,14 @@ export const DocumentForm = ({
           {!!remainingDocumentsCount && (
             <HStack spacing={1}>
               <ArrowForwardIcon />
-              <Text>Vous pouvez encore ajouter :</Text>
+              <Text>Vous pouvez encore ajouter </Text>
               <Text color="teal">{remainingDocumentsCount}</Text>
-              <Text>photo(s)</Text>
+              <Text>
+                photo{remainingDocumentsCount !== 1 ? "s" : ""}{" "}
+                {!!gallery?.org
+                  ? "à cette galerie"
+                  : "à la galerie de cet événement"}
+              </Text>
             </HStack>
           )}
           <HStack spacing={1}>
@@ -192,9 +197,9 @@ export const DocumentForm = ({
               css={css`
                 th,
                 td {
-                  border-color: ${
-                    isDark ? theme.colors.gray[500] : theme.colors.gray[200]
-                  };
+                  border-color: ${isDark
+                    ? theme.colors.gray[500]
+                    : theme.colors.gray[200]};
                 }
               `}
             />

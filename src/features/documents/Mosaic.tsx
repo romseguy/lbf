@@ -1,7 +1,7 @@
 import { Badge, Box, BoxProps, Button, Flex, Image } from "@chakra-ui/react";
 import { useToast } from "hooks/useToast";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { RemoteImage } from "features/api/documentsApi";
 import { pxBreakpoints } from "features/layout/theme";
@@ -33,42 +33,72 @@ export const Mosaic = ({
   const router = useRouter();
   const screenHeight = useSelector(selectScreenHeight);
   const screenWidth = useSelector(selectScreenWidth);
-
-  const [columnCount, setColumnCount] = useState<number>(1);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const pageImageCount = 10;
+  const pageImageCount = 8;
   //const pageLength = images.length / pagesCount;
-  const pagesCount =
-    images.length > pageImageCount ? images.length % pageImageCount : 1;
+  const getPagesCount = () => {
+    const c = Math.ceil(images.length / pageImageCount);
+    return c;
+  };
+  const pagesCount = useMemo(getPagesCount, [images, pageImageCount]);
+
+  // console.log("🚀 ~ pagesCount:", pagesCount);
   const pages = divideArray(images, pagesCount);
-  const mosaic = divideArray(
+  // console.log("🚀 ~ images:", pages);
+
+  const getColumnCount = () => {
+    let count = 0;
+    let sum = 0;
+    let counts = [];
+
+    for (const image of images) {
+      const h = image.height;
+      const w = image.width;
+      const r = w / h;
+      let nh = (w * image.height) / image.width;
+      nh =
+        !isServer() && h > window.innerHeight / 2 ? window.innerHeight / 2 : h;
+      const nw = r * nh;
+      sum += nw;
+      if (sum > screenWidth) {
+        counts.push(count);
+        sum = 0;
+        count = 0;
+      } else count += 1;
+    }
+
+    return hasItems(counts) ? Math.max(...counts) : 1;
+    // let col = 1;
+    // if (hasItems(images) && screenWidth) {
+    //   if (screenWidth >= pxBreakpoints.xl)
+    //     col = images.length >= 4 ? 4 : images.length;
+    //   else if (screenWidth >= pxBreakpoints.lg) col = 3;
+    //   else if (screenWidth >= pxBreakpoints.md) col = 2;
+    //   else col = 1;
+    // }
+    // return col;
+  };
+  const columnCount = useMemo(getColumnCount, [
+    images,
+    screenWidth,
+    router.asPath
+  ]);
+
+  // console.log("🚀 ~ columnCount:", columnCount);
+  const columns = divideArray(
     pages.reduce(
       (arr, page, index) => (index <= currentIndex ? arr.concat(page) : arr),
       []
     ),
     columnCount
   );
-  useEffect(() => {
-    const getColumnCount = () => {
-      let col = 1;
-      if (hasItems(images) && screenWidth) {
-        if (screenWidth >= pxBreakpoints.xl)
-          col = images.length >= 4 ? 4 : images.length;
-        else if (screenWidth >= pxBreakpoints.lg) col = 3;
-        else if (screenWidth >= pxBreakpoints.md) col = 2;
-        else col = 1;
-      }
-      return col;
-    };
-    const col = getColumnCount();
-    if (col !== columnCount) setColumnCount(col);
-  }, [router.asPath, images, screenWidth]);
+  // console.log("🚀 ~ columns:", columns);
 
   return (
     <Box {...props}>
       <Flex>
-        {mosaic.map((column, columnIndex) => {
+        {columns.map((column, columnIndex) => {
           return (
             <Flex key={`column-${columnIndex}`} flexDir="column">
               {column.map((image, rowIndex) => {

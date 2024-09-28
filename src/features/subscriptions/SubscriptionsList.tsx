@@ -1,11 +1,10 @@
-import { Spinner, Table, Tbody, Td, Tr } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import React, { Fragment } from "react";
+import { Spinner, Table, Tbody, Td, Tr, useDisclosure } from "@chakra-ui/react";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
+import React, { Fragment, useState } from "react";
 import { AppQuery } from "utils/types";
 import { SubscriptionsListItem } from "./SubscriptionsListItem";
+import { SubscriptionsListModal } from "./SubscriptionsListModal";
 
 export interface SubscriptionsListProps {
   orgQuery: AppQuery<IOrg>;
@@ -37,36 +36,53 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
     );
   }
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [current, setCurrent] = useState<ISubscription>();
+  const onEditClick = (sub: ISubscription) => {
+    onOpen();
+    setCurrent(sub);
+  };
+
   return (
-    <Table data-cy="subscriptions-list">
-      <Tbody>
-        {orgQuery.isLoading || orgQuery.isFetching ? (
-          <Tr>
-            <Td>
-              <Spinner boxSize={4} />
-            </Td>
-          </Tr>
-        ) : (
-          org?.orgSubscriptions.map((subscription, index) => {
-            return (
-              <Fragment key={subscription._id}>
-                {isSubscriptionLoading[subscription._id] ? (
-                  <Tr>
-                    <Td>
-                      <Spinner boxSize={4} />
-                    </Td>
-                  </Tr>
-                ) : (
-                  <SubscriptionsListItem
-                    {...props}
-                    subscription={subscription}
-                  />
-                )}
-              </Fragment>
-            );
-          })
-        )}
-      </Tbody>
-    </Table>
+    <>
+      <Table>
+        <Tbody>
+          {orgQuery.isLoading || orgQuery.isFetching ? (
+            <Tr>
+              <Td>
+                <Spinner boxSize={4} />
+              </Td>
+            </Tr>
+          ) : (
+            org?.orgSubscriptions.map((subscription, index) => {
+              return (
+                <Fragment key={subscription._id}>
+                  {isSubscriptionLoading[subscription._id] ? (
+                    <Tr>
+                      <Td>
+                        <Spinner boxSize={4} />
+                      </Td>
+                    </Tr>
+                  ) : (
+                    <SubscriptionsListItem
+                      {...props}
+                      subscription={subscription}
+                      onEditClick={() => onEditClick(subscription)}
+                    />
+                  )}
+                </Fragment>
+              );
+            })
+          )}
+        </Tbody>
+      </Table>
+      {isOpen && org && current && (
+        <SubscriptionsListModal
+          org={org}
+          subscription={current}
+          onClose={onClose}
+        />
+      )}
+    </>
   );
 };
