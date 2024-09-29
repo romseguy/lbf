@@ -1,6 +1,5 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Alert, Box, BoxProps, useColorMode } from "@chakra-ui/react";
-import React, { useState } from "react";
 import { Button } from "features/common";
 import { DocumentsListMosaic } from "features/documents/DocumentsListMosaic";
 import { DocumentForm } from "features/forms/DocumentForm";
@@ -8,9 +7,9 @@ import { useScroll } from "hooks/useScroll";
 import { useSession } from "hooks/useSession";
 import { useToast } from "hooks/useToast";
 import { DOCUMENTS_LIMIT_PER_USER } from "models/Document";
-import { getRefId, IEntity, isEvent, isOrg } from "models/Entity";
+import { getRefId, IEntity, isAttendee, isEvent, isOrg } from "models/Entity";
 import { IGallery } from "models/Gallery";
-import { getEmail } from "models/Subscription";
+import React, { useState } from "react";
 import { hasItems } from "utils/array";
 import { removeProps } from "utils/object";
 import { equals, sanitize } from "utils/string";
@@ -53,14 +52,6 @@ export const GalleriesListItem = ({
   const isE = isEvent(entity);
   const isGalleryCreator =
     isCreator || equals(getRefId(gallery), session?.user.userId);
-  const attendees = (
-    isO ? entity.orgLists : isE ? entity.eventOrgs[0].orgLists : []
-  ).find(({ listName }) => listName === "Participants");
-  const isAttendee =
-    session?.user.isAdmin ||
-    !!(attendees?.subscriptions || []).find(
-      (sub) => getEmail(sub) === session?.user.email
-    );
   // const galleryId = entity._id;
   // const galleryQuery = useGetGalleryQuery({
   //   galleryId
@@ -69,9 +60,12 @@ export const GalleriesListItem = ({
   const [isAdd, setIsAdd] = useState(false);
 
   const onAddDocumentClick = () => {
-    if (!isAttendee)
+    if (!isAttendee(entity, session))
       return toast({
-        title: "Il faut avoir participé à un atelier pour ajouter des photos"
+        status: "error",
+        title: isO
+          ? "Vous devez avoir été inscrit(e) à l'atelier pour ajouter une photo"
+          : "Vous devez avoir été inscrit(e) à cet événement"
       });
 
     const userDocuments = gallery.galleryDocuments.filter((doc) =>

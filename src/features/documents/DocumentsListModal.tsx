@@ -24,7 +24,7 @@ import {
   useAddTopicMutation,
   useEditTopicMutation
 } from "features/api/topicsApi";
-import { DeleteButton } from "features/common";
+import { DeleteButton, LinkShare } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { useToast } from "hooks/useToast";
 import { getRefId, IEntity, isEvent } from "models/Entity";
@@ -131,6 +131,13 @@ export const DocumentsListModal = ({
               }}
             />
           </Tooltip>
+
+          <LinkShare
+            colorScheme="teal"
+            label="Copier le lien vers la photo"
+            url={modalState.image.url}
+            tooltipProps={{ placement: "bottom" }}
+          />
 
           {(isGalleryCreator || modalState.image.isCreator) && (
             <DeleteButton

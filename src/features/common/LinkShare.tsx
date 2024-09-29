@@ -23,19 +23,21 @@ export const LinkShare = ({
 
   return (
     <Tooltip label={label} placement="left" {...tooltipProps}>
-      <IconButton
-        aria-label={label}
-        icon={<LinkIcon />}
-        onClick={(e) => {
-          e.stopPropagation();
-          navigator.clipboard.writeText(url);
-          toast({
-            title: "Le lien a été copié dans votre presse-papiers",
-            status: "success"
-          });
-        }}
-        {...props}
-      />
+      <span>
+        <IconButton
+          aria-label={label}
+          icon={<LinkIcon />}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(url);
+            toast({
+              title: "Le lien a été copié dans votre presse-papiers",
+              status: "success"
+            });
+          }}
+          {...props}
+        />
+      </span>
     </Tooltip>
   );
 };

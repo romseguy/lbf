@@ -15,7 +15,7 @@ import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
 import api from "utils/api";
 import { magic } from "utils/auth";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { IEntity, isAttendee, isEvent, isOrg } from "models/Entity";
 import { IUser } from "models/User";
 import { getEmail } from "models/Subscription";
 const { getEnv } = require("utils/env");
@@ -55,21 +55,12 @@ export const NavMenuList = ({
       />
       {getEnv() === "development" && (
         <>
-          {isO && (
+          <MenuItem command={"isAdmin : " + session.user.isAdmin} />
+          {!session.user.isAdmin && (
             <MenuItem
-              command={
-                session?.user.isAdmin ||
-                !!(
-                  entity.orgLists.find(
-                    ({ listName }) => listName === "Participants"
-                  )?.subscriptions || []
-                ).find((sub) => getEmail(sub) === session?.user.email)
-                  ? "isAttendee"
-                  : "notAttendee"
-              }
+              command={"isAttendee : " + !!isAttendee(entity, session)}
             />
           )}
-
           <MenuItem
             aria-hidden
             command={`${entity ? entity._id : session.user.userId}`}

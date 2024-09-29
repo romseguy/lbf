@@ -9,25 +9,21 @@ import {
   ListItem,
   Select,
   Spinner,
-  Text,
-  useColorMode
+  Text
 } from "@chakra-ui/react";
 import { isAfter, isBefore, parseISO } from "date-fns";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Button, AppHeading, CategoryTag } from "features/common";
+import { AppHeading, Button, CategoryTag } from "features/common";
 import { GalleryFormModal } from "features/modals/GalleryFormModal";
 import { useSession } from "hooks/useSession";
-import { getCategoryLabel, getRefId } from "models/Entity";
+import { useToast } from "hooks/useToast";
+import { getCategoryLabel, isAttendee } from "models/Entity";
 import { IGallery } from "models/Gallery";
-import { selectIsMobile } from "store/uiSlice";
+import { IOrg } from "models/Org";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { normalize } from "utils/string";
 import { AppQueryWithData } from "utils/types";
 import { GalleriesListItem } from "./GalleriesListItem";
-import { normalize } from "utils/string";
-import { useToast } from "hooks/useToast";
-import { IOrg } from "models/Org";
-import { getEmail } from "models/Subscription";
 
 enum EGalleriesListOrder {
   ALPHA = "ALPHA",
@@ -50,21 +46,10 @@ export const GalleriesList = ({
   isCreator: boolean;
   currentGalleryName?: string;
 }) => {
-  const { colorMode } = useColorMode();
-  const isDark = colorMode === "dark";
   const router = useRouter();
   const { data: session } = useSession();
   const toast = useToast();
-  const isMobile = useSelector(selectIsMobile);
   const org = query.data;
-  const attendees = org.orgLists.find(
-    ({ listName }) => listName === "Participants"
-  );
-  const isAttendee =
-    session?.user.isAdmin ||
-    !!(attendees?.subscriptions || []).find(
-      (sub) => getEmail(sub) === session?.user.email
-    );
   const entityUrl = org["orgUrl"];
 
   //#region local state
@@ -115,7 +100,7 @@ export const GalleriesList = ({
   //const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   //#endregion
 
-  //#region gallery modal state
+  //#region modal state
   const [galleryModalState, setGalleryModalState] = useState<GalleryModalState>(
     {
       isOpen: false
@@ -134,10 +119,10 @@ export const GalleriesList = ({
       return router.push("/login", "/login", { shallow: true });
     }
 
-    if (!isAttendee) {
+    if (!isAttendee(org, session)) {
       return toast({
         title:
-          "Il faut avoir participé à un atelier pour ajouter une discussion"
+          "Vous devez avoir été inscrit(e) à l'atelier pour ajouter une galerie"
       });
     }
 
@@ -352,7 +337,6 @@ export const GalleriesList = ({
         )}
 
         {isO &&
-          entity.orgUrl !== "forum" &&
           session &&
           hasItems(entity.orgLists) && (
             <Flex flexDirection="column" mb={3}>
@@ -368,15 +352,4 @@ export const GalleriesList = ({
             </Flex>
           )}
       </Box> */
-}
-{
-  /* {session && (
-        <EntityNotifModal
-          query={query}
-          mutation={addGalleryNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )} */
 }

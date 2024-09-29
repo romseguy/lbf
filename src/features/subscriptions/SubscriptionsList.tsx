@@ -76,6 +76,7 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
           )}
         </Tbody>
       </Table>
+
       {isOpen && org && current && (
         <SubscriptionsListModal
           org={org}

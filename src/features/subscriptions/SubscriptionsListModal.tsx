@@ -10,6 +10,10 @@ import {
   Thead,
   Tr
 } from "@chakra-ui/react";
+import {
+  EditSubscriptionPayload,
+  useEditSubscriptionMutation
+} from "features/api/subscriptionsApi";
 import { AppHeading } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
 import { IOrg } from "models/Org";
@@ -26,6 +30,7 @@ export const SubscriptionsListModal = ({
   subscription: ISubscription;
   onClose: () => void;
 }) => {
+  const [editSub] = useEditSubscriptionMutation();
   return (
     <FullscreenModal
       header={
@@ -62,7 +67,17 @@ export const SubscriptionsListModal = ({
               <Tr>
                 <Td>{event.eventName}</Td>
                 <Td textAlign="center">
-                  <Switch onChange={() => {}} />
+                  <Switch
+                    onChange={() => {
+                      const events = (subscription.events || []).concat([
+                        { event, eventId: event._id }
+                      ]);
+                      let payload: EditSubscriptionPayload = {
+                        events
+                      };
+                      editSub({ subscriptionId: subscription._id, payload });
+                    }}
+                  />
                 </Td>
               </Tr>
             );

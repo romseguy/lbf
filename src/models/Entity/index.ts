@@ -2,8 +2,11 @@ import { IDocument } from "models/Document";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
 import { IProject } from "models/Project";
+import { getEmail } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
+import { Session } from "utils/auth";
+import { equals } from "utils/string";
 import { IEntity, IEntityCategory } from "./IEntity";
 
 export * from "./IEntity";
@@ -36,6 +39,41 @@ export const getRefId = (
   }
 
   return "";
+};
+
+export const isAttendee = (entity?: IEntity, session?: Session | null) => {
+  if (!entity || !session) return false;
+  if (session?.user.isAdmin) return true;
+
+  let isAttendee = false;
+  const isE = isEvent(entity);
+  const isO = isOrg(entity);
+
+  if (isE) {
+    const attendees = (entity.eventOrgs[0].orgLists || []).find(
+      ({ listName }) => listName === "Participants"
+    );
+    const sub = (attendees?.subscriptions || []).find(
+      (sub) => getEmail(sub) === session?.user.email
+    );
+    const eventSub = sub?.events?.find((eventSub) =>
+      equals(getRefId(eventSub.event, "_id"), entity._id)
+    );
+    isAttendee = !!eventSub;
+  } else if (isO) {
+    const attendees = (entity.orgLists || []).find(
+      ({ listName }) => listName === "Participants"
+    );
+    const sub = (attendees?.subscriptions || []).find(
+      (sub) => getEmail(sub) === session?.user.email
+    );
+    // const orgSub = sub?.orgs?.find((orgSub) =>
+    //   equals(getRefId(orgSub.org, "_id"), entity._id)
+    // );
+    isAttendee = !!sub;
+  }
+
+  return isAttendee;
 };
 
 export const isDocument = (entity?: any): entity is IDocument => {

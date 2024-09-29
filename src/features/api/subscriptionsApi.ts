@@ -3,6 +3,7 @@ import type { ISubscription } from "models/Subscription";
 import { api, TagTypes } from "./";
 
 export type AddSubscriptionPayload = Omit<ISubscription, "_id" | "createdBy">;
+export type EditSubscriptionPayload = Partial<ISubscription>;
 
 export const subscriptionApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -78,7 +79,7 @@ export const subscriptionApi = api.injectEndpoints({
     }),
     editSubscription: build.mutation<
       ISubscription,
-      { payload: Partial<ISubscription>; subscriptionId?: string }
+      { payload: EditSubscriptionPayload; subscriptionId?: string }
     >({
       query: ({ payload, subscriptionId }) => ({
         url: `subscription/${subscriptionId || payload._id}`,

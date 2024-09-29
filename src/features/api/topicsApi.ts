@@ -89,25 +89,28 @@ export const topicApi = api.injectEndpoints({
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) => {
-        const orgId = result?.org?._id;
-        const eventId = result?.event?._id;
-        if (orgId) {
-          return [
-            {
+        if (error) return [];
+
+        let tags = [
+          { type: TagTypes.TOPICS, id: "LIST" },
+          { type: TagTypes.SUBSCRIPTIONS, id: globalEmail }
+        ];
+
+        if (result) {
+          if (result.org) {
+            tags.push({
               type: TagTypes.ORGS,
-              id: orgId
-            }
-          ];
-        }
-        if (eventId) {
-          return [
-            {
+              id: getRefId(result.org, "_id")
+            });
+          } else if (result.event) {
+            tags.push({
               type: TagTypes.EVENTS,
-              id: eventId
-            }
-          ];
+              id: getRefId(result.event, "_id")
+            });
+          }
         }
-        return [{ type: TagTypes.TOPICS, id: "LIST" }];
+
+        return tags;
       }
     }),
     editTopic: build.mutation<

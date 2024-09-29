@@ -1,8 +1,8 @@
 import { Spinner, Td, Tooltip, Tr } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import { DeleteButton, EditIconButton, Link } from "features/common";
+import { useDeleteSubscriptionMutation } from "features/api/subscriptionsApi";
 import { getUser } from "features/api/usersApi";
+import { DeleteButton, EditIconButton, Link } from "features/common";
+import { useToast } from "hooks/useToast";
 import { orgTypeFull } from "models/Org";
 import {
   getEntitySubscription,
@@ -13,7 +13,6 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useAppDispatch } from "store";
 import { SubscriptionEditPopover } from "./SubscriptionEditPopover";
-import { useDeleteSubscriptionMutation } from "features/api/subscriptionsApi";
 import { SubscriptionsListProps } from "./SubscriptionsList";
 
 export const SubscriptionsListItem = ({

@@ -12,19 +12,10 @@ import {
   Text,
   useColorMode
 } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
-
-import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import { Button, AppHeading, CategoryTag } from "features/common";
-// import { useAddTopicNotifMutation } from "features/api/topicsApi";
-// import {
-//   NotifModalState,
-//   EntityNotifModal
-// } from "features/modals/EntityNotifModal";
+import { AppHeading, Button, CategoryTag } from "features/common";
 import { TopicFormModal } from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
+import { useToast } from "hooks/useToast";
 import {
   getCategoryLabel,
   getRefId,
@@ -35,12 +26,15 @@ import {
 import { IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
+import { useRouter } from "next/router";
+import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
-import { selectIsMobile } from "store/uiSlice";
 
 enum ETopicsListOrder {
   ALPHA = "ALPHA",
@@ -197,8 +191,10 @@ export const TopicsList = ({
 
     if (!isAttendee) {
       return toast({
-        title:
-          "Il faut avoir participé à un atelier pour ajouter une discussion"
+        status: "error",
+        title: isO
+          ? "Vous devez avoir été inscrit(e) à l'atelier pour ajouter une discussion"
+          : "Vous devez avoir été inscrit(e) à cet événement"
       });
     }
 
