@@ -189,15 +189,22 @@ export const DocumentsListModal = ({
                 setIsLoading(true);
                 const key = isE ? "event" : "org";
                 const topicName = modalState.image.name;
-                const topicMessage = {
-                  message: `<img src="${modalState.image.url}" style="max-height: 400px"/>`
-                };
+
+                // add topic only if not already there
                 const topic = entity[key + "Topics"].find(
                   (topic: ITopic) =>
                     getRefId(topic.document, "_id") === modalState.image.id
                 );
-                // add topic only if not already there
                 if (!topic) {
+                  const topicMessage = {
+                    message: `<a href="${
+                      process.env.NEXT_PUBLIC_URL +
+                      "/fullscreen/" +
+                      modalState.image.id
+                    }"><img src="${
+                      modalState.image.url
+                    }" style="max-height: 400px"/></a>`
+                  };
                   const payload: AddTopicPayload = {
                     topic: {
                       [key]: entity,

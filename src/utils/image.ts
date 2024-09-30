@@ -91,9 +91,14 @@ export const getMeta = async (
   });
 };
 
-export async function getImageDimensions(file: File | Blob) {
+export async function getImageDimensions(file: File | Blob | string) {
   let img = new Image();
-  img.src = URL.createObjectURL(file);
+  if (typeof file === "string") {
+    img.src = file;
+  } else {
+    img.src = URL.createObjectURL(file);
+  }
+
   await img.decode();
   let width = img.width;
   let height = img.height;
