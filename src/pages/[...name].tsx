@@ -99,6 +99,7 @@ const HashPage = ({ ...props }: PageProps) => {
   const subQuery = useGetSubscriptionQuery(
     subQueryParams(userEmail)
   ) as AppQuery<ISubscription>;
+  console.log(subQuery);
   const userQuery = useGetUserQuery(
     {
       slug: entityUrl,

@@ -78,14 +78,26 @@ export const subscriptionApi = api.injectEndpoints({
       }
     }),
     editSubscription: build.mutation<
-      ISubscription,
+      {},
       { payload: EditSubscriptionPayload; subscriptionId?: string }
     >({
       query: ({ payload, subscriptionId }) => ({
         url: `subscription/${subscriptionId || payload._id}`,
         method: "PUT",
         body: payload
-      })
+      }),
+      invalidatesTags: (result, error, params) => {
+        if (error) return [];
+
+        let tags = [{ type: TagTypes.SUBSCRIPTIONS, id: "LIST" }];
+        const id = params.subscriptionId || params.payload._id;
+
+        if (id) {
+          tags.push({ type: TagTypes.SUBSCRIPTIONS, id });
+        }
+
+        return tags;
+      }
     }),
     getSubscription: build.query<
       ISubscription,

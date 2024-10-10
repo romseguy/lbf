@@ -26,16 +26,14 @@ handler.get<
       query: { slug, populate }
     } = req;
 
-    let selector: { user?: IUser; email?: string; _id?: string } = {};
+    let selector: { email?: string; _id?: string } = {};
 
     if (emailR.test(slug)) {
-      const user = await models.User.findOne({ email: slug });
-      selector = user ? { user } : { email: slug };
+      const user = await models.User.findOne({ email: slug }, "email");
+      selector = { email: user?.email || slug };
     } else {
       const user = await models.User.findOne({ _id: slug });
-
-      if (user) selector = { user };
-      else selector = { _id: slug };
+      selector = user ? { email: user.email } : { _id: slug };
     }
 
     let subscription = await models.Subscription.findOne(selector);
@@ -161,19 +159,10 @@ handler.put<
   try {
     let body = req.body;
 
-    await models.Subscription.updateOne({ _id: slug }, body);
+    const sub = await models.Subscription.replaceOne({ _id: slug }, body);
+    //const sub = await models.Subscription.findOneAndUpdate({ _id: slug }, body);
 
-    // if (nModified === 1) {
     res.status(200).json({});
-    // } else {
-    //   res
-    //     .status(400)
-    //     .json(
-    //       createEndpointError(
-    //         new Error(`L'abonnement n'a pas pu être modifié`)
-    //       )
-    //     );
-    // }
   } catch (error) {
     res.status(500).json(createEndpointError(error));
   }

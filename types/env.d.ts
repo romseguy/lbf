@@ -1,5 +1,5 @@
 import type { MongoClient, Db } from "mongodb";
-import mongoose, { Model } from "mongoose";
+import type { Connection, Model } from "mongoose";
 
 export type Models = {
   Event: Model<IEvent, {}, {}>;
@@ -15,9 +15,9 @@ declare global {
   namespace NodeJS {
     interface Global {
       mongo: {
-        conn: mongoose.Connection | null;
+        conn: Connection | null;
         models: Models | null;
-        promise: Promise<mongoose.Connection> | null;
+        promise: Promise<Connection> | null;
       };
     }
     interface ProcessEnv {

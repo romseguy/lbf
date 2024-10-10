@@ -1,8 +1,8 @@
 import { Spinner, Table, Tbody, Td, Tr, useDisclosure } from "@chakra-ui/react";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import React, { Fragment, useState } from "react";
-import { AppQuery } from "utils/types";
+import React, { Fragment, useEffect, useState } from "react";
+import { AppQuery, AppQueryWithData } from "utils/types";
 import { SubscriptionsListItem } from "./SubscriptionsListItem";
 import { SubscriptionsListModal } from "./SubscriptionsListModal";
 
@@ -22,9 +22,14 @@ export interface SubscriptionsListProps {
 export const SubscriptionsList = (props: SubscriptionsListProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [current, setCurrent] = useState<ISubscription>();
-
   const { orgQuery, isSubscriptionLoading } = props;
   const org = orgQuery.data;
+  useEffect(() => {
+    if (current) {
+      const sub = org?.orgSubscriptions.find(({ _id }) => _id === current?._id);
+      setCurrent(sub);
+    }
+  }, [current, org]);
   if (orgQuery.isFetching) {
     return (
       <Table data-cy="subscriptions-list">
@@ -78,9 +83,9 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
         </Tbody>
       </Table>
 
-      {isOpen && org && current && (
+      {isOpen && orgQuery.data && current && (
         <SubscriptionsListModal
-          org={org}
+          orgQuery={orgQuery as AppQueryWithData<IOrg>}
           subscription={current}
           onClose={onClose}
         />
