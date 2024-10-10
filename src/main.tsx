@@ -130,16 +130,16 @@ export const Main = ({
       )}
 
       {/* Right Top */}
-      {props.isMobile && (
+      {/* {props.isMobile && (
         <Box
           position="fixed"
           right={3}
           top={3}
           {...(isMobile ? { zIndex: 9999 } : {})}
-          // css={css`
-          //   transform: translate(0, 0);
-          //   transform: translate3d(0, 0, 0);
-          // `}
+           css={css`
+             transform: translate(0, 0);
+             transform: translate3d(0, 0, 0);
+           `}
         >
           <IconButton
             aria-label="Ouvrir le menu"
@@ -158,12 +158,6 @@ export const Main = ({
             <DrawerContent>
               <DrawerCloseButton />
               <DrawerHeader d="flex" justifyContent="space-evenly">
-                {/* <IconButton
-                  aria-label="Rechercher"
-                  icon={<SearchIcon />}
-                  onClick={() => setIsNetworksModalOpen(true)}
-                  //{...buttonProps}
-                /> */}
                 <DarkModeSwitch mr={3} />
               </DrawerHeader>
               <DrawerBody>
@@ -179,7 +173,7 @@ export const Main = ({
             </DrawerContent>
           </Drawer>
         </Box>
-      )}
+      )} */}
 
       {/* Right Bottom */}
       <Box

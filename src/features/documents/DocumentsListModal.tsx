@@ -29,7 +29,7 @@ import { FullscreenModal } from "features/modals/FullscreenModal";
 import { useToast } from "hooks/useToast";
 import { getRefId, IEntity, isEvent } from "models/Entity";
 import { ITopic } from "models/Topic";
-import { selectScreenHeight } from "store/uiSlice";
+import { selectIsMobile, selectScreenHeight } from "store/uiSlice";
 import { downloadImage } from "utils/image";
 import { MosaicImage } from "./Mosaic";
 import { getErrorMessageString } from "utils/query";
@@ -62,6 +62,7 @@ export const DocumentsListModal = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const [addTopic] = useAddTopicMutation();
@@ -110,13 +111,17 @@ export const DocumentsListModal = ({
             />
           </Tooltip>
 
-          <FaImage />
-          <Text>
-            {/* {images[modalState.image.index].url.substring(
+          {!isMobile && (
+            <>
+              <FaImage />
+              <Text>
+                {/* {images[modalState.image.index].url.substring(
                   images[modalState.image.index].url.lastIndexOf("/") + 1
                 )} */}
-            {modalState.image.name}
-          </Text>
+                {modalState.image.name}
+              </Text>
+            </>
+          )}
 
           <Tooltip label="Télécharger l'image">
             <IconButton
@@ -235,12 +240,14 @@ export const DocumentsListModal = ({
             Commenter
           </Button>
 
-          <Box flexGrow={1} textAlign="right" pr={10}>
-            {modalState.image.createdBy &&
-            typeof modalState.image.createdBy !== "string"
-              ? modalState.image.createdBy.userName
-              : ""}
-          </Box>
+          {!isMobile && (
+            <Box flexGrow={1} textAlign="right" pr={10}>
+              {modalState.image.createdBy &&
+              typeof modalState.image.createdBy !== "string"
+                ? modalState.image.createdBy.userName
+                : ""}
+            </Box>
+          )}
         </HStack>
       }
       bodyProps={{ bg: "black" }}

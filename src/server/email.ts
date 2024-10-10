@@ -250,25 +250,34 @@ export const sendEventNotifications = async ({
 // who chose to be notified when new topics are added to the org or event
 export const sendTopicNotifications = async ({
   event,
-  org,
+  //org,
   subscriptions,
   topic
 }: {
-  event?: IEvent;
-  org?: IOrg;
+  event: IEvent;
+  //org?: IOrg;
   subscriptions: ISubscription[];
   topic: ITopic & Document<any, ITopic>;
 }): Promise<ITopicNotification[]> => {
   let logPrefix = `sendTopicNotifications`;
   const topicNotifications: ITopicNotification[] = [];
 
-  if (!event && !org) {
-    console.log(logPrefix, "neither org or event");
+  // if (!event && !org) {
+  //   console.log(logPrefix, "neither org or event");
+  //   return [];
+  // }
+
+  // if (event && org) {
+  //   console.log(logPrefix, "both org and event");
+  // }
+
+  if (!event) {
+    console.log(logPrefix, "an event is required");
     return [];
   }
 
-  if (event && org) {
-    console.log(logPrefix, "both org and event");
+  if (event) {
+    console.log(logPrefix, "an event is required");
   }
 
   for (let subscription of subscriptions) {
@@ -279,7 +288,7 @@ export const sendTopicNotifications = async ({
 
     const followerSubscription = getEntitySubscription({
       event,
-      org,
+      //org,
       subscription
     });
 
@@ -287,7 +296,6 @@ export const sendTopicNotifications = async ({
       console.log(logPrefix, "skipping -- no follower subscription");
       continue;
     }
-
     const tagType = followerSubscription.tagTypes?.find(
       ({ type }) => type === "Topics"
     );
@@ -316,7 +324,7 @@ export const sendTopicNotifications = async ({
           console.log(logPrefix + ".tagType.emailNotif", `notifying ${email}`);
           const mail = createTopicEmailNotif({
             email,
-            org,
+            //org,
             event,
             subscriptionId: subscription._id,
             topic
@@ -356,10 +364,10 @@ export const sendTopicNotifications = async ({
           `notifying user ${subscription.user._id}`
         );
         await api.sendPushNotification({
-          message: `Appuyez pour lire la discussion`,
+          message: `Appuyez pour lire le commentaire`,
           subscription: subscription.user.userSubscription,
-          title: "Vous êtes invité à une discussion",
-          url: getTopicUrl({ event, org, topic })
+          title: "Une photo a été commentée",
+          url: getTopicUrl({ event, /*org,*/ topic })
         });
         topicNotification = {
           ...topicNotification,

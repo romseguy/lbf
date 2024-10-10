@@ -16,10 +16,12 @@ import {
 } from "features/api/subscriptionsApi";
 import { AppHeading } from "features/common";
 import { FullscreenModal } from "features/modals/FullscreenModal";
+import { getRefId } from "models/Entity";
 import { IOrg } from "models/Org";
 import { getEmail, ISubscription } from "models/Subscription";
 import React from "react";
 import { css } from "twin.macro";
+import { equals } from "utils/string";
 
 export const SubscriptionsListModal = ({
   org,
@@ -58,16 +60,20 @@ export const SubscriptionsListModal = ({
         `}
       >
         <Thead bgColor="whiteAlpha.100">
-          <Th>Nom de l'événement</Th>
-          <Th>Est participant ?</Th>
+          <Td>Nom de l'événement</Td>
+          <Td>Est participant ?</Td>
         </Thead>
         <Tbody>
           {org?.orgEvents.map((event) => {
+            const isChecked = !!subscription.events?.find((eventSub) =>
+              equals(getRefId(eventSub.event, "_id"), event._id)
+            );
             return (
-              <Tr>
+              <Tr key={event._id}>
                 <Td>{event.eventName}</Td>
                 <Td textAlign="center">
                   <Switch
+                    isChecked={isChecked}
                     onChange={() => {
                       const events = (subscription.events || []).concat([
                         { event, eventId: event._id }

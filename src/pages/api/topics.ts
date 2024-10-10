@@ -157,8 +157,8 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         const lists = org
           ? org.orgLists
           : event
-            ? event.eventOrgs[0].orgLists
-            : [];
+          ? event.eventOrgs[0].orgLists
+          : [];
         if (!hasItems(lists)) return nok();
 
         const attendees = lists.find(
@@ -270,6 +270,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           document,
           event,
           org,
+          //@ts-expect-error
           topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
             ...topicMessage,
             createdBy: session.user.userId
@@ -342,6 +343,17 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           }
         }
         //#endregion
+
+        if (event && topic.document) {
+          const subscriptions = await models.Subscription.find(
+            {
+              events: { $elemMatch: { eventId: event._id } },
+              user: { $ne: session.user.userId }
+            },
+            "user email events events"
+          ).populate([{ path: "user", select: "email userSubscription" }]);
+          await sendTopicNotifications({ event, subscriptions, topic });
+        }
 
         // //logEvent({
         //   type: ServerEventTypes.API_LOG,

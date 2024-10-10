@@ -18,13 +18,13 @@ import { sanitize } from "utils/string";
 export const EmailPreview = ({
   entity,
   event,
-  org,
+  //org,
   session,
   ...props
 }: FlexProps & {
   entity: IEvent<string | Date> | IProject | ITopic;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
+  event: IEvent<string | Date>;
+  //org?: IOrg;
   session: Session;
 }) => {
   const notif = isEvent(entity)
@@ -35,21 +35,21 @@ export const EmailPreview = ({
         subscriptionId: session.user.userId
       })
     : isTopic(entity)
-      ? createTopicEmailNotif({
-          email: session.user.email,
-          event,
-          org,
-          subscriptionId: session.user.userId,
-          topic: entity
-        })
-      : entity
-        ? createProjectEmailNotif({
-            email: session.user.email,
-            org: (entity as IProject).projectOrgs[0],
-            project: entity as IProject,
-            subscriptionId: session.user.userId
-          })
-        : undefined;
+    ? createTopicEmailNotif({
+        email: session.user.email,
+        event,
+        //org,
+        subscriptionId: session.user.userId,
+        topic: entity
+      })
+    : entity
+    ? createProjectEmailNotif({
+        email: session.user.email,
+        org: (entity as IProject).projectOrgs[0],
+        project: entity as IProject,
+        subscriptionId: session.user.userId
+      })
+    : undefined;
 
   return (
     <Column bg="#F9F9F9" {...props}>

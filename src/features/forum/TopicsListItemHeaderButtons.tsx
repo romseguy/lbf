@@ -80,10 +80,10 @@ export const TopicsListItemHeaderButtons = ({
     isE
       ? entity.eventUrl
       : isEventTopic
-        ? topic.event!.eventUrl
-        : isO
-          ? entity.orgUrl
-          : entity._id
+      ? topic.event!.eventUrl
+      : isO
+      ? entity.orgUrl
+      : entity._id
   }/discussions`;
   //#endregion
 
@@ -356,7 +356,7 @@ export const TopicsListItemHeaderButtons = ({
 
   if (isLoading) return <Spinner mr={3} mt={1} mb={2} />;
 
-  if (isMobile) return <VStack {...props}>{elements}</VStack>;
+  // if (isMobile) return <VStack {...props}>{elements}</VStack>;
 
   return <HStack {...props}>{elements}</HStack>;
 };

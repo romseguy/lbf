@@ -20,6 +20,9 @@ export interface SubscriptionsListProps {
 }
 
 export const SubscriptionsList = (props: SubscriptionsListProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [current, setCurrent] = useState<ISubscription>();
+
   const { orgQuery, isSubscriptionLoading } = props;
   const org = orgQuery.data;
   if (orgQuery.isFetching) {
@@ -36,8 +39,6 @@ export const SubscriptionsList = (props: SubscriptionsListProps) => {
     );
   }
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [current, setCurrent] = useState<ISubscription>();
   const onEditClick = (sub: ISubscription) => {
     onOpen();
     setCurrent(sub);
