@@ -53,7 +53,7 @@ const IndexPage = (props: PageProps) => {
     [EOrgVisibility.PUBLIC]: "Tous les forums"
   };
   const [pageTitle, setPageTitle] = useState(
-    session ? "Votre forum" : sMap[EOrgVisibility.FRONT]
+    sMap[EOrgVisibility.FRONT]
   );
   const [selectedOrgVisibility, setSelectedOrgVisibility] = useState(
     EOrgVisibility.FRONT
@@ -61,10 +61,10 @@ const IndexPage = (props: PageProps) => {
   useEffect(() => {
     if (selectedUserId) {
       if (session && selectedUserId === session.user.userId)
-        setPageTitle("Votre forum");
+        setPageTitle("Mes forums");
       else
         setPageTitle(
-          "Forum de " +
+          "Forums de " +
             usersQuery.data?.find(({ _id }) => _id === selectedUserId)?.userName
         );
     } else setPageTitle(sMap[selectedOrgVisibility]);
@@ -163,7 +163,7 @@ const IndexPage = (props: PageProps) => {
           <option value={EOrgVisibility.PUBLIC}>
             {sMap[EOrgVisibility.PUBLIC]}
           </option>
-          {session && <option value={session.user.userId}>Votre forum</option>}
+          {session && <option value={session.user.userId}>Mes forums</option>}
 
           {usersQuery.data?.map(({ _id, userName }) => {
             if (_id === session?.user.userId) return null;
