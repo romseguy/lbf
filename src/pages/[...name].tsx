@@ -99,12 +99,9 @@ const HashPage = ({ ...props }: PageProps) => {
   const subQuery = useGetSubscriptionQuery(
     subQueryParams(userEmail)
   ) as AppQuery<ISubscription>;
-  console.log(subQuery);
   const userQuery = useGetUserQuery(
     {
-      slug: entityUrl,
-      populate:
-        session?.user.userName === entityUrl ? "userProjects" : undefined
+      slug: entityUrl
     },
     { skip }
   ) as AppQuery<IUser>;
@@ -246,7 +243,6 @@ const HashPage = ({ ...props }: PageProps) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (ctx) => {
-    // console.log("🚀 ~ file: [...name].tsx:getServerSideProps ~ ctx.query:", ctx.query);
     if (
       Array.isArray(ctx.query.name) &&
       typeof ctx.query.name[0] === "string"

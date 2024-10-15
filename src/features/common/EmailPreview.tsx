@@ -5,14 +5,9 @@ import { Column } from "features/common";
 import { isEvent, isTopic } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { Session } from "utils/auth";
-import {
-  createEventEmailNotif,
-  createProjectEmailNotif,
-  createTopicEmailNotif
-} from "utils/email";
+import { createEventEmailNotif, createTopicEmailNotif } from "utils/email";
 import { sanitize } from "utils/string";
 
 export const EmailPreview = ({
@@ -22,7 +17,7 @@ export const EmailPreview = ({
   session,
   ...props
 }: FlexProps & {
-  entity: IEvent<string | Date> | IProject | ITopic;
+  entity: IEvent<string | Date> | ITopic;
   event: IEvent<string | Date>;
   //org?: IOrg;
   session: Session;
@@ -41,13 +36,6 @@ export const EmailPreview = ({
         //org,
         subscriptionId: session.user.userId,
         topic: entity
-      })
-    : entity
-    ? createProjectEmailNotif({
-        email: session.user.email,
-        org: (entity as IProject).projectOrgs[0],
-        project: entity as IProject,
-        subscriptionId: session.user.userId
       })
     : undefined;
 

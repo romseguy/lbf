@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 //const withCustomBabelConfigFile = require("next-plugin-custom-babel-config");
 const withPWA = require("next-pwa")({ dest: "public", reloadOnOnline: false });
 //const withPreact = require("next-plugin-preact");

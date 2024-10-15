@@ -115,33 +115,12 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                  ? !!pushNotif
-                  : false
+                ? !!pushNotif
+                : false
               : false
         );
 
       setIsAllEvents(isAllEvents);
-    }
-  }, [followerSubscription]);
-  //#endregion
-
-  //#region projects
-  const [isAllProjects, setIsAllProjects] = useState(false);
-  useEffect(() => {
-    if (followerSubscription) {
-      const isAllProjects =
-        !followerSubscription.tagTypes ||
-        !!followerSubscription.tagTypes.find(
-          ({ type, emailNotif, pushNotif }) =>
-            type === "Projects"
-              ? notifType === "email"
-                ? !!emailNotif
-                : notifType === "push"
-                  ? !!pushNotif
-                  : false
-              : false
-        );
-      setIsAllProjects(isAllProjects);
     }
   }, [followerSubscription]);
   //#endregion
@@ -159,8 +138,8 @@ export const SubscriptionEditForm = ({
               ? notifType === "email"
                 ? !!emailNotif
                 : notifType === "push"
-                  ? !!pushNotif
-                  : false
+                ? !!pushNotif
+                : false
               : false
         );
       setIsAllTopics(isAllTopics);
@@ -232,13 +211,6 @@ export const SubscriptionEditForm = ({
     if (isOrgSubscription(newFollowerSubscription)) {
       newFollowerSubscription = {
         ...newFollowerSubscription,
-        ...(setEntityTagTypes(
-          {
-            type: "Projects",
-            [`${notifType}Notif`]: isAllProjects
-          },
-          newFollowerSubscription
-        ) as IOrgSubscription),
         ...(setEntityTagTypes(
           {
             type: "Topics",
@@ -452,29 +424,12 @@ export const SubscriptionEditForm = ({
             setIsAllTopics(e.target.checked);
           }}
         >
-          {isSelf
-            ? "vous êtes invité à une discussion"
-            : "vous l'invitez à une discussion"}
+          une discussion est ouverte
         </Switch>
 
         <Switch {...switchProps} ml={3} isDisabled>
           de la catégorie...
         </Switch>
-
-        {org && !!org.orgTabs?.find(({ url }) => url === "/projets") && (
-          <Switch
-            {...switchProps}
-            isChecked={isAllProjects}
-            isDisabled={isLoading}
-            onChange={(e) => {
-              setIsAllProjects(e.target.checked);
-            }}
-          >
-            {isSelf
-              ? "vous êtes invité à un projet"
-              : "vous l'invitez à un projet"}
-          </Switch>
-        )}
       </FormControl>
 
       <Button

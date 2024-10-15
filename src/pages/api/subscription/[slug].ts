@@ -300,22 +300,23 @@ handler.delete<
 
     if (Array.isArray(body.events) && body.events.length > 0) {
       const { eventId } = body.events[0];
-      logJson(`DELETE /subscription/${slug}: eventId`, eventId);
+      logJson(prefix + `eventId`, eventId);
 
       const event = await models.Event.findOne({ _id: eventId }).populate(
         "eventSubscriptions"
       );
 
-      if (!event)
+      if (!event) {
         return res
-          .status(400)
+          .status(404)
           .json(
             createEndpointError(
               new Error(`L'événement ${eventId} n'a pas pu être trouvé`)
             )
           );
+      }
 
-      logJson(`DELETE /subscription/${slug}: subscription`, subscription);
+      logJson(prefix + `subscription`, subscription);
       subscription.events = subscription.events?.filter(
         (eventSubscription: IEventSubscription) => {
           let keep = true;
@@ -326,22 +327,16 @@ handler.delete<
         }
       );
       await subscription.save();
-      logJson(`DELETE /subscription/${slug}: subscription saved`, subscription);
+      logJson(prefix + `subscription saved`, subscription);
 
-      logJson(
-        `DELETE /subscription/${slug}: event.eventSubscriptions`,
-        event.eventSubscriptions
-      );
+      logJson(prefix + `event.eventSubscriptions`, event.eventSubscriptions);
       event.eventSubscriptions = event.eventSubscriptions.filter(
         (s) => !equals(s._id, subscription!._id)
       );
       await event.save();
-      logJson(
-        `DELETE /subscription/${slug}: event.eventSubscriptions`,
-        event.eventSubscriptions
-      );
+      logJson(prefix + `event.eventSubscriptions`, event.eventSubscriptions);
 
-      return doDelete();
+      return res.status(200).json(subscription);
     }
 
     if (body.topicId) {
@@ -360,7 +355,7 @@ handler.delete<
       await subscription.save();
       logJson(`DELETE /subscription/${slug}: subscription saved`, subscription);
 
-      return doDelete();
+      return res.status(200).json(subscription);
     }
 
     if (subscription.events)

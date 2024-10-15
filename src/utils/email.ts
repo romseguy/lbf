@@ -3,7 +3,6 @@ import { toDateRange } from "features/common";
 import { isUser } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IOrg, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
-import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 const { getEnv } = require("utils/env");
 
@@ -28,20 +27,6 @@ const title = `
     ${process.env.NEXT_PUBLIC_SHORT_URL}
   </a>
 `;
-
-export const getProjectUrl = ({
-  org,
-  event,
-  project
-}: {
-  org?: IOrg | null;
-  event?: IEvent<string | Date>;
-  project: IProject;
-}) => {
-  return `${process.env.NEXT_PUBLIC_URL}/${
-    org ? org.orgUrl : event?.eventUrl
-  }/projets/${project.projectName}`;
-};
 
 export const getTopicUrl = ({
   org,
@@ -149,86 +134,6 @@ export const createEventEmailNotif = ({
   };
 };
 
-export const createProjectEmailNotif = ({
-  email,
-  event,
-  org,
-  subscriptionId,
-  project
-}: {
-  email: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
-  project: IProject;
-  subscriptionId: string;
-}) => {
-  const entityName = event ? event.eventName : org?.orgName;
-  const entityUrl = event ? event.eventUrl : org?.orgUrl;
-  const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const projectUrl = getProjectUrl({ event, org, project });
-  const subject = `Vous êtes invité à un projet : ${project.projectName}`;
-  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-    org ? org.orgUrl : event?.eventUrl
-  }?subscriptionId=${subscriptionId}`;
-
-  return {
-    from: process.env.EMAIL_FROM,
-    to: `<${email}>`,
-    subject,
-    html: `
-      <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tbody>
-          <tr>
-            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-              ${title}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 12px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2 style="font-weight: bold; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em;">${subject}</h2>
-            ${
-              project.projectDescription
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${project.projectDescription}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p style="margin-block-start: 1em; margin-block-end: 1em;">
-              ${`${`<a href="${projectUrl}" style="${linkStyle(
-                false
-              )}">Cliquez ici</a>`} pour participer à la discussion.`}
-            </p>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            <a href="${footerLink}" style="${linkStyle(false)}">
-            Se désabonner ${
-              entityUrl === "forum"
-                ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
-                : `${entityType} ${entityName}`
-            }
-            </a>
-          </td>
-        </tr>
-      </table>
-    </body>
-    `
-  };
-};
-
 export const createTopicEmailNotif = ({
   email,
   event,
@@ -253,7 +158,7 @@ export const createTopicEmailNotif = ({
 
   const entityName = event.eventName;
   const topicUrl = getTopicUrl({ event, topic });
-  const subject = `Quelqu'un a commenté une photo de l'${event.eventName}`;
+  const subject = `Quelqu'un a commenté une photo`;
   const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${event?.eventUrl}?subscriptionId=${subscriptionId}`;
 
   return {
@@ -266,7 +171,7 @@ export const createTopicEmailNotif = ({
         <tbody>
           <tr>
             <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-              ${title}
+              ${entityName}
             </td>
           </tr>
         </tbody>

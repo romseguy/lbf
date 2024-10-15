@@ -4,7 +4,6 @@ import type { Connection, Model } from "mongoose";
 export type Models = {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
-  Project: Model<IProject, {}, {}>;
   Subscription: Model<ISubscription, {}, {}>;
   Setting: Model<ISetting, {}, {}>;
   Topic: Model<ITopic, {}, {}>;

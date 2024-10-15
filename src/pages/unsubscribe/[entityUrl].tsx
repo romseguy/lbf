@@ -1,11 +1,10 @@
 import { Alert, AlertIcon } from "@chakra-ui/react";
-import { useToast } from "hooks/useToast";
 
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { Layout } from "features/layout";
 import { IEvent } from "models/Event";
-import { IOrg, orgTypeFull } from "models/Org";
+import { IOrg } from "models/Org";
 import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { PageProps } from "main";
@@ -20,7 +19,7 @@ interface UnsubscribePageProps {
 }
 
 const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
-  const { unsubscribed, event, org, topic, ...rest } = props;
+  const { unsubscribed, event, /*org,*/ topic, ...rest } = props;
 
   return (
     <Layout {...rest} pageTitle="Désabonnement">
@@ -28,18 +27,26 @@ const UnsubscribePage = (props: PageProps & UnsubscribePageProps) => {
         <AlertIcon />
 
         {unsubscribed
+          ? event
+            ? `Vous avez été désabonné de l'${event.eventName}.`
+            : topic
+            ? `Vous avez été désabonné de la discussion : ${topic.topicName}`
+            : "Vous n'avez pas pu être désabonné de la discussion."
+          : "Vous n'avez pas pu être désabonné de l'événement."}
+
+        {/*unsubscribed
           ? org || event
             ? `Vous avez été désabonné ${
                 org
                   ? org.orgUrl !== "forum"
                     ? orgTypeFull(org.orgType)
                     : "du"
-                  : "l'événement"
+                  : "de l'"
               } ${org ? org.orgName : event?.eventName}.`
             : topic
             ? `Vous avez été désabonné de la discussion : ${topic.topicName}`
             : "Vous n'avez pas pu être désabonné."
-          : "Vous n'avez pas pu être désabonné."}
+          : "Vous n'avez pas pu être désabonné."*/}
       </Alert>
     </Layout>
   );
@@ -87,46 +94,46 @@ export async function getServerSideProps(
               };
           }
         } else {
-          const { data: org }: ResponseType<IOrg> = await api.get(
-            "org/" + entityUrl
+          // const { data: org }: ResponseType<IOrg> = await api.get(
+          //   "org/" + entityUrl
+          // );
+
+          // if (org) {
+          //   const { data: deletedSubscription } = await api.remove(
+          //     `subscription/${subscriptionId}`,
+          //     {
+          //       orgs: [
+          //         {
+          //           orgId: org._id,
+          //           type: EOrgSubscriptionType.FOLLOWER
+          //         }
+          //       ]
+          //     }
+          //   );
+
+          //   if (deletedSubscription)
+          //     return { props: { unsubscribed: true, org } };
+          // } else {
+          const { data: event }: ResponseType<IEvent> = await api.get(
+            "event/" + entityUrl
           );
 
-          if (org) {
+          if (event) {
             const { data: deletedSubscription } = await api.remove(
               `subscription/${subscriptionId}`,
               {
-                orgs: [
+                events: [
                   {
-                    orgId: org._id,
-                    type: EOrgSubscriptionType.FOLLOWER
+                    eventId: event._id
                   }
                 ]
               }
             );
 
             if (deletedSubscription)
-              return { props: { unsubscribed: true, org } };
-          } else {
-            const { data: event }: ResponseType<IEvent> = await api.get(
-              "event/" + entityUrl
-            );
-
-            if (event) {
-              const { data: deletedSubscription } = await api.remove(
-                `subscription/${subscriptionId}`,
-                {
-                  events: [
-                    {
-                      eventId: event._id
-                    }
-                  ]
-                }
-              );
-
-              if (deletedSubscription)
-                return { props: { unsubscribed: true, event } };
-            }
+              return { props: { unsubscribed: true, event } };
           }
+          //}
         }
       } else {
         console.log("/unsubscribe could not find subscription");

@@ -1,5 +1,4 @@
 import { IEvent, EEventInviteStatus } from "./Event";
-import { EProjectInviteStatus } from "./Project";
 import { ITopic } from "./Topic";
 
 export interface INotification {
@@ -12,10 +11,6 @@ export interface INotification {
 
 export interface IEventNotification extends INotification {
   status: EEventInviteStatus;
-}
-
-export interface IProjectNotification extends INotification {
-  status: EProjectInviteStatus;
 }
 
 export interface ITopicNotification extends INotification {}

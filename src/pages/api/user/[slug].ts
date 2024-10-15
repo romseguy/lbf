@@ -73,16 +73,6 @@ handler.get<
 
     if (!user) return notFoundResponse();
 
-    if (populate) {
-      if (populate.includes("userProjects") && isSelf) {
-        user = user.populate({
-          path: "userProjects",
-          populate: [{ path: "createdBy" }]
-        });
-        user = await user.execPopulate();
-      }
-    }
-
     res.status(200).json(user);
   } catch (error: any) {
     if (error.name === "CastError" && error.value === slug)

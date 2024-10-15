@@ -144,8 +144,8 @@ export const GalleriesListItemHeader = ({
             ? "gray.600"
             : "orange.200"
           : isDark
-            ? "gray.500"
-            : "orange.100"
+          ? "gray.500"
+          : "orange.100"
       }
       cursor="pointer"
       py={1}
@@ -456,8 +456,11 @@ export const GalleriesListItemHeader = ({
         {!isLoading && (
           <Flex>
             {isMobile ? (
-              <Button colorScheme="teal" onClick={onClick}>
-                Ouvrir
+              <Button
+                colorScheme={isCurrent ? "red" : "teal"}
+                onClick={onClick}
+              >
+                {isCurrent ? "Fermer" : "Ouvrir"}
               </Button>
             ) : (
               <Tooltip

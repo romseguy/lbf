@@ -2,13 +2,8 @@ import { Document } from "mongoose";
 import nodemailer, { SendMailOptions as Mail } from "nodemailer";
 import { models } from "server/database";
 import { IEvent, EEventInviteStatus } from "models/Event";
-import {
-  IEventNotification,
-  IProjectNotification,
-  ITopicNotification
-} from "models/INotification";
+import { IEventNotification, ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
-import { EProjectInviteStatus, IProject } from "models/Project";
 import {
   EOrgSubscriptionType,
   ISubscription,
@@ -19,9 +14,7 @@ import api from "utils/api";
 import { Session } from "utils/auth";
 import {
   createEventEmailNotif,
-  createProjectEmailNotif,
   createTopicEmailNotif,
-  getProjectUrl,
   getTopicUrl
 } from "utils/email";
 import { equals, logJson } from "utils/string";
@@ -449,13 +442,11 @@ export const sendTopicMessageNotifications = async ({
 };
 
 export const sendToAdmin = async ({
-  event,
-  project
+  event
 }: {
   event?: Omit<IEvent, "_id">;
-  project?: Partial<IProject>;
 }) => {
-  if (!event && !project) return;
+  if (!event) return;
 
   let mail: Mail = {
     from: process.env.EMAIL_FROM,
@@ -475,20 +466,11 @@ export const sendToAdmin = async ({
         <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}">${process.env.NEXT_PUBLIC_SHORT_URL}/${event.eventUrl}</a> pour l'approuver.</p>
       `
     };
-  } else if (project && project.projectOrgs) {
-    mail = {
-      ...mail,
-      subject: `Un projet attend votre approbation : ${project.projectName}`,
-      html: `
-        <h1>Nouveau projet : ${project.projectName}</h1>
-        <p>Rendez-vous sur <a href="${process.env.NEXT_PUBLIC_URL}/${project.projectOrgs[0].orgName}">${process.env.NEXT_PUBLIC_SHORT_URL}/${project.projectOrgs[0].orgName}</a> pour l'approuver.</p>
-      `
-    };
   }
 
   if (getEnv() === "production") {
     await sendMail(mail);
   } else if (getEnv() === "development") {
-    console.log(`sent project email notif to ${mail.to}`, mail);
+    console.log(`sent email notif to ${mail.to}`, mail);
   }
 };

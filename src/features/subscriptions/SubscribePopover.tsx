@@ -91,7 +91,6 @@ export const SubscribePopover = ({
           type: EOrgSubscriptionType.FOLLOWER,
           tagTypes: [
             { type: "Events", emailNotif: true, pushNotif: true },
-            { type: "Projects", emailNotif: true, pushNotif: true },
             { type: "Topics", emailNotif: true, pushNotif: true }
           ]
         }
@@ -171,10 +170,10 @@ export const SubscribePopover = ({
               {event
                 ? "à l'événement"
                 : org && org.orgUrl === "forum"
-                  ? "au forum"
-                  : org
-                    ? orgTypeFull2(org.orgType)
-                    : ""}
+                ? "au forum"
+                : org
+                ? orgTypeFull2(org.orgType)
+                : ""}
             </Button>
           )}
         </PopoverTrigger>

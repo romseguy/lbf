@@ -1,7 +1,6 @@
 import { IDocument } from "models/Document";
 import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { IProject } from "models/Project";
 import { getEmail } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
@@ -86,10 +85,6 @@ export const isEvent = (entity?: any): entity is IEvent => {
 
 export const isOrg = (entity?: any): entity is IOrg => {
   return !!entity && (entity as IOrg).orgUrl !== undefined;
-};
-
-export const isProject = (entity?: any): entity is IProject => {
-  return !!entity && (entity as IProject).projectName !== undefined;
 };
 
 export const isTopic = (entity?: any): entity is ITopic => {

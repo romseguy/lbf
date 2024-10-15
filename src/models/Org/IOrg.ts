@@ -11,7 +11,6 @@ import {
 } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IGallery, IGalleryCategory } from "models/Gallery";
-import { IProject } from "models/Project";
 import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { AppIcon } from "utils/types";

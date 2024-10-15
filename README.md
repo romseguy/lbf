@@ -1,8 +1,5 @@
-sublistitem le bouton
+event.delete : remove event subs + docs + topics
 
-event.delete : remove event subs + docs
-
-//pourquoi le délai de déconnexion est si long ?
 // attribution des descriptions
 //pas afficher la galerie des événements qui ne sont pas passés
 // 340 à 440

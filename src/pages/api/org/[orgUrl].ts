@@ -141,7 +141,6 @@ handler.get<
           "orgEvents",
           "orgLists",
           "orgGalleries",
-          //"orgProjects",
           "orgTopics",
           "orgSubscriptions"
         ].includes(modelKey)
@@ -265,35 +264,6 @@ handler.get<
           ]
         });
       }
-
-      // if (modelKey === "orgProjects") {
-      //   org = org.populate({
-      //     path: "orgProjects",
-      //     populate: [
-      //       { path: "projectOrgs" },
-      //       { path: "createdBy", select: "_id userName" }
-      //     ]
-      //   });
-
-      //   if (!isCreator) {
-      //     org = await org.execPopulate();
-
-      //     const subscription = await models.Subscription.findOne({
-      //       user: session?.user.userId
-      //     });
-      //     const isFollowed = !!getFollowerSubscription({
-      //       org,
-      //       subscription: subscription as ISubscription
-      //     });
-
-      //     org.orgProjects = org.orgProjects.filter(
-      //       ({ projectVisibility }) =>
-      //         !projectVisibility ||
-      //         !hasItems(projectVisibility) ||
-      //         (projectVisibility.includes("Abonnés") && isFollowed)
-      //     );
-      //   }
-      // }
 
       if (modelKey === "orgTopics") {
         org = await org
