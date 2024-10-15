@@ -20,8 +20,6 @@ import { setIsMobile } from "store/uiSlice";
 import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
 import {
-  devSession,
-  testSession,
   getAuthToken,
   sealOptions,
   TOKEN_NAME,
@@ -116,20 +114,6 @@ App.getInitialProps = wrapper.getInitialAppProps(
       //#region email and session handling
       let email = ctx.query.email;
       let session: Session | undefined;
-
-      if (devSession && getEnv() === "development") {
-        // console.log("🚀 ~ App.getInitialProps ~ devSession:", devSession);
-        session = devSession;
-        //@ts-ignore
-        email = devSession.user.email;
-      }
-
-      if (testSession && getEnv() === "test") {
-        // console.log("🚀 ~ App.getInitialProps ~ testSession:", testSession);
-        session = testSession;
-        //@ts-ignore
-        email = testSession.user.email;
-      }
 
       const cookies = headers?.cookie;
       let authToken: string | null = null;

@@ -6,7 +6,7 @@ const { getEnv } = require("utils/env");
 export const TOKEN_NAME = "api_token";
 const MAX_AGE = 60 * 60 * 24 * 7;
 
-function createCookie(name: string, data: string, options = {}) {
+export function createCookie(name: string, data: string, options = {}) {
   return serialize(name, data, {
     maxAge: MAX_AGE,
     expires: new Date(Date.now() + MAX_AGE * 1000),

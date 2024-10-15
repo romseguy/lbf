@@ -2,9 +2,15 @@ import { seal } from "@hapi/iron";
 import { Magic } from "@magic-sdk/admin";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import { NextResponse } from "next/server";
 import database, { models } from "server/database";
 import { getCurrentId } from "store/utils";
-import { setTokenCookie, sealOptions } from "utils/auth";
+import {
+  setTokenCookie,
+  sealOptions,
+  createCookie,
+  TOKEN_NAME
+} from "utils/auth";
 import { createEndpointError } from "utils/errors";
 import { normalize } from "utils/string";
 import { NextApiRequestWithAuthorizationHeader } from "utils/types";
@@ -21,6 +27,19 @@ const magic = new Magic(process.env.MAGIC_SECRET_KEY);
 
 handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
   async function login(req, res) {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ GET /login `;
+    console.log(prefix);
+
+    if (!req.headers.authorization) {
+      // return res
+      //   .status(400)
+      //   .json(
+      //     createEndpointError(new Error("No request authorization headers"))
+      //   );
+
+      return res.status(200).json({});
+    }
+
     try {
       const didToken = req.headers.authorization.substr(7);
       magic.token.validate(didToken);
@@ -64,6 +83,9 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
 
 handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
   async function login(req, res) {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /login `;
+    console.log(prefix + "body", req.body);
+
     try {
       const {
         body: { email, hash }
@@ -80,7 +102,7 @@ handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
           );
 
       if (user.password !== hash)
-        return res.status(200).json({ authenticated: false });
+        return res.status(401).json({ authenticated: false });
 
       const userToken = {
         email,
@@ -88,9 +110,11 @@ handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
         userName: user.userName
       };
       const token = await seal(userToken, process.env.SECRET, sealOptions);
-      setTokenCookie(res, token);
-
-      res.status(200).json({ authenticated: true });
+      res.setHeader("Set-Cookie", [
+        createCookie(TOKEN_NAME, token),
+        createCookie("authed", "true", { httpOnly: false })
+      ]);
+      return res.status(200).json({ authenticated: true });
     } catch (error: any) {
       res.status(500).json(createEndpointError(error));
     }
