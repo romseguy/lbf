@@ -45,12 +45,14 @@ export const EntityButton = ({
   let entityUrl = org
     ? org.orgUrl
     : event
-      ? event.eventUrl
-      : typeof user === "object"
-        ? user.userName
-        : "";
+    ? event.eventUrl
+    : typeof user === "object"
+    ? user.userName
+    : "";
   if (topic) {
-    entityUrl = `${entityUrl}/discussions/${topic.topicName}`;
+    entityUrl = `${entityUrl || org || event || user}/discussions/${
+      topic.topicName
+    }`;
   }
   const hasLink = entityUrl !== "" && onClick !== null;
 
@@ -61,16 +63,16 @@ export const EntityButton = ({
           ? topic
             ? "Aller à la discussion"
             : org
-              ? org.orgUrl === "forum"
-                ? "Aller au forum"
-                : org.orgType
-                  ? `Visiter ${orgTypeFull5(org.orgType)}`
-                  : ""
-              : event
-                ? "Aller à la page de l'événement"
-                : user
-                  ? "Visiter la page de l'utilisateur"
-                  : ""
+            ? org.orgUrl === "forum"
+              ? "Aller au forum"
+              : org.orgType
+              ? `Visiter ${orgTypeFull5(org.orgType)}`
+              : ""
+            : event
+            ? "Aller à la page de l'événement"
+            : user
+            ? "Visiter la page de l'utilisateur"
+            : ""
           : ""
       }
       hasArrow
@@ -97,27 +99,27 @@ export const EntityButton = ({
               topic
                 ? ChatIcon
                 : org
-                  ? org.orgUrl === "forum"
-                    ? ChatIcon
-                    : org.orgType === EOrgType.NETWORK
-                      ? FaGlobeEurope
-                      : FaTree
-                  : event
-                    ? CalendarIcon
-                    : user
-                      ? IoIosPerson
-                      : ChatIcon
+                ? org.orgUrl === "forum"
+                  ? ChatIcon
+                  : org.orgType === EOrgType.NETWORK
+                  ? FaGlobeEurope
+                  : FaTree
+                : event
+                ? CalendarIcon
+                : user
+                ? IoIosPerson
+                : ChatIcon
             }
             color={
               topic
                 ? "blue.500"
                 : org
-                  ? org.orgType === EOrgType.NETWORK
-                    ? "blue.500"
-                    : "green.500"
-                  : event
-                    ? "green.500"
-                    : "blue.500"
+                ? org.orgType === EOrgType.NETWORK
+                  ? "blue.500"
+                  : "green.500"
+                : event
+                ? "green.500"
+                : "blue.500"
             }
             mr={1}
           />
@@ -126,18 +128,18 @@ export const EntityButton = ({
             (topic
               ? topic.topicName
               : org
-                ? org.orgUrl === "forum"
-                  ? "Forum"
-                  : `${
-                      org.orgType === EOrgType.TREETOOLS
-                        ? OrgTypes[org.orgType] + " : "
-                        : ""
-                    }${org.orgName}`
-                : event
-                  ? event.eventName
-                  : user
-                    ? user.userName
-                    : "")}
+              ? org.orgUrl === "forum"
+                ? "Forum"
+                : `${
+                    org.orgType === EOrgType.TREETOOLS
+                      ? OrgTypes[org.orgType] + " : "
+                      : ""
+                  }${org.orgName}`
+              : event
+              ? event.eventName
+              : user
+              ? user.userName
+              : "")}
 
           {Array.isArray(topic?.topicVisibility) &&
           topic?.topicVisibility.includes("Abonnés") ? (

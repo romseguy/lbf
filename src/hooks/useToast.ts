@@ -5,7 +5,8 @@ export function useToast(options?: UseToastOptions) {
   return useChakraToast({
     duration: options?.duration || 6000,
     isClosable: true,
-    position: "top-right"
+    position: "top-right",
+    ...options
     // render: ({ onClose }) => (
     //   <Toast
     //     message={message}
