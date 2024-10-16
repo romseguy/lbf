@@ -17,6 +17,7 @@ import { Session } from "utils/auth";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { hasItems } from "utils/array";
 import { AppHeading, EntityButton } from "features/common";
+import { getRefId } from "models/Entity";
 
 export const NotificationPopover = ({
   isMobile,
@@ -60,12 +61,21 @@ export const NotificationPopover = ({
           {isLoading && <Spinner />}
           {!isLoading && data && hasItems(data!.topics) && (
             <>
-              {data!.topics!.map((topicSubscription, index) => (
-                <EntityButton
-                  key={`topicSubscription-${index}`}
-                  topic={topicSubscription.topic!}
-                />
-              ))}
+              {data!.topics!.map((topicSubscription, index) => {
+                if (
+                  !topicSubscription.topic?.org &&
+                  !topicSubscription.topic?.event
+                )
+                  return null;
+                return (
+                  <EntityButton
+                    key={`topicSubscription-${index}`}
+                    topic={topicSubscription.topic!}
+                    org={getRefId(topicSubscription.topic?.org, "_id")}
+                    event={getRefId(topicSubscription.topic?.event, "_id")}
+                  />
+                );
+              })}
             </>
           )}
           {!isLoading && !hasItems(data?.topics) && (

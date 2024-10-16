@@ -16,13 +16,25 @@ export const getCategoryLabel = (
   return category.label;
 };
 
-export const getRefId = (entity?: Record<string, any> | null, key?: string) => {
+export const getRefId = (
+  entity?: string | Record<string, any> | null,
+  key?: string
+) => {
   if (!entity) return "";
-  const value = entity[key || "createdBy"];
 
-  if (typeof value === "object") return value?._id;
+  if (typeof entity === "string") return entity;
 
-  return value;
+  if (typeof entity === "object") {
+    const value = entity[key || "createdBy"];
+
+    if (value) {
+      if (typeof value === "string") return value;
+
+      if (typeof value === "object") return value._id;
+    }
+  }
+
+  return "";
 };
 
 export const isEvent = (entity?: any): entity is IEvent => {
