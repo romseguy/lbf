@@ -16,33 +16,3 @@ jobs:
         run: |
           yarn install
           yarn compile
-  cypress-run:
-    if: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Create env file
-        run: |
-          touch .env.test.local
-          echo NEXTAUTH_URL=http://localhost:3004 >> .env
-          echo NEXT_PUBLIC_URL=http://localhost:3004 >> .env
-          echo NEXT_PUBLIC_API=http://localhost:3004/api >> .env
-          echo NEXT_PUBLIC_GOOGLE_PLACES_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY }} >> .env
-          echo EMAIL_ADMIN=${{ secrets.EMAIL_ADMIN }} >> .env
-          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-          echo SECRET=${{ secrets.SECRET }} >> .env
-
-      - name: Start app
-        run: |
-          yarn
-          yarn build:test
-          yarn start:test &
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          config: video=false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

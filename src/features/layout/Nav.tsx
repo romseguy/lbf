@@ -32,12 +32,17 @@ import { NavMenuList } from "./NavMenuList";
 import { SearchIcon } from "@chakra-ui/icons";
 import { IEntity } from "models/Entity";
 
+export interface NavProps {
+  entity?: IEntity;
+  pageTitle?: string;
+}
+
 export const Nav = ({
   entity,
   isMobile,
   pageTitle,
   ...props
-}: BoxProps & PageProps & { entity?: IEntity; pageTitle?: string }) => {
+}: PageProps & BoxProps & NavProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();

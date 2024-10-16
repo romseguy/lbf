@@ -13,7 +13,6 @@ export const uiSlice = createSlice({
       state.isMobile = action.payload;
     },
     setScreenWidth: (state, action: PayloadAction<number>) => {
-      console.log("🚀 ~ action:", action);
       state.screenWidth = action.payload;
     }
   },

@@ -12,7 +12,7 @@ import React, { ReactNode } from "react";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { css } from "twin.macro";
 import { AppHeading, ContactLink, Link } from "features/common";
-import { Header, Nav } from "features/layout";
+import { Header, Nav, NavProps } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
 import { EEntityTab, IEntity, isEvent, isOrg, isUser } from "models/Entity";
@@ -24,7 +24,7 @@ import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
 import { PaypalButton } from "features/common/forms/PaypalButton";
 
-export interface LayoutProps extends PageProps, BoxProps {
+export interface LayoutProps {
   banner?: Base64Image & { mode: "dark" | "light" };
   entity?: IEntity | IUser;
   logo?: Base64Image;
@@ -34,6 +34,51 @@ export interface LayoutProps extends PageProps, BoxProps {
   tab?: string;
   tabItem?: string;
 }
+
+export const mainStyles = ({
+  isDark,
+  isMobile,
+  entity
+}: {
+  isDark: boolean;
+  isMobile: boolean;
+  entity?: IEntity;
+}) => {
+  return `
+    ${
+      isMobile && !!entity
+        ? `
+          margin: 3px 3px 0 3px;
+          max-height: calc(100% - 80px);
+          overflow-y: scroll;
+        `
+        : `
+          min-height: 100%;
+        `
+    }
+    @media (min-width: ${breakpoints["2xl"]}) {
+      background-color: ${
+        isDark ? theme.colors.blackAlpha["900"] : theme.colors.whiteAlpha["900"]
+      };
+      margin: 0 auto;
+      width: 1180px;
+      ${
+        isDark
+          ? `
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-image: linear-gradient(to bottom right, #b827fc 0%, #2c90fc 25%, #b8fd33 50%, #fec837 75%, #fd1892 100%);
+            border-image-slice: 1;
+          `
+          : `
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E %3ClinearGradient id='g' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23cffffe' /%3E%3Cstop offset='25%25' stop-color='%23f9f7d9' /%3E%3Cstop offset='50%25' stop-color='%23fce2ce' /%3E%3Cstop offset='100%25' stop-color='%23ffc1f3' /%3E%3C/linearGradient%3E %3Cpath d='M1.5 1.5 l97 0l0 97l-97 0 l0 -97' stroke-linecap='square' stroke='url(%23g)' stroke-width='3'/%3E %3C/svg%3E") 1;
+          `
+      };
+    }
+    `;
+};
 
 export const Layout = ({
   banner,
@@ -47,7 +92,7 @@ export const Layout = ({
   tab,
   tabItem,
   ...props
-}: React.PropsWithChildren<LayoutProps>) => {
+}: React.PropsWithChildren<PageProps & NavProps & LayoutProps>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -75,81 +120,48 @@ export const Layout = ({
     isO
       ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${subtitle}`
       : isE
-        ? `Événement – ${entity.eventName}`
-        : isU
-          ? `Utilisateur – ${entity.userName}`
-          : pageTitle
-            ? capitalize(pageTitle)
-            : "Merci de patienter..."
+      ? `Événement – ${entity.eventName}`
+      : isU
+      ? `Utilisateur – ${entity.userName}`
+      : pageTitle
+      ? capitalize(pageTitle)
+      : "Merci de patienter..."
   } – ${process.env.NEXT_PUBLIC_SHORT_URL}`;
 
   const main = (c: ReactNode) =>
     mainContainer ? (
-      <Box
-        as="main"
+      <Flex
+        //as="main"
+        //flex="1 0 auto"
+        flexDir="column"
         //bg={isDark ? "gray.700" : "lightblue"}
         bg={isDark ? "gray.700" : "blackAlpha.50"}
         borderRadius="lg"
-        //flex="1 0 auto"
         m={isMobile ? 0 : 3}
         mt={0}
         p={isMobile ? 3 : 5}
         pt={isMobile ? 4 : 5}
       >
         {c}
-      </Box>
+      </Flex>
     ) : (
       c
     );
 
   const page = (c: ReactNode) => (
-    <Box
-      css={css`
-        ${
-          isMobile && !!entity
-            ? `
-          margin: 3px 3px 0 3px;
-          max-height: calc(100% - 80px);
-          overflow-y: scroll;
-          `
-            : `
-          min-height: 100%;
-          `
-        }
-
-        @media (min-width: ${breakpoints["2xl"]}) {
-          background-color: ${
-            isDark
-              ? theme.colors.blackAlpha["900"]
-              : theme.colors.whiteAlpha["900"]
-          };
-          margin: 0 auto;
-          width: 1180px;
-          ${
-            isDark
-              ? `
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-image: linear-gradient(to bottom right, #b827fc 0%, #2c90fc 25%, #b8fd33 50%, #fec837 75%, #fd1892 100%);
-            border-image-slice: 1;
-            `
-              : `
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E %3ClinearGradient id='g' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23cffffe' /%3E%3Cstop offset='25%25' stop-color='%23f9f7d9' /%3E%3Cstop offset='50%25' stop-color='%23fce2ce' /%3E%3Cstop offset='100%25' stop-color='%23ffc1f3' /%3E%3C/linearGradient%3E %3Cpath d='M1.5 1.5 l97 0l0 97l-97 0 l0 -97' stroke-linecap='square' stroke='url(%23g)' stroke-width='3'/%3E %3C/svg%3E") 1;
-            `
-          };
-        }
-      `}
+    <Flex
+      //as="main"
+      flexDir="column"
+      css={css(mainStyles({ isDark, isMobile, entity }))}
     >
       <Nav
-        {...props}
         entity={entity}
         isMobile={isMobile}
         borderTopRadius={isMobile ? 0 : undefined}
         mt={0}
         p={isMobile ? undefined : 3}
         pageTitle={pageTitle}
+        {...props}
       />
 
       {/* Header */}
@@ -192,7 +204,7 @@ export const Layout = ({
           <PaypalButton />
         </Box>
       </Flex>
-    </Box>
+    </Flex>
   );
 
   const Fallback = ({

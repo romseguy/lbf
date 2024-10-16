@@ -1,84 +1,34 @@
-import { BellIcon } from "@chakra-ui/icons";
+import { BellIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import {
-  Text,
   Box,
+  BoxProps,
   IconButton,
   Popover,
   PopoverProps,
   PopoverTrigger,
+  PopoverBody,
   PopoverContent,
-  useDisclosure,
-  IconButtonProps,
+  Select,
   Spinner,
-  VStack
+  Text,
+  VStack,
+  useColorMode,
+  useDisclosure,
+  IconButtonProps
 } from "@chakra-ui/react";
-import React from "react";
-import { Session } from "utils/auth";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
+import { compareAsc, compareDesc, parseISO } from "date-fns";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { EntityButton } from "features/common";
+import { useGetEventsQuery } from "features/api/eventsApi";
+import { useGetTopicsQuery } from "features/api/topicsApi";
+import { selectUserEmail } from "store/userSlice";
+import { isEvent, isTopic } from "models/Entity";
+import { IEmailNotification, IPushNotification } from "models/INotification";
 import { hasItems } from "utils/array";
-import { AppHeading, EntityButton } from "features/common";
+import { Session } from "utils/auth";
+import { timeAgo } from "utils/date";
 
-export const NotificationPopover = ({
-  isMobile,
-  session,
-  iconProps,
-  ...props
-}: PopoverProps & {
-  isMobile: boolean;
-  session: Session;
-  iconProps: Omit<IconButtonProps, "aria-label">;
-}) => {
-  const { onOpen, onClose, isOpen } = useDisclosure();
-  const { data, isLoading } = useGetSubscriptionQuery({
-    email: session.user.email
-  });
-
-  return (
-    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
-      <PopoverTrigger>
-        <IconButton
-          aria-label="Notifications"
-          bg="transparent"
-          color={isOpen ? "cyan.600" : undefined}
-          _hover={{ bg: "transparent" }}
-          icon={
-            <BellIcon
-              boxSize={6}
-              mx={3}
-              //_hover={{ color: "cyan.600" }}
-            />
-          }
-          {...iconProps}
-          onClick={onOpen}
-        />
-      </PopoverTrigger>
-      <PopoverContent>
-        <AppHeading smaller ml={2} mt={2}>
-          Abonnements
-        </AppHeading>
-        <VStack spacing={2} m={2}>
-          {isLoading && <Spinner />}
-          {!isLoading && data && hasItems(data!.topics) && (
-            <>
-              {data!.topics!.map((topicSubscription, index) => (
-                <EntityButton
-                  key={`topicSubscription-${index}`}
-                  topic={topicSubscription.topic!}
-                />
-              ))}
-            </>
-          )}
-          {!isLoading && !hasItems(data?.topics) && (
-            <Text>Vous n'êtes abonné à aucune discussions</Text>
-          )}
-        </VStack>
-      </PopoverContent>
-    </Popover>
-  );
-};
-
-{
-  /**
 const NotificationPopoverContent = ({ session }: { session: Session }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -315,5 +265,41 @@ const NotificationPopoverContent = ({ session }: { session: Session }) => {
     </>
   );
 };
-   */
-}
+
+export const NotificationPopover = ({
+  isMobile,
+  session,
+  iconProps,
+  ...props
+}: PopoverProps & {
+  isMobile: boolean;
+  session: Session;
+  iconProps: Omit<IconButtonProps, "aria-label">;
+}) => {
+  const { onOpen, onClose, isOpen } = useDisclosure();
+
+  return (
+    <Popover isLazy isOpen={isOpen} onClose={onClose} {...props}>
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Notifications"
+          bg="transparent"
+          color={isOpen ? "cyan.600" : undefined}
+          _hover={{ bg: "transparent" }}
+          icon={
+            <BellIcon
+              boxSize={6}
+              mx={3}
+              //_hover={{ color: "cyan.600" }}
+            />
+          }
+          {...iconProps}
+          onClick={onOpen}
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <NotificationPopoverContent session={session} />
+      </PopoverContent>
+    </Popover>
+  );
+};

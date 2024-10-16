@@ -95,8 +95,8 @@ export const OrgPageTabs = ({
       const url = !tab.label
         ? "/parametres"
         : tab.label === "Accueil"
-          ? "/"
-          : tab.url;
+        ? "/"
+        : tab.url;
       const dt = getDefaultTab({ url });
       const metadata: {} = {};
 
@@ -157,9 +157,17 @@ export const OrgPageTabs = ({
       isManual
       lazyBehavior="unmount"
       variant="solid-rounded"
-      background={isDark ? "black" : "blackAlpha.200"}
+      background={
+        isMobile
+          ? isDark
+            ? "gray.700"
+            : "blackAlpha.50"
+          : isDark
+          ? "black"
+          : "blackAlpha.200"
+      }
       borderColor={isDark ? "gray.600" : "gray.200"}
-      //borderRadius="lg"
+      //borderRadius={isMobile ? "lg" : undefined}
       borderWidth={1}
     >
       <EntityPageTabList
@@ -219,20 +227,18 @@ export const OrgPageTabs = ({
                     <Badge {...badgeProps}>{documentsQuery.data.length}</Badge>
                   )
                 : url === "/evenements"
-                  ? org.orgEvents.length > 0 && (
-                      <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
-                    )
-                  : url === "/discussions" || url === "/d"
-                    ? org.orgTopics.length > 0 && (
-                        <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
-                      )
-                    : url === "/projets"
-                      ? org.orgProjects.length > 0 && (
-                          <Badge {...badgeProps}>
-                            {org.orgProjects.length}
-                          </Badge>
-                        )
-                      : ""}
+                ? org.orgEvents.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgEvents.length}</Badge>
+                  )
+                : url === "/discussions" || url === "/d"
+                ? org.orgTopics.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgTopics.length}</Badge>
+                  )
+                : url === "/projets"
+                ? org.orgProjects.length > 0 && (
+                    <Badge {...badgeProps}>{org.orgProjects.length}</Badge>
+                  )
+                : ""}
             </EntityPageTab>
             // </Link>
           );
@@ -243,7 +249,9 @@ export const OrgPageTabs = ({
         <TabPanels
           css={css`
             & > * {
-              padding: 12px !important;
+              ${isMobile
+                ? "padding: 0 !important;"
+                : "padding: 12px !important;"}
             }
           `}
         >

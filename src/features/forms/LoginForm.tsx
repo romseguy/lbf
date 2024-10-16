@@ -92,11 +92,10 @@ export const LoginForm = ({
 
         if (user?.passwordSalt) {
           const hash = await bcrypt.hash(form.password, user.passwordSalt);
-          const {
-            data
-          } = await api.post("login", { email: form.email, hash });
+          const { data } = await api.post("login", { email: form.email, hash });
 
-          if (data && data.authenticated) router.push("/", "/", { shallow: true });
+          if (data && data.authenticated)
+            router.push("/", "/", { shallow: true });
           else
             toast({
               status: "error",
@@ -168,13 +167,13 @@ export const LoginForm = ({
             >
               <AlertIcon />
               <Text align="justify">
-                Pour accéder aux forums{" "}
                 <b>
-                  saisissez simplement votre adresse e-mail ci-dessous pour
-                  recevoir un e-mail
+                  Pour accéder aux forums saisissez votre adresse e-mail
+                  ci-dessous. Vous recevrez un e-mail qui vous permettra de vous
+                  identifier.
                 </b>{" "}
-                qui vous permettra de vous identifier. Vous aurez ensuite la
-                possibilité de définir un mot de passe pour votre compte.
+                Vous aurez ensuite la possibilité de définir un mot de passe
+                pour votre compte.
               </Text>
             </Alert>
           </Flex>

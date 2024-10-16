@@ -228,7 +228,7 @@ const EventsListTable = ({
                     setShowLocationButton(!showLocationButton);
                   }}
                 >
-                  {city || "Afficher les événements autour de..."}
+                  {city || "Afficher les événements autour de moi"}
                 </Button>
               </Tooltip>
             ) : (
@@ -303,8 +303,8 @@ const EventsListTable = ({
                             ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                            ? "orange.100"
-                            : "orange.50"
+                          ? "orange.100"
+                          : "orange.50"
                       }
                     >
                       <EventsListItem
@@ -353,8 +353,8 @@ const EventsListTable = ({
                                   ? "gray.600"
                                   : "gray.500"
                                 : index % 2 === 0
-                                  ? "orange.100"
-                                  : "orange.50"
+                                ? "orange.100"
+                                : "orange.50"
                             }
                           >
                             <EventsListItem
@@ -436,8 +436,8 @@ const EventsListTable = ({
                             ? "gray.600"
                             : "gray.500"
                           : index % 2 === 0
-                            ? "orange.100"
-                            : "orange.50"
+                          ? "orange.100"
+                          : "orange.50"
                       }
                     >
                       <EventsListItem
