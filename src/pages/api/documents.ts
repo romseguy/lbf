@@ -1,32 +1,36 @@
-import axios from "axios";
 import cors from "cors";
-import https from "https";
-import { Document } from "mongoose";
-import { NextApiRequest, NextApiResponse } from "next";
-import nextConnect from "next-connect";
-import { AddDocumentPayload } from "features/api/documentsApi";
+import {
+  AddDocumentPayload,
+  GetDocumentsParams
+} from "features/api/documentsApi";
 import { DOCUMENTS_LIMIT_PER_USER } from "models/Document";
 import { getRefId } from "models/Entity";
 import { IGallery } from "models/Gallery";
 import { getEmail } from "models/Subscription";
+import { Document } from "mongoose";
+import { NextApiRequest, NextApiResponse } from "next";
+import nextConnect from "next-connect";
 import { getSession } from "server/auth";
 import { models } from "server/database";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { createEndpointError } from "utils/errors";
 import { equals, normalize } from "utils/string";
 
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-  requestCert: false
-});
-const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API2,
-  responseType: "json",
-  withCredentials: true,
-  httpsAgent: agent
-});
-
 const handler = nextConnect<NextApiRequest, NextApiResponse>().use(cors());
+
+handler.get<
+  NextApiRequest & {
+    query: GetDocumentsParams;
+  },
+  NextApiResponse
+>(async function getDocuments(req, res) {
+  try {
+    const documents = await models.Document.find({});
+    res.status(200).json(documents);
+  } catch (error) {
+    console.log("🚀 ~ getDocuments ~ error:", error);
+  }
+});
 
 handler.post<NextApiRequest & { body: AddDocumentPayload }, NextApiResponse>(
   async function addDocument(req, res) {

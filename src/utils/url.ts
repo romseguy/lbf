@@ -1,5 +1,6 @@
 export const unauthorizedEntityUrls = [
   "404",
+  "all",
   "a_propos",
   "admin",
   "callback",

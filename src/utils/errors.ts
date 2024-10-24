@@ -96,7 +96,9 @@ export const createEndpointError = (error: any) => {
         out = createServerError(error);
       }
     }
-  } else if (error.message) out = { message: error.message + "." };
+  } else if (error.response?.data?.message)
+    out = { message: error.response.data.message + "." };
+  else if (error.message) out = { message: error.message + "." };
 
   console.error(out);
   return out;

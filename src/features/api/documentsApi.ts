@@ -107,5 +107,8 @@ export const documentApi = api.injectEndpoints({
   overrideExisting: true
 });
 
-export const { useAddDocumentMutation, useDeleteDocumentMutation } =
-  documentApi;
+export const {
+  useAddDocumentMutation,
+  useDeleteDocumentMutation,
+  useGetDocumentsQuery
+} = documentApi;
