@@ -4,6 +4,13 @@ import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopicMessage } from "models/TopicMessage";
 
+export enum ETopicsListOrder {
+  ALPHA = "ALPHA",
+  NEWEST = "NEWEST",
+  OLDEST = "OLDEST",
+  PINNED = "PINNED"
+}
+
 export interface ITopic extends IEntity {
   event?: IEvent;
   org?: IOrg;

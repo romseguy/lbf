@@ -1,3 +1,4 @@
+import { ETopicsListOrder } from "models/Topic";
 import { Schema } from "mongoose";
 import { IEvent, EEventInviteStatus, EEventVisibility } from "./IEvent";
 
@@ -94,6 +95,11 @@ export const EventSchema = new Schema<IEvent>(
         }
       ],
       default: []
+    },
+    eventTopicOrder: {
+      type: String,
+      enum: ETopicsListOrder,
+      default: ETopicsListOrder.NEWEST
     },
     eventTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],

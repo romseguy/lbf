@@ -568,7 +568,7 @@ export const sendTopicNotifications = async ({
         await api.sendPushNotification({
           message: `Appuyez pour lire la discussion`,
           subscription: subscription.user.userSubscription,
-          title: "Vous êtes invité à une discussion",
+          title: "Nouvelle discussion",
           url: getTopicUrl({ event, org, topic })
         });
         topicNotification = {

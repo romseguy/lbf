@@ -3,7 +3,6 @@
     "yarn.lock": true,
     "LICENSE": true,
     "**/.git": true,
-    "**/public/tinymce": true,
-    "**/public/html": true
+    "**/public/tinymce": true
   }
 }

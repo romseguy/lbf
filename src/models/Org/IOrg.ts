@@ -12,7 +12,7 @@ import {
 import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
 import { ISubscription } from "models/Subscription";
-import { ITopic } from "models/Topic";
+import { ETopicsListOrder, ITopic } from "models/Topic";
 import { AppIcon } from "utils/types";
 
 export enum EOrgType {
@@ -47,6 +47,7 @@ export interface IOrg extends IEntity {
   orgProjects: IProject[];
   orgSubscriptions: ISubscription[];
   orgTopicCategories: IOrgTopicCategory[];
+  orgTopicOrder?: ETopicsListOrder;
   orgTopics: ITopic[];
   orgStyles: IEntityStyles;
   orgBanner?: IEntityBanner;

@@ -109,8 +109,8 @@ export const createEventEmailNotif = ({
           <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
             <h2>
               <a href="${orgUrl}">${
-                org.orgName
-              }</a> vous invite à un événement : ${event.eventName}
+      org.orgName
+    }</a> vous invite à un événement : ${event.eventName}
             </h2>
             <h3>
             ${
@@ -249,7 +249,7 @@ export const createTopicEmailNotif = ({
   const entityUrl = event ? event.eventUrl : org?.orgUrl;
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
   const topicUrl = getTopicUrl({ event, org, topic });
-  const subject = `Vous êtes invité à une discussion : ${topic.topicName}`;
+  const subject = `Nouvelle discussion : ${topic.topicName}`;
   const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
     org ? org.orgUrl : event?.eventUrl
   }?subscriptionId=${subscriptionId}`;

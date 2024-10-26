@@ -18,7 +18,8 @@ import {
   PopoverBody,
   PopoverFooter,
   Tooltip,
-  useToast
+  useToast,
+  PopoverProps
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
@@ -48,14 +49,16 @@ export const SubscribePopover = ({
   subQuery,
   isIconOnly = false,
   notifType = "email",
+  triggerProps,
   ...props
-}: ButtonProps & {
+}: PopoverProps & {
   event?: IEvent;
   org?: IOrg;
   //query: AppQuery<IEvent | IOrg | IOrg[]>;
   subQuery: AppQuery<ISubscription>;
   isIconOnly?: boolean;
   notifType?: "email" | "push";
+  triggerProps: ButtonProps;
 }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -141,39 +144,42 @@ export const SubscribePopover = ({
 
   if (!userEmail)
     return (
-      <Popover isLazy isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Popover
+        isLazy
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        {...props}
+      >
         <PopoverTrigger>
           {isIconOnly ? (
             <IconButton
               aria-label="S'abonner"
               icon={<BellIcon boxSize={6} />}
               colorScheme="teal"
-              {...props}
               isLoading={isLoading}
               onClick={async () => {
                 setIsOpen(!isOpen);
               }}
-              data-cy="subscribe-button"
+              {...triggerProps}
             />
           ) : (
             <Button
               leftIcon={<BellIcon boxSize={6} />}
               colorScheme="teal"
-              {...props}
               isLoading={isLoading}
               onClick={async () => {
                 setIsOpen(!isOpen);
               }}
-              data-cy="subscribe-button"
+              {...triggerProps}
             >
               S'abonner{" "}
               {event
                 ? "à l'événement"
                 : org && org.orgUrl === "forum"
-                  ? "au forum"
-                  : org
-                    ? orgTypeFull2(org.orgType)
-                    : ""}
+                ? "au forum"
+                : org
+                ? orgTypeFull2(org.orgType)
+                : ""}
             </Button>
           )}
         </PopoverTrigger>
@@ -183,7 +189,7 @@ export const SubscribePopover = ({
             <PopoverBody>
               <Alert status="info" mb={3}>
                 <AlertIcon />
-                <Box>
+                <Box fontSize="smaller">
                   En vous abonnant, vous acceptez de rendre votre adresse e-mail
                   visible au créateur de{" "}
                   {org ? orgTypeFull4(org.orgType) : "cet événement"} et de{" "}
@@ -242,7 +248,6 @@ export const SubscribePopover = ({
           aria-label={label}
           icon={<Icon as={isFollowed ? FaBellSlash : BellIcon} boxSize={6} />}
           colorScheme="teal"
-          {...props}
           isLoading={isLoading}
           onClick={async () => {
             if (isFollowed) {
@@ -263,7 +268,7 @@ export const SubscribePopover = ({
               addFollowerSubscription();
             }
           }}
-          data-cy="subscribe-button"
+          {...triggerProps}
         />
       </Tooltip>
     );

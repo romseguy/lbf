@@ -1,5 +1,6 @@
 import { Schema } from "mongoose";
 import { IOrg, EOrgType, EOrgVisibility } from "./IOrg";
+import { ETopicsListOrder } from "../Topic/ITopic";
 
 export const OrgSchema = new Schema<IOrg>(
   {
@@ -99,6 +100,11 @@ export const OrgSchema = new Schema<IOrg>(
         }
       ],
       default: []
+    },
+    orgTopicOrder: {
+      type: String,
+      enum: ETopicsListOrder,
+      default: ETopicsListOrder.NEWEST
     },
     orgTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],

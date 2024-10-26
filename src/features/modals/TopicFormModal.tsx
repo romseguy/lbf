@@ -28,7 +28,7 @@ export const TopicFormModal = (props: {
   return (
     <Modal {...props} closeOnOverlayClick={false}>
       <ModalOverlay>
-        <ModalContent maxWidth="xl" mt={9}>
+        <ModalContent maxWidth="4xl" mt={9}>
           <ModalHeader display="flex" alignItems="center">
             {props.topic ? (
               <>

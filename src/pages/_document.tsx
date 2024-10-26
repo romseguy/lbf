@@ -55,10 +55,10 @@ export default class Document extends NextDocument {
 
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-          <meta name="apple-mobile-web-app-title" content="Kolik" />
+          <meta name="apple-mobile-web-app-title" content="lebonforum.fr" />
           <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
           <link rel="mask-icon" href="/icons/icon.svg" color="#000000" />
-          <link
+          {/* <link
             rel="apple-touch-startup-image"
             href="/icons/apple-splash-2048.png"
             sizes="2048x2732"
@@ -87,7 +87,7 @@ export default class Document extends NextDocument {
             rel="apple-touch-startup-image"
             href="/icons/apple-splash-750.png"
             sizes="750x1334"
-          />
+          /> */}
           <link
             rel="apple-touch-startup-image"
             href="/icons/apple-splash-640.png"

@@ -7,7 +7,7 @@ import {
 import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { ITopic } from "models/Topic";
+import { ETopicsListOrder, ITopic } from "models/Topic";
 
 export enum EEventInviteStatus {
   PENDING = "PENDING",
@@ -48,6 +48,7 @@ export interface IEvent<T = string> extends IEntity {
   eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
   eventSubscriptions: ISubscription[];
   eventTopicCategories: IEventTopicCategory[];
+  eventTopicOrder?: ETopicsListOrder;
   eventTopics: ITopic[];
   eventStyles: IEntityStyles;
   eventBanner?: IEntityBanner;

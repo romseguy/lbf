@@ -15,7 +15,8 @@ const Page = ({ isMobile }: PageProps) => {
           }
         `}
       >
-        <iframe src="/html/cahiers.html" />
+        {/* <iframe src="/html/cahiers.html" /> */}
+        <iframe src={`${process.env.NEXT_PUBLIC_FILES}/cahiers.html`} />
       </Box>
     </SimpleLayout>
   );

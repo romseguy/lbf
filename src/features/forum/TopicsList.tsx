@@ -1,10 +1,12 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, CheckCircleIcon } from "@chakra-ui/icons";
 import {
   Alert,
   AlertIcon,
   Box,
   Flex,
   GridProps,
+  HStack,
+  IconButton,
   List,
   ListItem,
   Select,
@@ -32,7 +34,7 @@ import {
 } from "models/Entity";
 import { IOrgList } from "models/Org";
 import { ISubscription } from "models/Subscription";
-import { ITopic } from "models/Topic";
+import { ETopicsListOrder, ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
@@ -41,13 +43,8 @@ import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
 import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { selectIsMobile } from "store/uiSlice";
-
-enum ETopicsListOrder {
-  ALPHA = "ALPHA",
-  NEWEST = "NEWEST",
-  OLDEST = "OLDEST",
-  PINNED = "PINNED"
-}
+import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
+import { useEditEventMutation } from "features/api/eventsApi";
 
 export type TopicModalState = {
   isOpen: boolean;
@@ -72,17 +69,25 @@ export const TopicsList = ({
   const router = useRouter();
   const { data: session } = useSession();
 
+  const [editOrg] = useEditOrgMutation();
+  const [editEvent] = useEditEventMutation();
   const addTopicNotifMutation = useAddTopicNotifMutation();
 
   //#region local state
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
+  const edit = isO ? editOrg : editEvent;
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
   const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
-  const defaultOrder = ETopicsListOrder.NEWEST;
-  const [selectedOrder, setSelectedOrder] =
-    useState<ETopicsListOrder>(defaultOrder);
+  const defaultOrder = isO
+    ? entity.orgTopicOrder
+    : isE
+    ? entity.eventTopicOrder
+    : ETopicsListOrder.NEWEST;
+  const [selectedOrder, setSelectedOrder] = useState<ETopicsListOrder>(
+    defaultOrder || ETopicsListOrder.NEWEST
+  );
   const topicCategories = useMemo(
     () =>
       isE ? entity.eventTopicCategories : isO ? entity.orgTopicCategories : [],
@@ -221,20 +226,43 @@ export const TopicsList = ({
         </Button>
       </Box>
 
-      <Box w="150px" mb={5}>
-        <Select
-          defaultValue={defaultOrder}
-          onChange={(e) => {
-            //@ts-ignore
-            setSelectedOrder(e.target.value);
-          }}
-        >
-          <option value={ETopicsListOrder.ALPHA}>A-Z</option>
-          {/* <option value={ETopicsListOrder.PINNED}>Épinglé</option> */}
-          <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
-          <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
-        </Select>
-      </Box>
+      <HStack mb={5}>
+        <Box w="150px">
+          <Select
+            defaultValue={defaultOrder}
+            onChange={(e) => {
+              //@ts-ignore
+              setSelectedOrder(e.target.value);
+            }}
+          >
+            <option value={ETopicsListOrder.ALPHA}>A-Z</option>
+            {/* <option value={ETopicsListOrder.PINNED}>Épinglé</option> */}
+            <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
+            <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
+          </Select>
+        </Box>
+        {props.isCreator && (
+          <IconButton
+            aria-label="Sauvegarder"
+            icon={<CheckCircleIcon />}
+            onClick={async () => {
+              try {
+                const payload: EditOrgPayload = {
+                  [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder
+                };
+                console.log("🚀 ~ payload ", payload);
+                const res = await edit({
+                  [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
+                  payload
+                }).unwrap();
+                console.log("🚀 ~ res ", res);
+              } catch (error) {
+                console.log("🚀 ~ error ", error);
+              }
+            }}
+          />
+        )}
+      </HStack>
 
       <Box
         {...(isMobile
