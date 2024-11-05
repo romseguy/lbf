@@ -6,6 +6,7 @@ export const unauthorizedEntityUrls = [
   "a_propos",
   "admin",
   "b",
+  "blog",
   "callback",
   "contact",
   "donate",

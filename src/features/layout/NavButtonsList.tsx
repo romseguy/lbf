@@ -202,6 +202,7 @@ export const NavButtonsList = ({
           inputNodes={inputNodes}
           isOpen={isNetworksModalOpen}
           rootName=" "
+          keyword={keyword}
           onClose={() => {
             closeNetworksModal();
             onClose && onClose();

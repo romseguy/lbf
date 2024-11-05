@@ -19,6 +19,7 @@ import { normalize } from "utils/string";
 import { useSelector } from "react-redux";
 import { selectIsMobile } from "store/uiSlice";
 import { useGetElementAsync } from "hooks/useGetElementAsync";
+import { useToast } from "hooks/useToast";
 
 const controller = new AbortController();
 const signal = controller.signal;
@@ -58,15 +59,15 @@ function renderChart({
     inputNodesCount > 115
       ? 9.5
       : inputNodesCount > 40
-        ? 7.5
-        : inputNodesCount > 15
-          ? 2.5
-          : 1.5;
-  // console.log(
-  //   "🚀 ~ heightBetweenNodesCoeff ~ heightBetweenNodesCoeff:",
-  //   heightBetweenNodesCoeff,
-  //   inputNodesCount
-  // );
+      ? 7.5
+      : inputNodesCount > 15
+      ? 2.5
+      : 1.5;
+  // // console.log(
+  // //   "🚀 ~ heightBetweenNodesCoeff ~ heightBetweenNodesCoeff:",
+  // //   heightBetweenNodesCoeff,
+  // //   inputNodesCount
+  // // );
   treeChart(
     root as HTMLElement,
     {
@@ -107,18 +108,21 @@ export const TreeChartModal = ({
   inputNodes,
   header,
   rootName = "",
+  keyword,
   ...props
 }: {
   inputNodes: InputNode[];
   isOpen: boolean;
   header?: React.ReactNode | React.ReactNodeArray;
   rootName?: string;
+  keyword?: string;
   onClose: () => void;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
+  const toast = useToast({ position: "top" });
   const onClick = (node: TreeNodeWithId) => {
     const url =
       node.name === process.env.NEXT_PUBLIC_SHORT_URL
@@ -134,22 +138,23 @@ export const TreeChartModal = ({
   useEffect(() => {
     if (!inputNodes.length) {
       console.log("🚀 NO NODES");
-      return () => {};
+      if (keyword)
+        toast({ title: "Le mot clé " + keyword + " n'a pas été trouvé" });
     }
 
     if (!container) {
-      console.log("🚀 NO CONTAINER");
+      // console.log("🚀 NO CONTAINER");
       return () => {};
     }
 
     if (!root) {
-      console.log("🚀 NO ROOT");
+      // console.log("🚀 NO ROOT");
       return () => {};
     }
 
     function redraw() {
       if (root && container) {
-        console.log("🚀 REDRAW");
+        // console.log("🚀 REDRAW");
         renderChart({
           rootName,
           inputNodes,

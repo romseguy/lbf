@@ -4,7 +4,7 @@ import {
   AlertIcon,
   Box,
   Flex,
-  GridProps,
+  BoxProps,
   HStack,
   IconButton,
   List,
@@ -12,7 +12,8 @@ import {
   Select,
   Spinner,
   Text,
-  useColorMode
+  useColorMode,
+  VStack
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
@@ -55,13 +56,36 @@ export const TopicsList = ({
   query,
   subQuery,
   currentTopicName,
+  addButtonLabel,
   ...props
-}: GridProps & {
+}: Omit<BoxProps, "children"> & {
+  children: ({
+    currentTopic,
+    selectedCategories,
+    setSelectedCategories,
+    notifyModalState,
+    setNotifyModalState,
+    topicModalState,
+    setTopicModalState
+  }: {
+    currentTopic: ITopic | null;
+    selectedCategories?: string[];
+    setSelectedCategories: React.Dispatch<
+      React.SetStateAction<string[] | undefined>
+    >;
+    notifyModalState: NotifModalState<ITopic>;
+    setNotifyModalState: React.Dispatch<
+      React.SetStateAction<NotifModalState<ITopic>>
+    >;
+    topicModalState: TopicModalState;
+    setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
+  }) => React.ReactNode;
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
   isFollowed?: boolean;
   currentTopicName?: string;
+  addButtonLabel?: string;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -90,62 +114,68 @@ export const TopicsList = ({
   );
   const topicCategories = useMemo(
     () =>
-      isE ? entity.eventTopicCategories : isO ? entity.orgTopicCategories : [],
+      isE
+        ? entity.eventTopicCategories
+        : isO
+        ? entity.orgTopicCategories
+        : [] || [],
     [entity]
   );
   const topics = useMemo(() => {
-    return (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
-      .filter((topic: ITopic) => {
-        if (hasItems(selectedCategories) || hasItems(selectedLists)) {
-          let belongsToCategory = false;
-          let belongsToList = false;
+    return (
+      (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
+        .filter((topic: ITopic) => {
+          if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+            let belongsToCategory = false;
+            let belongsToList = false;
 
-          if (
-            Array.isArray(selectedCategories) &&
-            selectedCategories.length > 0
-          ) {
             if (
-              topic.topicCategory &&
-              selectedCategories.find(
-                (selectedCategory) => selectedCategory === topic.topicCategory
+              Array.isArray(selectedCategories) &&
+              selectedCategories.length > 0
+            ) {
+              if (
+                topic.topicCategory &&
+                selectedCategories.find(
+                  (selectedCategory) => selectedCategory === topic.topicCategory
+                )
               )
-            )
-              belongsToCategory = true;
-          }
-
-          if (isE || (isO && entity.orgUrl === "forum"))
-            return belongsToCategory;
-
-          if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-            if (hasItems(topic.topicVisibility)) {
-              let found = false;
-
-              for (let i = 0; i < topic.topicVisibility.length; i++)
-                for (let j = 0; j < selectedLists.length; j++)
-                  if (selectedLists[j].listName === topic.topicVisibility[i])
-                    found = true;
-
-              if (found) belongsToList = true;
+                belongsToCategory = true;
             }
+
+            if (isE || (isO && entity.orgUrl === "forum"))
+              return belongsToCategory;
+
+            if (Array.isArray(selectedLists) && selectedLists.length > 0) {
+              if (hasItems(topic.topicVisibility)) {
+                let found = false;
+
+                for (let i = 0; i < topic.topicVisibility.length; i++)
+                  for (let j = 0; j < selectedLists.length; j++)
+                    if (selectedLists[j].listName === topic.topicVisibility[i])
+                      found = true;
+
+                if (found) belongsToList = true;
+              }
+            }
+
+            return belongsToCategory || belongsToList;
           }
 
-          return belongsToCategory || belongsToList;
-        }
+          return true;
+        })
+        .sort((topicA, topicB) => {
+          if (topicA.isPinned && !topicB.isPinned) return -1;
+          if (!topicA.isPinned && topicB.isPinned) return 1;
 
-        return true;
-      })
-      .sort((topicA, topicB) => {
-        if (topicA.isPinned && !topicB.isPinned) return -1;
-        if (!topicA.isPinned && topicB.isPinned) return 1;
+          if (selectedOrder === ETopicsListOrder.ALPHA)
+            return topicA.topicName > topicB.topicName ? 1 : -1;
 
-        if (selectedOrder === ETopicsListOrder.ALPHA)
-          return topicA.topicName > topicB.topicName ? 1 : -1;
+          if (selectedOrder === ETopicsListOrder.OLDEST)
+            return topicA.createdAt! < topicB.createdAt! ? -1 : 1;
 
-        if (selectedOrder === ETopicsListOrder.OLDEST)
-          return topicA.createdAt! < topicB.createdAt! ? -1 : 1;
-
-        return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
-      });
+          return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
+        }) || []
+    );
   }, [entity, selectedCategories, selectedLists, selectedOrder]);
   const currentTopic = useMemo(() => {
     if (
@@ -213,7 +243,7 @@ export const TopicsList = ({
   //#endregion
 
   return (
-    <>
+    <VStack align="start" {...props}>
       <Box>
         <Button
           colorScheme="teal"
@@ -222,229 +252,243 @@ export const TopicsList = ({
           onClick={onAddClick}
           data-cy="topic-add-button"
         >
-          Ajouter une discussion
+          {addButtonLabel || "Ajouter une discussion"}
         </Button>
       </Box>
 
-      <HStack mb={5}>
-        <Box w="150px">
-          <Select
-            defaultValue={defaultOrder}
-            onChange={(e) => {
-              //@ts-ignore
-              setSelectedOrder(e.target.value);
-            }}
-          >
-            <option value={ETopicsListOrder.ALPHA}>A-Z</option>
-            {/* <option value={ETopicsListOrder.PINNED}>Épinglé</option> */}
-            <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
-            <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
-          </Select>
-        </Box>
-        {props.isCreator && (
-          <IconButton
-            aria-label="Sauvegarder"
-            icon={<CheckCircleIcon />}
-            onClick={async () => {
-              try {
-                const payload: EditOrgPayload = {
-                  [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder
-                };
-                console.log("🚀 ~ payload ", payload);
-                const res = await edit({
-                  [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
-                  payload
-                }).unwrap();
-                console.log("🚀 ~ res ", res);
-              } catch (error) {
-                console.log("🚀 ~ error ", error);
-              }
-            }}
-          />
-        )}
-      </HStack>
-
-      <Box
-        {...(isMobile
-          ? {}
-          : { display: "flex", justifyContent: "space-between" })}
-      >
-        {(props.isCreator || topicCategories.length > 0) && (
-          <Flex flexDirection="column" mb={3}>
-            <AppHeading smaller>Catégories</AppHeading>
-
-            <TopicsListCategories
-              query={query}
-              isCreator={props.isCreator}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
+      {hasItems(query.data) && (
+        <HStack mb={5}>
+          <Box w="150px">
+            <Select
+              defaultValue={defaultOrder}
+              onChange={(e) => {
+                //@ts-ignore
+                setSelectedOrder(e.target.value);
+              }}
+            >
+              <option value={ETopicsListOrder.ALPHA}>A-Z</option>
+              {/* <option value={ETopicsListOrder.PINNED}>Épinglé</option> */}
+              <option value={ETopicsListOrder.NEWEST}>Plus récent</option>
+              <option value={ETopicsListOrder.OLDEST}>Plus ancien</option>
+            </Select>
+          </Box>
+          {props.isCreator && (
+            <IconButton
+              aria-label="Sauvegarder"
+              icon={<CheckCircleIcon />}
+              onClick={async () => {
+                try {
+                  const payload: EditOrgPayload = {
+                    [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder
+                  };
+                  const res = await edit({
+                    [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
+                    payload
+                  }).unwrap();
+                } catch (error) {}
+              }}
             />
-          </Flex>
-        )}
+          )}
+        </HStack>
+      )}
 
-        {isO &&
-          entity.orgUrl !== "forum" &&
-          session &&
-          hasItems(entity.orgLists) && (
+      {hasItems(query.data) && (
+        <Box
+          {...(isMobile
+            ? {}
+            : { display: "flex", justifyContent: "space-between" })}
+        >
+          {query.data && (props.isCreator || topicCategories.length > 0) && (
             <Flex flexDirection="column" mb={3}>
-              <AppHeading smaller>Listes</AppHeading>
-              <TopicsListOrgLists
-                org={entity}
+              <AppHeading smaller>Catégories</AppHeading>
+
+              <TopicsListCategories
+                query={query}
                 isCreator={props.isCreator}
-                selectedLists={selectedLists}
-                session={session}
-                setSelectedLists={setSelectedLists}
-                subQuery={subQuery}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
               />
             </Flex>
           )}
-      </Box>
 
-      <Box data-cy="topic-list">
-        {query.isLoading ? (
-          <Spinner />
-        ) : !topics.length ? (
-          <Alert status="warning" mb={3}>
-            <AlertIcon />
-            <Flex flexDirection="column">
-              {(selectedCategories && selectedCategories.length >= 1) ||
-              (selectedLists && selectedLists.length >= 1) ? (
-                <>
-                  {selectedLists &&
-                  selectedLists.length >= 1 &&
-                  selectedCategories &&
-                  selectedCategories.length >= 1 ? (
-                    <>
-                      Aucune discussions appartenant :
-                      <List listStyleType="square" ml={5}>
-                        <ListItem mb={1}>
-                          aux catégories :
-                          {selectedCategories.map((catId, index) => (
-                            <>
-                              <TopicCategoryTag key={index} mx={1}>
-                                {getCategoryLabel(topicCategories, catId)}
-                              </TopicCategoryTag>
-                              {index !== selectedCategories.length - 1 && "ou"}
-                            </>
-                          ))}
-                        </ListItem>
-                        <ListItem>
-                          aux listes :
-                          {selectedLists.map(({ listName }, index) => (
-                            <>
-                              <TopicCategoryTag mx={1}>
-                                {listName}
-                              </TopicCategoryTag>
-                              {index !== selectedLists.length - 1 && "ou"}
-                            </>
-                          ))}
-                        </ListItem>
-                      </List>
-                    </>
-                  ) : selectedCategories && selectedCategories.length >= 1 ? (
-                    <Box>
-                      {selectedCategories.length === 1 ? (
-                        <>
-                          Aucune discussions appartenant à la catégorie{" "}
-                          <TopicCategoryTag>
-                            {getCategoryLabel(
-                              topicCategories,
-                              selectedCategories[0]
-                            )}
-                          </TopicCategoryTag>
-                        </>
-                      ) : (
-                        <>
-                          Aucune discussions appartenant aux catégories
-                          {selectedCategories.map((catId, index) => (
-                            <>
-                              <TopicCategoryTag key={index} mx={1}>
-                                {getCategoryLabel(topicCategories, catId)}
-                              </TopicCategoryTag>
-                              {index !== selectedCategories.length - 1 && "ou"}
-                            </>
-                          ))}
-                        </>
-                      )}
-                    </Box>
-                  ) : selectedLists && selectedLists.length >= 1 ? (
-                    <Box>
-                      {selectedLists.length === 1 ? (
-                        <>
-                          Aucune discussions appartenant à la liste{" "}
-                          <TopicCategoryTag>
-                            {selectedLists[0].listName}
-                          </TopicCategoryTag>
-                        </>
-                      ) : (
-                        <>
-                          Aucune discussions appartenant aux listes
-                          {selectedLists.map(({ listName }, index) => (
-                            <>
-                              <TopicCategoryTag mx={1}>
-                                {listName}
-                              </TopicCategoryTag>
-                              {index !== selectedLists.length - 1 && "ou"}
-                            </>
-                          ))}
-                        </>
-                      )}
-                    </Box>
-                  ) : (
-                    <>todo</>
-                  )}
-                </>
-              ) : (
-                <Text>Aucune discussions.</Text>
-              )}
-            </Flex>
-          </Alert>
-        ) : (
-          topics.map((topic, topicIndex) => {
-            const isCurrent = topic._id === currentTopic?._id;
-            const isTopicCreator =
-              props.isCreator || getRefId(topic) === session?.user.userId;
-            const isSubbedToTopic = !!subQuery.data?.topics?.find(
-              (topicSubscription) => {
-                if (!topicSubscription.topic) return false;
-                return topicSubscription.topic._id === topic._id;
-              }
-            );
+          {isO &&
+            entity.orgUrl !== "forum" &&
+            session &&
+            hasItems(entity.orgLists) && (
+              <Flex flexDirection="column" mb={3}>
+                <AppHeading smaller>Listes</AppHeading>
+                <TopicsListOrgLists
+                  org={entity}
+                  isCreator={props.isCreator}
+                  selectedLists={selectedLists}
+                  session={session}
+                  setSelectedLists={setSelectedLists}
+                  subQuery={subQuery}
+                />
+              </Flex>
+            )}
+        </Box>
+      )}
 
-            return (
-              <TopicsListItem
-                key={topic._id}
-                isMobile={isMobile}
-                session={session}
-                isCreator={props.isCreator}
-                query={query}
-                subQuery={subQuery}
-                currentTopicName={currentTopicName}
-                topic={topic}
-                topicIndex={topicIndex}
-                isSubbedToTopic={isSubbedToTopic}
-                isCurrent={isCurrent}
-                isTopicCreator={isTopicCreator}
-                isDark={isDark}
-                //isLoading={isLoading[topic._id] || query.isLoading}
-                //setIsLoading={setIsLoading}
-                selectedCategories={selectedCategories}
-                setSelectedCategories={setSelectedCategories}
-                notifyModalState={notifyModalState}
-                setNotifyModalState={setNotifyModalState}
-                topicModalState={topicModalState}
-                setTopicModalState={setTopicModalState}
-                mb={topicIndex < topics.length - 1 ? 5 : 0}
-                // onClick={onClick}
-                // onDeleteClick={onDeleteClick}
-                // onEditClick={onEditClick}
-                // onNotifClick={onNotifClick}
-                // onSubscribeClick={onSubscribeClick}
-              />
-            );
-          })
-        )}
-      </Box>
+      {props.children ? (
+        props.children({
+          currentTopic,
+          selectedCategories,
+          setSelectedCategories,
+          notifyModalState,
+          setNotifyModalState,
+          topicModalState,
+          setTopicModalState
+        })
+      ) : (
+        <Box data-cy="topic-list">
+          {query.isLoading ? (
+            <Spinner />
+          ) : !topics.length ? (
+            <Alert status="warning" mb={3}>
+              <AlertIcon />
+              <Flex flexDirection="column">
+                {(selectedCategories && selectedCategories.length >= 1) ||
+                (selectedLists && selectedLists.length >= 1) ? (
+                  <>
+                    {selectedLists &&
+                    selectedLists.length >= 1 &&
+                    selectedCategories &&
+                    selectedCategories.length >= 1 ? (
+                      <>
+                        Aucune discussions appartenant :
+                        <List listStyleType="square" ml={5}>
+                          <ListItem mb={1}>
+                            aux catégories :
+                            {selectedCategories.map((catId, index) => (
+                              <>
+                                <TopicCategoryTag key={index} mx={1}>
+                                  {getCategoryLabel(topicCategories, catId)}
+                                </TopicCategoryTag>
+                                {index !== selectedCategories.length - 1 &&
+                                  "ou"}
+                              </>
+                            ))}
+                          </ListItem>
+                          <ListItem>
+                            aux listes :
+                            {selectedLists.map(({ listName }, index) => (
+                              <>
+                                <TopicCategoryTag mx={1}>
+                                  {listName}
+                                </TopicCategoryTag>
+                                {index !== selectedLists.length - 1 && "ou"}
+                              </>
+                            ))}
+                          </ListItem>
+                        </List>
+                      </>
+                    ) : selectedCategories && selectedCategories.length >= 1 ? (
+                      <Box>
+                        {selectedCategories.length === 1 ? (
+                          <>
+                            Aucune discussions appartenant à la catégorie{" "}
+                            <TopicCategoryTag>
+                              {getCategoryLabel(
+                                topicCategories,
+                                selectedCategories[0]
+                              )}
+                            </TopicCategoryTag>
+                          </>
+                        ) : (
+                          <>
+                            Aucune discussions appartenant aux catégories
+                            {selectedCategories.map((catId, index) => (
+                              <>
+                                <TopicCategoryTag key={index} mx={1}>
+                                  {getCategoryLabel(topicCategories, catId)}
+                                </TopicCategoryTag>
+                                {index !== selectedCategories.length - 1 &&
+                                  "ou"}
+                              </>
+                            ))}
+                          </>
+                        )}
+                      </Box>
+                    ) : selectedLists && selectedLists.length >= 1 ? (
+                      <Box>
+                        {selectedLists.length === 1 ? (
+                          <>
+                            Aucune discussions appartenant à la liste{" "}
+                            <TopicCategoryTag>
+                              {selectedLists[0].listName}
+                            </TopicCategoryTag>
+                          </>
+                        ) : (
+                          <>
+                            Aucune discussions appartenant aux listes
+                            {selectedLists.map(({ listName }, index) => (
+                              <>
+                                <TopicCategoryTag mx={1}>
+                                  {listName}
+                                </TopicCategoryTag>
+                                {index !== selectedLists.length - 1 && "ou"}
+                              </>
+                            ))}
+                          </>
+                        )}
+                      </Box>
+                    ) : (
+                      <>todo</>
+                    )}
+                  </>
+                ) : (
+                  <Text>Aucune discussions.</Text>
+                )}
+              </Flex>
+            </Alert>
+          ) : (
+            topics.map((topic, topicIndex) => {
+              const isCurrent = topic._id === currentTopic?._id;
+              const isTopicCreator =
+                props.isCreator || getRefId(topic) === session?.user.userId;
+              const isSubbedToTopic = !!subQuery.data?.topics?.find(
+                (topicSubscription) => {
+                  if (!topicSubscription.topic) return false;
+                  return topicSubscription.topic._id === topic._id;
+                }
+              );
+
+              return (
+                <TopicsListItem
+                  key={topic._id}
+                  isMobile={isMobile}
+                  session={session}
+                  isCreator={props.isCreator}
+                  query={query}
+                  subQuery={subQuery}
+                  currentTopicName={currentTopicName}
+                  topic={topic}
+                  topicIndex={topicIndex}
+                  isSubbedToTopic={isSubbedToTopic}
+                  isCurrent={isCurrent}
+                  isTopicCreator={isTopicCreator}
+                  isDark={isDark}
+                  //isLoading={isLoading[topic._id] || query.isLoading}
+                  //setIsLoading={setIsLoading}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  notifyModalState={notifyModalState}
+                  setNotifyModalState={setNotifyModalState}
+                  topicModalState={topicModalState}
+                  setTopicModalState={setTopicModalState}
+                  mb={topicIndex < topics.length - 1 ? 5 : 0}
+                  // onClick={onClick}
+                  // onDeleteClick={onDeleteClick}
+                  // onEditClick={onEditClick}
+                  // onNotifClick={onNotifClick}
+                  // onSubscribeClick={onSubscribeClick}
+                />
+              );
+            })
+          )}
+        </Box>
+      )}
 
       {session && (
         <EntityNotifModal
@@ -474,7 +518,7 @@ export const TopicsList = ({
           onClose={onClose}
         />
       )}
-    </>
+    </VStack>
   );
 };
 

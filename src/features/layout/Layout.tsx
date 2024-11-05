@@ -2,9 +2,9 @@ import {
   Box,
   BoxProps,
   Flex,
-  FlexProps,
   useColorMode,
-  useToast
+  useToast,
+  VStack
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -241,7 +241,7 @@ export const SimpleLayout = ({
   children,
   isMobile,
   ...props
-}: React.PropsWithChildren<PageProps & FlexProps & { title: string }>) => {
+}: React.PropsWithChildren<PageProps & BoxProps & { title: string }>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -253,10 +253,9 @@ export const SimpleLayout = ({
         <title>{title}</title>
       </Head>
 
-      <Flex
+      <VStack
         css={css`
           background-color: ${isDark ? "#2D3748" : "lightblue"};
-          flex-direction: column;
         `}
         {...props}
       >
@@ -267,7 +266,7 @@ export const SimpleLayout = ({
         <Box m="0 auto" my="5">
           {children}
         </Box>
-      </Flex>
+      </VStack>
     </>
   );
 };

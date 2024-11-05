@@ -67,8 +67,10 @@ import {
 } from "features/api/topicsApi";
 import { ISubscription } from "models/Subscription";
 import { TopicModalState } from "./TopicsList";
+import { removeProps } from "utils/object";
 
 interface TopicsListItemProps {
+  baseUrl?: string;
   isMobile: boolean;
   session: Session | null;
   currentTopicName?: string;
@@ -93,7 +95,7 @@ interface TopicsListItemProps {
   >;
   topicModalState: TopicModalState;
   setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
-  // onClick: (topic: ITopic, isCurrent: boolean) => void;
+  onClick?: (topic: ITopic, isCurrent: boolean) => void;
   // onDeleteClick: (topic: ITopic, isCurrent: boolean) => void;
   // onEditClick: (topic: ITopic) => void;
   // onNotifClick: (topic: ITopic) => void;
@@ -127,7 +129,7 @@ export const TopicsListItem = ({
   // onNotifClick,
   // onSubscribeClick,
   ...props
-}: Omit<BoxProps, "onClick"> & TopicsListItemProps) => {
+}: BoxProps & TopicsListItemProps) => {
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const [executeScroll, elementToScrollRef] = useScroll<HTMLDivElement>();
@@ -140,14 +142,14 @@ export const TopicsListItem = ({
   const entity = query.data;
   const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const baseUrl = `/${
-    isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id
-  }/discussions`;
+  const baseUrl =
+    props.baseUrl ||
+    `/${isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id}/discussions`;
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-      ? entity.orgTopicCategories
-      : [];
+    ? entity.orgTopicCategories
+    : [];
   //#endregion
 
   //#region topic
@@ -182,16 +184,18 @@ export const TopicsListItem = ({
   //#endregion
 
   //#region handlers
-  const onClick = async () => {
-    if (!isCurrent) {
-      const url = `${baseUrl}/${normalize(topic.topicName)}`;
-      await router.push(url, url, { shallow: true });
-      executeScroll();
-    } else {
-      const url = baseUrl;
-      await router.push(url, url, { shallow: true });
-    }
-  };
+  const onClick =
+    props.onClick ||
+    (async () => {
+      if (!isCurrent) {
+        const url = `${baseUrl}/${normalize(topic.topicName)}`;
+        await router.push(url, url, { shallow: true });
+        executeScroll();
+      } else {
+        const url = baseUrl;
+        await router.push(url, url, { shallow: true });
+      }
+    });
   const onDeleteClick = async () => {
     try {
       setIsLoading({
@@ -301,7 +305,7 @@ export const TopicsListItem = ({
   }, []);
 
   return (
-    <Box ref={elementToScrollRef} {...props}>
+    <Box ref={elementToScrollRef} {...removeProps(props, ["onClick"])}>
       <Flex
         alignItems={isMobile ? "flex-start" : "center"}
         flexDir={isMobile ? "column" : "row"}
@@ -313,8 +317,8 @@ export const TopicsListItem = ({
               ? "gray.600"
               : "orange.200"
             : isDark
-              ? "gray.500"
-              : "orange.100"
+            ? "gray.500"
+            : "orange.100"
         }
         cursor="pointer"
         py={1}
@@ -681,7 +685,7 @@ export const TopicsListItem = ({
                     background: "transparent",
                     color: isDark ? "teal.100" : "white"
                   }}
-                  onClick={onClick}
+                  onClick={() => onClick(topic, isCurrent)}
                 />
               </Tooltip>
             </Flex>

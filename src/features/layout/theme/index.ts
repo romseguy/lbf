@@ -186,7 +186,8 @@ const theme = extendTheme({
   fonts: {
     mono: `monospace`,
     roboto: `'Roboto', sans-serif`,
-    spectral: `-apple-system-ui-serif, ui-serif, Spectral, Georgia, serif`
+    //spectral: `-apple-system-ui-serif, ui-serif, Spectral, Georgia, serif`
+    spectral: `Spectral`
   }
 });
 
