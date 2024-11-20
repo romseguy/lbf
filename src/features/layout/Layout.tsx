@@ -56,12 +56,13 @@ export const mainStyles = ({
           min-height: 100%;
         `
     }
-    @media (min-width: ${breakpoints["2xl"]}) {
       background-color: ${
         isDark ? theme.colors.blackAlpha["900"] : theme.colors.whiteAlpha["900"]
       };
       margin: 0 auto;
+    @media (min-width: ${breakpoints["2xl"]}) {
       width: 1180px;
+    }
       ${
         isDark
           ? `
@@ -76,7 +77,6 @@ export const mainStyles = ({
             border-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E %3ClinearGradient id='g' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23cffffe' /%3E%3Cstop offset='25%25' stop-color='%23f9f7d9' /%3E%3Cstop offset='50%25' stop-color='%23fce2ce' /%3E%3Cstop offset='100%25' stop-color='%23ffc1f3' /%3E%3C/linearGradient%3E %3Cpath d='M1.5 1.5 l97 0l0 97l-97 0 l0 -97' stroke-linecap='square' stroke='url(%23g)' stroke-width='3'/%3E %3C/svg%3E") 1;
           `
       };
-    }
     `;
 };
 
@@ -238,10 +238,13 @@ export const Layout = ({
 
 export const SimpleLayout = ({
   title,
+  header,
   children,
   isMobile,
   ...props
-}: React.PropsWithChildren<PageProps & BoxProps & { title: string }>) => {
+}: React.PropsWithChildren<
+  PageProps & BoxProps & { header?: React.ReactNode; title: string }
+>) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
 
@@ -253,16 +256,18 @@ export const SimpleLayout = ({
         <title>{title}</title>
       </Head>
 
+      {header || (
+        <AppHeading m="0 auto" my={5}>
+          {title}
+        </AppHeading>
+      )}
+
       <VStack
         css={css`
           background-color: ${isDark ? "#2D3748" : "lightblue"};
         `}
         {...props}
       >
-        <AppHeading m="0 auto" mt={5}>
-          {title}
-        </AppHeading>
-
         <Box m="0 auto" my="5">
           {children}
         </Box>

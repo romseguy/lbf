@@ -685,7 +685,6 @@ export const TopicsListItem = ({
                     background: "transparent",
                     color: isDark ? "teal.100" : "white"
                   }}
-                  onClick={() => onClick(topic, isCurrent)}
                 />
               </Tooltip>
             </Flex>

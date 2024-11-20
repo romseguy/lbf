@@ -1,10 +1,7 @@
-import { ChevronRightIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
-  Alert,
-  AlertIcon,
   Flex,
   Select,
-  Text,
+  Spinner,
   useColorMode,
   useDisclosure
 } from "@chakra-ui/react";
@@ -12,14 +9,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { getRunningQueriesThunk } from "features/api";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
-import {
-  Column,
-  EntityAddButton,
-  AppHeading,
-  HostTag,
-  Link,
-  LoginButton
-} from "features/common";
+import { Column, EntityAddButton, AppHeading } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
 import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
@@ -31,13 +21,186 @@ import { wrapper } from "store";
 import { useGetUsersQuery } from "features/api/usersApi";
 import { getRefId } from "models/Entity";
 
-const isCollapsable = false;
 const initialOrgsQueryParams = {
   orgType: EOrgType.NETWORK,
-  populate: "orgs orgTopics.topicMessages createdBy"
+  //populate: "orgs orgTopics.topicMessages createdBy"
+  populate: "orgTopics.topicMessages"
 };
 
 const IndexPage = (props: PageProps) => {
+  const [orgsQueryParams, setOrgsQueryParams] = useState(
+    initialOrgsQueryParams
+  );
+  const orgsQuery = useGetOrgsQuery(orgsQueryParams, {
+    selectFromResult: ({ data, ...query }) => {
+      return {
+        ...query,
+        data: data?.filter((org) => org.orgVisibility === EOrgVisibility.FRONT)
+      };
+    }
+  });
+
+  return (
+    <Layout {...props} mainContainer={true} pageTitle="Accueil">
+      {orgsQuery.isLoading && <Spinner />}
+      {!orgsQuery.isLoading && !!orgsQuery.data?.length && (
+        <OrgsList
+          data={orgsQuery.data}
+          keys={(orgType) => [
+            {
+              key: EOrderKey.orgName,
+              label: `Nom du forum`
+            },
+            {
+              key: EOrderKey.latestActivity,
+              label: "Dernier message"
+            }
+          ]}
+        />
+      )}
+      {!orgsQuery.isLoading && !orgsQuery.data?.length && <>Aucun forums</>}
+
+      <Flex justifyContent="center">
+        <EntityAddButton
+          label="Ajoutez un forum"
+          orgType={EOrgType.NETWORK}
+          size={props.isMobile ? "xs" : "md"}
+          mt={5}
+        />
+      </Flex>
+    </Layout>
+  );
+};
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (ctx) => {
+    store.dispatch(getOrgs.initiate(initialOrgsQueryParams));
+    await Promise.all(store.dispatch(getRunningQueriesThunk()));
+
+    return {
+      props: {}
+    };
+  }
+);
+
+export default IndexPage;
+
+{
+  /* <Column {...columnProps}>
+        <Text>
+          Bienvenue sur l'outil de gestion en{" "}
+          <Link variant="underline" onClick={openNetworksModal}>
+            arborescence
+          </Link>{" "}
+          <HostTag />
+        </Text>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          my={5}
+          onClick={() =>
+            router.push(
+              "/nom_de_votre_forum",
+              "/nom_de_votre_forum",
+              { shallow: true }
+            )
+          }
+        >
+          Exemple de page d'une organisation (association, groupe, pôle
+          thématique, etc)
+        </Button>
+
+        <Text>Bonne découverte !</Text>
+      </Column>
+
+      <Column {...columnProps}>
+        <Flex mb={3}>
+          <Heading>Informations supplémentaires</Heading>
+        </Flex>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes responsable de communication au sein d'une organisation
+        </Button>
+
+        <Button
+          canWrap
+          colorScheme="teal"
+          isDisabled
+          leftIcon={<ArrowForwardIcon />}
+          mb={5}
+          onClick={openAboutModal}
+        >
+          Vous êtes adhérent au sein d'une organisation
+        </Button>
+      </Column> */
+}
+
+{
+  /* <Heading mb={3}>Et créez :</Heading>
+
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <ChatIcon mr={1} />
+              des discussions,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <CalendarIcon mr={1} />
+              des événements,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTools} mr={1} />
+              des projets,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaFile} mr={1} />
+              des fichiers,
+            </Flex>
+            <Flex alignItems="center">
+              <SmallAddIcon />
+              <Icon as={FaTree} color="green" mr={1} /> des arbres.
+            </Flex> */
+}
+
+{
+  /*
+                <Tooltip
+                  label="Un compte vous permet de créer des planètes, et d'inviter d'autres personnes à collaborer."
+                  isOpen={isTooltipOpen}
+                >
+                  <IconButton
+                    aria-label="Qu'est ce qu'un Koala"
+                    icon={<QuestionIcon />}
+                    colorScheme="purple"
+                    minWidth={0}
+                    height="auto"
+                    boxSize={props.isMobile ? 6 : 10}
+                    onMouseEnter={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(true)
+                    }
+                    onMouseLeave={
+                      props.isMobile ? undefined : () => setIsTooltipOpen(false)
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsTooltipOpen(!isTooltipOpen);
+                    }}
+                  />
+                </Tooltip>
+*/
+}
+
+const IndexPageOld = (props: PageProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
@@ -52,9 +215,7 @@ const IndexPage = (props: PageProps) => {
     [EOrgVisibility.FRONT]: "Accueil",
     [EOrgVisibility.PUBLIC]: "Tous les forums"
   };
-  const [pageTitle, setPageTitle] = useState(
-    sMap[EOrgVisibility.FRONT]
-  );
+  const [pageTitle, setPageTitle] = useState(sMap[EOrgVisibility.FRONT]);
   const [selectedOrgVisibility, setSelectedOrgVisibility] = useState(
     EOrgVisibility.FRONT
   );
@@ -227,7 +388,7 @@ const IndexPage = (props: PageProps) => {
       </Column>
 
       {/* Une idée de forum ? */}
-      <Flex mt={6} mb={5}>
+      {/* <Flex mt={6} mb={5}>
         <Column
           bg={isDark ? "whiteAlpha.100" : "blackAlpha.100"}
           m="0 auto"
@@ -254,15 +415,15 @@ const IndexPage = (props: PageProps) => {
                 </Flex>
 
                 {
-                  //(!isCollapsed || !isCollapsable)
+                  (!isCollapsed || !isCollapsable)
                   false && (
                     <>
                       {session ? (
                         <>
-                          {/* <Text>
+                          <Text>
                               Pour ajouter un forum à <HostTag /> vous devez
                               d'abord créer une planète :
-                            </Text> */}
+                            </Text>
                           <EntityAddButton
                             label="Ajoutez une planète"
                             orgType={EOrgType.NETWORK}
@@ -314,7 +475,7 @@ const IndexPage = (props: PageProps) => {
             );
           }}
         </Column>
-      </Flex>
+      </Flex> */}
 
       {isMapModalOpen && (
         <MapModal
@@ -340,131 +501,3 @@ const IndexPage = (props: PageProps) => {
     </Layout>
   );
 };
-
-export const getServerSideProps = wrapper.getServerSideProps(
-  (store) => async (ctx) => {
-    store.dispatch(getOrgs.initiate(initialOrgsQueryParams));
-    await Promise.all(store.dispatch(getRunningQueriesThunk()));
-
-    return {
-      props: {}
-    };
-  }
-);
-
-export default IndexPage;
-
-{
-  /* <Column {...columnProps}>
-        <Text>
-          Bienvenue sur l'outil de gestion en{" "}
-          <Link variant="underline" onClick={openNetworksModal}>
-            arborescence
-          </Link>{" "}
-          <HostTag />
-        </Text>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          leftIcon={<ArrowForwardIcon />}
-          my={5}
-          onClick={() =>
-            router.push(
-              "/nom_de_votre_forum",
-              "/nom_de_votre_forum",
-              { shallow: true }
-            )
-          }
-        >
-          Exemple de page d'une organisation (association, groupe, pôle
-          thématique, etc)
-        </Button>
-
-        <Text>Bonne découverte !</Text>
-      </Column>
-
-      <Column {...columnProps}>
-        <Flex mb={3}>
-          <Heading>Informations supplémentaires</Heading>
-        </Flex>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          leftIcon={<ArrowForwardIcon />}
-          mb={5}
-          onClick={openAboutModal}
-        >
-          Vous êtes responsable de communication au sein d'une organisation
-        </Button>
-
-        <Button
-          canWrap
-          colorScheme="teal"
-          isDisabled
-          leftIcon={<ArrowForwardIcon />}
-          mb={5}
-          onClick={openAboutModal}
-        >
-          Vous êtes adhérent au sein d'une organisation
-        </Button>
-      </Column> */
-}
-
-{
-  /* <Heading mb={3}>Et créez :</Heading>
-
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <ChatIcon mr={1} />
-              des discussions,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <CalendarIcon mr={1} />
-              des événements,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaTools} mr={1} />
-              des projets,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaFile} mr={1} />
-              des fichiers,
-            </Flex>
-            <Flex alignItems="center">
-              <SmallAddIcon />
-              <Icon as={FaTree} color="green" mr={1} /> des arbres.
-            </Flex> */
-}
-
-{
-  /*
-                <Tooltip
-                  label="Un compte vous permet de créer des planètes, et d'inviter d'autres personnes à collaborer."
-                  isOpen={isTooltipOpen}
-                >
-                  <IconButton
-                    aria-label="Qu'est ce qu'un Koala"
-                    icon={<QuestionIcon />}
-                    colorScheme="purple"
-                    minWidth={0}
-                    height="auto"
-                    boxSize={props.isMobile ? 6 : 10}
-                    onMouseEnter={
-                      props.isMobile ? undefined : () => setIsTooltipOpen(true)
-                    }
-                    onMouseLeave={
-                      props.isMobile ? undefined : () => setIsTooltipOpen(false)
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsTooltipOpen(!isTooltipOpen);
-                    }}
-                  />
-                </Tooltip>
-*/
-}

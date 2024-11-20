@@ -168,12 +168,9 @@ export const LoginForm = ({
               <AlertIcon />
               <Text align="justify">
                 <b>
-                  Pour accéder aux forums saisissez votre adresse e-mail
-                  ci-dessous. Vous recevrez un e-mail qui vous permettra de vous
-                  identifier.
-                </b>{" "}
-                Vous aurez ensuite la possibilité de définir un mot de passe
-                pour votre compte.
+                  Saisissez votre adresse e-mail ci-dessous pour recevoir un
+                  e-mail qui vous permettra de vous identifier.
+                </b>
               </Text>
             </Alert>
           </Flex>

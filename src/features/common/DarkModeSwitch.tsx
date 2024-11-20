@@ -37,7 +37,12 @@ export const DarkModeSwitch = ({
             ? "Basculer le site en couleur claire"
             : "Basculer le site en couleur sombre"
         }
-        icon={<Icon as={isDark ? FaSun : FaMoon} />}
+        icon={
+          <Icon
+            as={isDark ? FaSun : FaMoon}
+            color={isDark ? "white" : "black"}
+          />
+        }
         onClick={toggleColorMode}
         {...props}
       />

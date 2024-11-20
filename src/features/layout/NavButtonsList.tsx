@@ -192,7 +192,7 @@ export const NavButtonsList = ({
             <InputGroup>
               <InputLeftAddon children={<Icon as={FaGlobeEurope} />} />
               <SearchInput
-                placeholder="Rechercher un nom de planète"
+                placeholder="Rechercher un mot-clé"
                 width="calc(100% - 80px)"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
@@ -211,7 +211,7 @@ export const NavButtonsList = ({
       )}
 
       {/* Événements */}
-      {(isMobile || !isEntityPage) && (
+      {/* {(isMobile || !isEntityPage) && (
         <Link
           href="/evenements"
           onClick={() => {
@@ -228,7 +228,7 @@ export const NavButtonsList = ({
             Événements
           </Button>
         </Link>
-      )}
+      )} */}
     </Flex>
   );
 };

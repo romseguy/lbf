@@ -11,7 +11,10 @@ import {
   Tr,
   Td,
   Tooltip,
-  IconButton
+  IconButton,
+  Heading,
+  HStack,
+  Text
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -71,13 +74,30 @@ export const Nav = ({
           <Tbody role="rowgroup">
             <Tr role="rowheader">
               <Td border={0} p={0}>
-                <AppHeading mb={2}>
-                  <Link href="/" shallow>
-                    {router.pathname === "/"
-                      ? pageTitle
-                      : process.env.NEXT_PUBLIC_SHORT_URL}
-                  </Link>
-                </AppHeading>
+                <HStack>
+                  <Heading>
+                    <Link
+                      href="/"
+                      variant={
+                        router.pathname === "/" ? "underline" : undefined
+                      }
+                      shallow
+                    >
+                      Accueil
+                    </Link>
+                  </Heading>
+                  <Heading>
+                    <Link
+                      href="/blog"
+                      variant={
+                        router.pathname === "/blog" ? "underline" : undefined
+                      }
+                      shallow
+                    >
+                      Blog
+                    </Link>
+                  </Heading>
+                </HStack>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
                 <Tooltip label={`Rechercher`} hasArrow>

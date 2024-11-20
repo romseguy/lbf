@@ -154,6 +154,8 @@ const LoginPage = ({ isMobile, ...props }: PageProps) => {
           width={isMobile ? "auto" : "md"}
           m="0 auto"
         >
+          {!session && <BackButton my={3} />}
+
           <AppHeading>Connexion</AppHeading>
 
           {isSessionLoading && <Spinner mb={3} />}
