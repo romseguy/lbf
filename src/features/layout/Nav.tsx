@@ -1,39 +1,38 @@
+import { SearchIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
   BoxProps,
   Flex,
-  Menu,
-  MenuButton,
-  useColorMode,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  Tooltip,
-  IconButton,
   Heading,
   HStack,
-  Text
+  IconButton,
+  Menu,
+  MenuButton,
+  Table,
+  Tbody,
+  Td,
+  Tooltip,
+  Tr,
+  useColorMode
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { AppHeading, DarkModeSwitch, Link, LoginButton } from "features/common";
+import { DarkModeSwitch, Delimiter, Link, LoginButton } from "features/common";
 import {
   EventPopover,
-  OrgPopover,
   NotificationPopover,
+  OrgPopover,
   TopicPopover
 } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
+import { IEntity } from "models/Entity";
 import { EOrgType } from "models/Org";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
 import { NavMenuList } from "./NavMenuList";
-import { SearchIcon } from "@chakra-ui/icons";
-import { IEntity } from "models/Entity";
 
 export interface NavProps {
   entity?: IEntity;
@@ -53,6 +52,12 @@ export const Nav = ({
   const userEmail = useSelector(selectUserEmail);
   const userName = session?.user.userName || "";
   const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
+
+  const headingProps = {
+    _hover: {
+      color: "orange"
+    }
+  };
 
   const iconProps = {
     bg: isDark ? "teal.300" : "teal.500",
@@ -75,7 +80,7 @@ export const Nav = ({
             <Tr role="rowheader">
               <Td border={0} p={0}>
                 <HStack>
-                  <Heading>
+                  <Heading {...headingProps}>
                     <Link
                       href="/"
                       variant={
@@ -86,7 +91,8 @@ export const Nav = ({
                       Accueil
                     </Link>
                   </Heading>
-                  <Heading>
+                  <Delimiter fontSize="xxx-large" />
+                  <Heading {...headingProps}>
                     <Link
                       href="/blog"
                       variant={
@@ -95,6 +101,20 @@ export const Nav = ({
                       shallow
                     >
                       Blog
+                    </Link>
+                  </Heading>
+                  <Delimiter fontSize="xxx-large" />
+                  <Heading {...headingProps}>
+                    <Link
+                      href="/a_propos"
+                      variant={
+                        router.pathname === "/a_propos"
+                          ? "underline"
+                          : undefined
+                      }
+                      shallow
+                    >
+                      À propos
                     </Link>
                   </Heading>
                 </HStack>

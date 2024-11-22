@@ -59,7 +59,7 @@ export const TopicsList = ({
   addButtonLabel,
   ...props
 }: Omit<BoxProps, "children"> & {
-  children: ({
+  children?: ({
     currentTopic,
     selectedCategories,
     setSelectedCategories,
@@ -87,6 +87,7 @@ export const TopicsList = ({
   currentTopicName?: string;
   addButtonLabel?: string;
 }) => {
+  console.log("🚀 ~ query:", query);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
@@ -243,20 +244,19 @@ export const TopicsList = ({
   //#endregion
 
   return (
-    <VStack align="start" {...props}>
+    <Flex {...props} flexDirection="column">
       <Box>
         <Button
           colorScheme="teal"
           leftIcon={<AddIcon />}
-          mb={3}
+          mb={6}
           onClick={onAddClick}
-          data-cy="topic-add-button"
         >
           {addButtonLabel || "Ajouter une discussion"}
         </Button>
       </Box>
 
-      {hasItems(query.data) && (
+      {!!query.data && (
         <HStack mb={5}>
           <Box w="150px">
             <Select
@@ -292,8 +292,9 @@ export const TopicsList = ({
         </HStack>
       )}
 
-      {hasItems(query.data) && (
+      {!!query.data && (
         <Box
+          mb={5}
           {...(isMobile
             ? {}
             : { display: "flex", justifyContent: "space-between" })}
@@ -518,7 +519,7 @@ export const TopicsList = ({
           onClose={onClose}
         />
       )}
-    </VStack>
+    </Flex>
   );
 };
 

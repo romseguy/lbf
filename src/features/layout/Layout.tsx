@@ -169,7 +169,6 @@ export const Layout = ({
         <Header
           entity={entity}
           defaultTitle="Merci de patienter..."
-          pageHeader={pageHeader}
           pageTitle={pageTitle}
           m={isMobile ? 0 : 3}
           mb={isMobile ? 3 : undefined}
@@ -183,13 +182,12 @@ export const Layout = ({
       {/* Footer */}
       <Flex as="footer" flexDir="column" alignItems="center" pb={3} mt={3}>
         {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
-        <Box fontSize="smaller" textAlign="center">
+        <Box>
+          <PaypalButton />
+        </Box>
+        <Box fontSize="smaller" textAlign="center" mt={3}>
           <Link href="/a_propos" variant="underline">
             À propos
-          </Link>
-          <Delimiter />
-          <Link href="/contact" variant="underline">
-            Contact
           </Link>
           <Delimiter />
           <Link href="/privacy" variant="underline">
@@ -199,9 +197,10 @@ export const Layout = ({
           <Link href="https://github.com/romseguy/lbf" variant="underline">
             Code
           </Link>
-        </Box>
-        <Box>
-          <PaypalButton />
+          <Delimiter />
+          <Link href="/contact" variant="underline">
+            Contact
+          </Link>
         </Box>
       </Flex>
     </Flex>

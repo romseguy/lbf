@@ -44,6 +44,7 @@ handler.get<
     }
 
     if (orgType && EOrgType[orgType]) selector = { ...selector, orgType };
+    console.log("🚀 ~ getOrgs ~ selector:", selector);
     let orgs = await models.Org.find(selector);
 
     if (populate) {

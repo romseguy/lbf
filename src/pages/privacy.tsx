@@ -87,13 +87,6 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
     py: "0"
   };
   const hostTagProps = { verticalAlign: "middle" };
-  const rowProps = {
-    bg: isDark ? "gray.600" : "lightcyan",
-    border: 0,
-    fontSize: "sm",
-    mb: 3,
-    p: 2
-  };
   const tableProps = {
     borderWidth: "1px",
     mb: 3,
@@ -121,48 +114,6 @@ const PrivacyPage = ({ isMobile }: PageProps) => {
       `}
     >
       <Box m="0 auto" maxWidth="4xl">
-        <Row {...rowProps}>
-          <Icon as={FaGift} color="green" boxSize={[5, 4]} mr={3} />
-          <Flex flexDir="column">
-            <Text>
-              <HostTag {...hostTagProps} /> est un service qui fait
-              démonstration d'un logiciel libre et open-source mis à disposition
-              gratuitement par{" "}
-              <Link
-                href="https://romseguy.com"
-                target="_blank"
-                variant="underline"
-              >
-                @romseguy
-              </Link>{" "}
-              sous couvert de la license GNU AGPL.
-            </Text>
-
-            <Text
-              bg={isDark ? "black" : "white"}
-              border="1px solid black"
-              borderRadius="lg"
-              my={2}
-              p={2}
-            >
-              <Icon as={FaQuoteLeft} {...hostTagProps} /> La license GNU AGPL ne
-              s'intéresse pas au problème du SaaSS (Service as a Software
-              Substitute, service se substituant au logiciel). On parle de SaaSS
-              lorsque les utilisateurs font leurs propres tâches informatiques
-              sur l'ordinateur de quelqu'un d'autre. Ceci les oblige à envoyer
-              leurs données au serveur ; ce dernier les traite et leur renvoie
-              les résultats.
-            </Text>
-
-            <Text>
-              Si vous ne souhaitez pas faire confiance à{" "}
-              <HostTag {...hostTagProps} /> pour traiter vos données{" "}
-              <ContactLink /> pour savoir comment installer le logiciel de
-              @romseguy où vous le souhaitez.
-            </Text>
-          </Flex>
-        </Row>
-
         {/* <Row {...rowStyles(isDark)}>
             <Icon as={FaKey} color="green" boxSize={[5, 4]} />
             <Flex flexDirection="column" ml={3}>

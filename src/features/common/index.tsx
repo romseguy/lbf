@@ -43,6 +43,7 @@ export * from "./DarkModeSwitch";
 export * from "./DateRange";
 export * from "./DeleteButton";
 export * from "./DeleteIconButton";
+export * from "./Delimiter";
 export * from "./DidYouKnow";
 export * from "./EditIconButton";
 export * from "./EmailPreview";
