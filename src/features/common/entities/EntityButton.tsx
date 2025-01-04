@@ -56,6 +56,78 @@ export const EntityButton = ({
   }
   const hasLink = entityUrl !== "" && onClick !== null;
 
+  const button = (
+    <Button
+      //aria-hidden
+      cursor={hasLink ? "pointer" : "default"}
+      height="auto"
+      m={0}
+      p={1}
+      pr={2}
+      textAlign="left"
+      whiteSpace="normal"
+      onClick={(e) => {
+        if (onClick) onClick(e);
+        else if (hasLink) router.push(entityUrl!, entityUrl, { shallow: true });
+      }}
+      {...props}
+    >
+      <Icon
+        as={
+          topic
+            ? ChatIcon
+            : org
+            ? org.orgUrl === "forum"
+              ? ChatIcon
+              : org.orgType === EOrgType.NETWORK
+              ? FaGlobeEurope
+              : FaTree
+            : event
+            ? CalendarIcon
+            : user
+            ? IoIosPerson
+            : ChatIcon
+        }
+        color={
+          topic
+            ? "blue.500"
+            : org
+            ? org.orgType === EOrgType.NETWORK
+              ? "blue.500"
+              : "green.500"
+            : event
+            ? "green.500"
+            : "blue.500"
+        }
+        mr={1}
+      />
+
+      {children ||
+        (topic
+          ? topic.topicName
+          : org
+          ? org.orgUrl === "forum"
+            ? "Forum"
+            : `${
+                org.orgType === EOrgType.TREETOOLS
+                  ? OrgTypes[org.orgType] + " : "
+                  : ""
+              }${org.orgName}`
+          : event
+          ? event.eventName
+          : user
+          ? user.userName
+          : "")}
+
+      {Array.isArray(topic?.topicVisibility) &&
+      topic?.topicVisibility.includes("Abonnés") ? (
+        <Icon as={IoIosPeople} ml={2} />
+      ) : org && org.orgVisibility === EOrgVisibility.PRIVATE ? (
+        <Icon as={LockIcon} ml={2} />
+      ) : null}
+    </Button>
+  );
+
   return (
     <Tooltip
       label={
@@ -78,77 +150,7 @@ export const EntityButton = ({
       hasArrow
       {...tooltipProps}
     >
-      <span>
-        <Button
-          //aria-hidden
-          cursor={hasLink ? "pointer" : "default"}
-          height="auto"
-          m={0}
-          p={1}
-          pr={2}
-          textAlign="left"
-          whiteSpace="normal"
-          onClick={(e) => {
-            if (onClick) onClick(e);
-            else router.push(entityUrl!, entityUrl, { shallow: true });
-          }}
-          {...props}
-        >
-          <Icon
-            as={
-              topic
-                ? ChatIcon
-                : org
-                ? org.orgUrl === "forum"
-                  ? ChatIcon
-                  : org.orgType === EOrgType.NETWORK
-                  ? FaGlobeEurope
-                  : FaTree
-                : event
-                ? CalendarIcon
-                : user
-                ? IoIosPerson
-                : ChatIcon
-            }
-            color={
-              topic
-                ? "blue.500"
-                : org
-                ? org.orgType === EOrgType.NETWORK
-                  ? "blue.500"
-                  : "green.500"
-                : event
-                ? "green.500"
-                : "blue.500"
-            }
-            mr={1}
-          />
-
-          {children ||
-            (topic
-              ? topic.topicName
-              : org
-              ? org.orgUrl === "forum"
-                ? "Forum"
-                : `${
-                    org.orgType === EOrgType.TREETOOLS
-                      ? OrgTypes[org.orgType] + " : "
-                      : ""
-                  }${org.orgName}`
-              : event
-              ? event.eventName
-              : user
-              ? user.userName
-              : "")}
-
-          {Array.isArray(topic?.topicVisibility) &&
-          topic?.topicVisibility.includes("Abonnés") ? (
-            <Icon as={IoIosPeople} ml={2} />
-          ) : org && org.orgVisibility === EOrgVisibility.PRIVATE ? (
-            <Icon as={LockIcon} ml={2} />
-          ) : null}
-        </Button>
-      </span>
+      <span>{button}</span>
     </Tooltip>
   );
 };

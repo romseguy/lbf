@@ -79,6 +79,9 @@ handler.get<
 
 handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
   async function addTopic(req, res) {
+    const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ POST /topics`;
+    console.log(prefix);
+
     const session = await getSession({ req });
 
     if (!session) {

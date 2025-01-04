@@ -207,6 +207,11 @@ handler.put<
   },
   NextApiResponse
 >(async function editTopic(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /topic/${
+    req.query.topicId
+  } `;
+  console.log(prefix);
+
   const session = await getSession({ req });
   if (!session) {
     return res
@@ -309,7 +314,7 @@ handler.delete<
     query: { topicId: string };
   },
   NextApiResponse
->(async function removeTopic(req, res) {
+>(async function retopicCopy(req, res) {
   const session = await getSession({ req });
 
   if (!session) {

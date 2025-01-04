@@ -123,14 +123,14 @@ const theme = extendTheme({
             }
           }
         }
-      },
-      defaultProps: {
-        /**
-         * Set either or both of these to null to use only what's in { baseStyle }
-         */
-        size: "md",
-        variant: "outline"
       }
+      // defaultProps: {
+      //   /**
+      //    * Set either or both of these to null to use only what's in { baseStyle }
+      //    */
+      //   size: "md",
+      //   variant: "outline"
+      // }
     },
     Link: {
       baseStyle: {

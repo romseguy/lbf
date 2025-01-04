@@ -1,6 +1,7 @@
 import {
   ChevronRightIcon,
   ChevronUpIcon,
+  CopyIcon,
   EditIcon,
   EmailIcon
 } from "@chakra-ui/icons";
@@ -33,7 +34,8 @@ import {
   FaSlash,
   FaFolder,
   FaFolderOpen,
-  FaThumbtack
+  FaThumbtack,
+  FaRetweet
 } from "react-icons/fa";
 import { css } from "twin.macro";
 import {
@@ -95,6 +97,8 @@ interface TopicsListItemProps {
   >;
   topicModalState: TopicModalState;
   setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
+  topicCopyModalState: TopicModalState;
+  setTopicCopyModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
   onClick?: (topic: ITopic, isCurrent: boolean) => void;
   // onDeleteClick: (topic: ITopic, isCurrent: boolean) => void;
   // onEditClick: (topic: ITopic) => void;
@@ -123,6 +127,8 @@ export const TopicsListItem = ({
   setNotifyModalState,
   topicModalState,
   setTopicModalState,
+  topicCopyModalState,
+  setTopicCopyModalState,
   // onClick,
   // onDeleteClick,
   // onEditClick,
@@ -519,6 +525,7 @@ export const TopicsListItem = ({
           </Flex>
         </Flex>
 
+        {/* Buttons area */}
         <Flex
           alignItems="center"
           // pt={3}
@@ -581,6 +588,28 @@ export const TopicsListItem = ({
                             [topic._id]: false
                           });
                         }
+                      }}
+                    />
+                  </Tooltip>
+
+                  <Tooltip placement="bottom" label="Copier la discussion">
+                    <IconButton
+                      aria-label="Copier la discussion"
+                      icon={<CopyIcon />}
+                      variant="outline"
+                      colorScheme="teal"
+                      mr={3}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        // setIsLoading({
+                        //   [topic._id]: true
+                        // });
+
+                        setTopicCopyModalState({ isOpen: true, topic });
+
+                        // setIsLoading({
+                        //   [topic._id]: false
+                        // });
                       }}
                     />
                   </Tooltip>

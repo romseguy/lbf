@@ -21,6 +21,7 @@ import { setUserEmail } from "store/userSlice";
 import { setSession } from "store/sessionSlice";
 import { getAuthToken, sealOptions, TOKEN_NAME, Session } from "utils/auth";
 import { isServer } from "utils/isServer";
+import { GlobalStyles } from "features/layout";
 const { getEnv } = require("utils/env");
 if (getEnv === "development") {
   require("../../wdyr");
@@ -70,9 +71,10 @@ const App = wrapper.withRedux(
           height={3}
           showOnShallow
         />
-        <ThemeProvider cookies={cookies} isMobile={pageProps.isMobile}>
+        <ThemeProvider cookies={cookies}>
           {/* <ProgressBarProvider>
             <ProgressBar className="fixed h-1 shadow-lg shadow-sky-500/20 bg-sky-500 top-0" /> */}
+          <GlobalStyles isMobile={pageProps.isMobile} />
           <Main Component={Component} {...pageProps} />
           {/* </ProgressBarProvider> */}
         </ThemeProvider>

@@ -1,5 +1,14 @@
-import { EditIcon } from "@chakra-ui/icons";
-import { Avatar, Box, Flex, Tooltip, Text } from "@chakra-ui/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  Avatar,
+  Box,
+  Flex,
+  Tooltip,
+  Text,
+  IconButton,
+  HStack,
+  Button
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -14,6 +23,7 @@ import { IEntity, isUser } from "models/Entity";
 import { selectIsMobile } from "store/uiSlice";
 
 export const TopicMessagesListItem = ({
+  refs,
   index,
   isDark,
   isEdit,
@@ -27,6 +37,7 @@ export const TopicMessagesListItem = ({
   topicMessage,
   ...props
 }: {
+  refs: React.RefObject<any>[];
   index: number;
   isDark: boolean;
   isEdit: isEdit;
@@ -55,6 +66,7 @@ export const TopicMessagesListItem = ({
 
   return (
     <Box
+      ref={refs[index]}
       key={_id}
       borderRadius={18}
       bg={isDark ? "gray.700" : "#F7FAFC"}
@@ -63,100 +75,132 @@ export const TopicMessagesListItem = ({
       mb={3}
       data-cy="topic-message"
     >
-      <Flex alignItems="center">
-        <Flex
-          alignItems="center"
-          cursor="pointer"
-          onClick={() =>
-            router.push(`/${userName}`, `/${userName}`, { shallow: true })
-          }
-        >
-          <Avatar name={userName} boxSize={10} src={userImage} tabIndex={0} />
-          <Text fontWeight="bold" ml={2} tabIndex={0}>
-            {userName}
-          </Text>
-        </Flex>
+      <Flex alignItems="start" justifyContent="space-between">
+        <Flex alignItems="center">
+          <Flex
+            alignItems="center"
+            cursor="pointer"
+            onClick={() =>
+              router.push(`/${userName}`, `/${userName}`, { shallow: true })
+            }
+          >
+            <Avatar name={userName} boxSize={10} src={userImage} tabIndex={0} />
+            <Text fontWeight="bold" ml={2} tabIndex={0}>
+              {userName}
+            </Text>
+          </Flex>
 
-        <Box as="span" aria-hidden mx={1}>
-          ·
-        </Box>
+          <Box as="span" aria-hidden mx={1}>
+            ·
+          </Box>
 
-        <Tooltip placement="bottom" label={fullDate}>
-          <Text fontSize="smaller" suppressHydrationWarning>
-            {timeAgo}
-          </Text>
-        </Tooltip>
+          <Tooltip placement="bottom" label={fullDate}>
+            <Text fontSize="smaller" suppressHydrationWarning>
+              {timeAgo}
+            </Text>
+          </Tooltip>
 
-        {isCreator && (
-          <>
-            <Box as="span" aria-hidden mx={1}>
-              ·
-            </Box>
+          {isCreator && (
+            <>
+              <Box as="span" aria-hidden mx={1}>
+                ·
+              </Box>
 
-            <Tooltip placement="bottom" label="Modifier le message">
-              <EditIconButton
-                aria-label="Modifier le message"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (_id)
-                    setIsEdit({
-                      ...isEdit,
-                      [_id]: { ...isEdit[_id], isOpen: true }
-                    });
+              <Tooltip placement="bottom" label="Modifier le message">
+                <EditIconButton
+                  aria-label="Modifier le message"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (_id)
+                      setIsEdit({
+                        ...isEdit,
+                        [_id]: { ...isEdit[_id], isOpen: true }
+                      });
+                  }}
+                />
+              </Tooltip>
+
+              <Box as="span" aria-hidden mx={1}>
+                ·
+              </Box>
+
+              <DeleteIconButton
+                isDisabled={query.isLoading || query.isFetching}
+                isLoading={typeof _id === "string" && isLoading[_id]}
+                placement="bottom"
+                header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}
+                onClick={async () => {
+                  typeof _id === "string" && setIsLoading({ [_id]: true });
+                  _id && setIsLoading({ [_id]: true });
+
+                  const payload = {
+                    topic: {
+                      ...topic,
+                      //topicMessages: [{_id}]
+                      topicMessages:
+                        index === topic.topicMessages.length - 1
+                          ? topic.topicMessages.filter((m) => {
+                              return m._id !== _id;
+                            })
+                          : topic.topicMessages.map((m) => {
+                              if (m._id === _id) {
+                                return {
+                                  message: "<i>Message supprimé</i>",
+                                  createdBy
+                                };
+                              }
+
+                              return m;
+                            })
+                    }
+                  };
+
+                  try {
+                    await editTopic({
+                      payload,
+                      topicId: topic._id
+                    }).unwrap();
+
+                    _id && setIsLoading({ [_id]: false });
+                  } catch (error) {
+                    // todo
+                    console.error(error);
+                  }
                 }}
               />
-            </Tooltip>
-
-            <Box as="span" aria-hidden mx={1}>
-              ·
-            </Box>
-
-            <DeleteIconButton
-              isDisabled={query.isLoading || query.isFetching}
-              isLoading={typeof _id === "string" && isLoading[_id]}
-              placement="bottom"
-              header={<>Êtes vous sûr de vouloir supprimer ce message ?</>}
-              onClick={async () => {
-                typeof _id === "string" && setIsLoading({ [_id]: true });
-                _id && setIsLoading({ [_id]: true });
-
-                const payload = {
-                  topic: {
-                    ...topic,
-                    //topicMessages: [{_id}]
-                    topicMessages:
-                      index === topic.topicMessages.length - 1
-                        ? topic.topicMessages.filter((m) => {
-                            return m._id !== _id;
-                          })
-                        : topic.topicMessages.map((m) => {
-                            if (m._id === _id) {
-                              return {
-                                message: "<i>Message supprimé</i>",
-                                createdBy
-                              };
-                            }
-
-                            return m;
-                          })
-                  }
-                };
-
-                try {
-                  await editTopic({
-                    payload,
-                    topicId: topic._id
-                  }).unwrap();
-
-                  _id && setIsLoading({ [_id]: false });
-                } catch (error) {
-                  // todo
-                  console.error(error);
-                }
+            </>
+          )}
+        </Flex>
+        <Flex flexDir="column">
+          {refs[index - 1] && (
+            <Button
+              aria-label="Message précédent"
+              colorScheme="teal"
+              leftIcon={<ChevronLeftIcon />}
+              height="30px"
+              size="sm"
+              onClick={() => {
+                refs[index - 1].current.scrollIntoView();
               }}
-            />
-          </>
-        )}
+            >
+              Message précédent
+            </Button>
+          )}
+          {refs[index + 1] && (
+            <Button
+              aria-label="Message suivant"
+              colorScheme="teal"
+              rightIcon={<ChevronRightIcon />}
+              height="30px"
+              size="sm"
+              onClick={() => {
+                refs[index + 1].current.scrollIntoView();
+              }}
+            >
+              Message suivant
+            </Button>
+          )}
+        </Flex>
       </Flex>
 
       <Box className="rteditor" mt={2}>

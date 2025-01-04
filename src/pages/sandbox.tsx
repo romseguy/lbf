@@ -10,6 +10,58 @@ import { useSession } from "hooks/useSession";
 import { hasItems } from "utils/array";
 
 const Sandbox = ({ ...props }: PageProps) => {
+  const [error, setError] = useState();
+  const [data, setData] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <Layout pageTitle="Sandbox" {...props}>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <button
+          onClick={async () => {
+            try {
+              setIsLoading(true);
+              const res = await api.get("sandbox");
+
+              if (res.error) console.log("error", res.error);
+              else if (res.data) setData(res.data);
+            } catch (error) {
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+        >
+          call
+        </button>
+      )}
+    </Layout>
+  );
+};
+
+export default Sandbox;
+
+{
+  /* 
+    const { colorMode } = useColorMode();
+    const isDark = colorMode === "dark";
+
+    const description = "Test de <a href='https://fast.com'>lien</a>";
+    return (
+      <div className="rteditor">
+        <div
+          dangerouslySetInnerHTML={{
+            __html: sanitize(description)
+          }}
+        />
+      </div>
+    );
+  */
+}
+
+{
+  /*
   const { data: session } = useSession();
   if (!session) throw new Error("niet");
 
@@ -79,57 +131,5 @@ const Sandbox = ({ ...props }: PageProps) => {
   console.log("🚀 ~ Sandbox ~ json:", json);
 
   return null;
-};
-
-export default Sandbox;
-
-{
-  /* 
-    const { colorMode } = useColorMode();
-    const isDark = colorMode === "dark";
-
-    const description = "Test de <a href='https://fast.com'>lien</a>";
-    return (
-      <div className="rteditor">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: sanitize(description)
-          }}
-        />
-      </div>
-    );
-  */
-}
-
-{
-  /*
-  const [error, setError] = useState();
-  const [data, setData] = useState();
-  const [isLoading, setIsLoading] = useState(false);
-
-  return (
-    <Layout pageTitle="Sandbox" {...props}>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <button
-          onClick={async () => {
-            try {
-              setIsLoading(true);
-              const res = await api.get("sandbox");
-
-              if (res.error) console.log("error", res.error);
-              else if (res.data) setData(res.data);
-            } catch (error) {
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        >
-          call
-        </button>
-      )}
-    </Layout>
-  );
 */
 }

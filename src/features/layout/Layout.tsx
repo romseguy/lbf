@@ -103,14 +103,14 @@ export const Layout = ({
   if (isO) {
     if (tab === EEntityTab.TOPICS) {
       if (tabItem && ["ajouter", "a"].includes(tabItem)) {
-        subtitle = `– Ajouter une discussion`;
+        subtitle = ` – Ajouter une discussion`;
       } else {
         const { topicName } =
           entity.orgTopics.find(
             ({ topicName }) => tabItem === normalize(topicName)
           ) || {};
         if (topicName) {
-          subtitle = `– ${topicName}`;
+          subtitle = ` – ${topicName}`;
         }
       }
     }

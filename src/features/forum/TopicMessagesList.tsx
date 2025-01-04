@@ -29,6 +29,13 @@ export const TopicMessagesList = ({
 
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
+  const refs = topic.topicMessages.reduce(
+    (acc: React.RefObject<any>[], cur) => {
+      return acc.concat([React.createRef()]);
+    },
+    []
+  );
+
   if (!topic) return null;
 
   return (
@@ -59,6 +66,7 @@ export const TopicMessagesList = ({
           <TopicMessagesListItem
             key={`topic-messages-list-item-${index}`}
             index={index}
+            refs={refs}
             isDark={isDark}
             isEdit={isEdit}
             isLoading={isLoading}

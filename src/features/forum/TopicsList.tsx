@@ -24,7 +24,10 @@ import {
   NotifModalState,
   EntityNotifModal
 } from "features/modals/EntityNotifModal";
-import { TopicFormModal } from "features/modals/TopicFormModal";
+import {
+  TopicCopyFormModal,
+  TopicFormModal
+} from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
 import {
   getCategoryLabel,
@@ -66,7 +69,9 @@ export const TopicsList = ({
     notifyModalState,
     setNotifyModalState,
     topicModalState,
-    setTopicModalState
+    setTopicModalState,
+    topicCopyModalState,
+    setTopicCopyModalState
   }: {
     currentTopic: ITopic | null;
     selectedCategories?: string[];
@@ -79,6 +84,10 @@ export const TopicsList = ({
     >;
     topicModalState: TopicModalState;
     setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
+    topicCopyModalState: TopicModalState;
+    setTopicCopyModalState: React.Dispatch<
+      React.SetStateAction<TopicModalState>
+    >;
   }) => React.ReactNode;
   query: AppQueryWithData<IEntity>;
   subQuery: AppQuery<ISubscription>;
@@ -87,7 +96,6 @@ export const TopicsList = ({
   currentTopicName?: string;
   addButtonLabel?: string;
 }) => {
-  console.log("🚀 ~ query:", query);
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const isMobile = useSelector(selectIsMobile);
@@ -221,12 +229,18 @@ export const TopicsList = ({
   const [topicModalState, setTopicModalState] = useState<TopicModalState>({
     isOpen: !!currentTopicName && ["ajouter", "a"].includes(currentTopicName)
   });
-  const onClose = () =>
+  const onClose = () => {
     setTopicModalState({
       ...topicModalState,
       isOpen: false,
       topic: undefined
     });
+    setTopicCopyModalState({
+      ...topicCopyModalState,
+      isOpen: false,
+      topic: undefined
+    });
+  };
   const onAddClick = () => {
     if (!session) {
       router.push("/login", "/login", { shallow: true });
@@ -235,6 +249,13 @@ export const TopicsList = ({
 
     setTopicModalState({ ...topicModalState, isOpen: true });
   };
+  //#endregion
+
+  //#region move topic modal state
+  const [topicCopyModalState, setTopicCopyModalState] =
+    useState<TopicModalState>({
+      isOpen: false
+    });
   //#endregion
 
   //#region notify modal state
@@ -339,7 +360,9 @@ export const TopicsList = ({
           notifyModalState,
           setNotifyModalState,
           topicModalState,
-          setTopicModalState
+          setTopicModalState,
+          topicCopyModalState,
+          setTopicCopyModalState
         })
       ) : (
         <Box data-cy="topic-list">
@@ -478,6 +501,8 @@ export const TopicsList = ({
                   setNotifyModalState={setNotifyModalState}
                   topicModalState={topicModalState}
                   setTopicModalState={setTopicModalState}
+                  topicCopyModalState={topicCopyModalState}
+                  setTopicCopyModalState={setTopicCopyModalState}
                   mb={topicIndex < topics.length - 1 ? 5 : 0}
                   // onClick={onClick}
                   // onDeleteClick={onDeleteClick}
@@ -514,6 +539,26 @@ export const TopicsList = ({
             // const url = `${baseUrl}/${topicName}`;
             // await router.push(url, url, { shallow: true });
             query.refetch();
+            onClose();
+          }}
+          onClose={onClose}
+        />
+      )}
+
+      {topicCopyModalState.isOpen && (
+        <TopicCopyFormModal
+          {...topicCopyModalState}
+          query={query}
+          subQuery={subQuery}
+          session={session}
+          isCreator={props.isCreator}
+          isFollowed={props.isFollowed}
+          onCancel={onClose}
+          onSubmit={async (topic) => {
+            // const topicName = normalize(topic.topicName);
+            // const url = `${baseUrl}/${topicName}`;
+            // await router.push(url, url, { shallow: true });
+            //query.refetch();
             onClose();
           }}
           onClose={onClose}

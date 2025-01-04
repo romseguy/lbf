@@ -391,6 +391,11 @@ handler.put<
   },
   NextApiResponse
 >(async function editOrg(req, res) {
+  const prefix = `🚀 ~ ${new Date().toLocaleString()} ~ PUT /org/${
+    req.query.orgUrl
+  } `;
+  console.log(prefix);
+
   const session = await getSession({ req });
 
   if (!session) {
@@ -452,6 +457,9 @@ handler.put<
         if (key.includes(".") && key.includes("=")) {
           // orgLists.listName=string
           const matches = key.match(/([^\.]+)\.([^=]+)=(.+)/);
+
+          // if (matches && matches[1] === "orgTopics")
+          //   org = await org.populate("orgTopics").execPopulate();
 
           if (matches && matches.length === 4) {
             update = {
@@ -536,7 +544,7 @@ handler.put<
       }
     }
 
-    //logJson(`PUT /org/${_id}:`, update || body);
+    logJson(prefix, update || body);
     org = await models.Org.findOneAndUpdate({ _id }, update || body);
 
     if (!org) {
