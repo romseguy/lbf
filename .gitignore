@@ -5,9 +5,9 @@
 tsconfig.tsbuildinfo
 
 # node build
-package.json
-bun.lockb
-yarn*
+# package.json
+# bun.lockb
+# yarn*
 /node_modules
 
 # nextjs build

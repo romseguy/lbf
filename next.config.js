@@ -27,6 +27,9 @@ if (process.env.ANALYZE) {
 }
 
 const nextConfig = {
+  experimental: {
+    esmExternals: false
+  },
   // async headers() {
   //   return [
   //     {

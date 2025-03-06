@@ -13,7 +13,11 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useErrorBoundary } from "react-error-boundary";
 import { useSelector } from "react-redux";
-import { useDeleteOrgMutation } from "features/api/orgsApi";
+import {
+  EditOrgPayload,
+  useDeleteOrgMutation,
+  useEditOrgMutation
+} from "features/api/orgsApi";
 import { Button, DeleteButton } from "features/common";
 import {
   EOrgType,
@@ -28,6 +32,7 @@ import { hasItems } from "utils/array";
 import { AppQueryWithData } from "utils/types";
 import { OrgConfigVisibility } from "./OrgConfigPanel";
 import { IsEditConfig } from "./OrgPage";
+import { FaGlobeEurope, FaTree } from "react-icons/fa";
 
 export const OrgConfigButtons = ({
   isEdit,
@@ -39,6 +44,7 @@ export const OrgConfigButtons = ({
   orgQuery: AppQueryWithData<IOrg>;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
 }) => {
+  const [editOrg] = useEditOrgMutation();
   const { showBoundary } = useErrorBoundary();
   const isMobile = useSelector(selectIsMobile);
   const router = useRouter();
@@ -76,6 +82,24 @@ export const OrgConfigButtons = ({
     toggleVisibility();
   };
 
+  const onChangeType = async () => {
+    try {
+      const isTree = org.orgType === EOrgType.GENERIC;
+      const payload: EditOrgPayload = {
+        orgType: isTree ? EOrgType.NETWORK : EOrgType.GENERIC
+      };
+      await editOrg({ orgId: org._id, payload }).unwrap();
+      toast({
+        title: `${org.orgName} est maintenant ${
+          isTree ? "une planète" : "un arbre"
+        }`,
+        status: "success"
+      });
+    } catch (error) {
+      showBoundary(error);
+    }
+  };
+
   return (
     <Flex flexDirection={isMobile ? "column" : "row"}>
       <Flex mb={isMobile ? 3 : 3}>
@@ -87,6 +111,21 @@ export const OrgConfigButtons = ({
           data-cy="orgEdit"
         >
           Modifier
+        </Button>
+      </Flex>
+
+      <Flex mb={isMobile ? 3 : 3}>
+        <Button
+          colorScheme="teal"
+          leftIcon={
+            <Icon
+              as={org.orgType === EOrgType.NETWORK ? FaTree : FaGlobeEurope}
+            />
+          }
+          mr={3}
+          onClick={onChangeType}
+        >
+          Changer en {org.orgType === EOrgType.NETWORK ? "arbre" : "planète"}
         </Button>
       </Flex>
 
