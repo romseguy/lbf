@@ -1,6 +1,6 @@
 {
   "files.exclude": {
-    "yarn.lock": true,
+    "bun.lockb": true,
     "LICENSE": true,
     "**/.git": true,
     "**/public/tinymce": true
