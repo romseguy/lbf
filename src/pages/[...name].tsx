@@ -8,25 +8,24 @@ import {
   getEvent,
   GetEventParams,
   //getRunningQueriesThunk as eventApiThunk,
-  useGetEventQuery
+  useGetEventQuery,
 } from "features/api/eventsApi";
 import {
   getOrg,
   GetOrgParams,
   //getRunningQueriesThunk as orgApiThunk,
-  useGetOrgQuery
+  useGetOrgQuery,
 } from "features/api/orgsApi";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import {
   //getRunningQueriesThunk as userApiThunk,
   getUser,
-  useGetUserQuery
+  useGetUserQuery,
 } from "features/api/usersApi";
 import {
   Column,
   ContactLink,
   EntityAddButton,
-  NotFound
+  NotFound,
 } from "features/common";
 import { Layout } from "features/layout";
 import { EventPage } from "features/events/EventPage";
@@ -37,7 +36,7 @@ import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEvent } from "models/Event";
 import { defaultTabs, EOrgType, IOrg } from "models/Org";
-import { ISubscription } from "models/Subscription";
+
 import { IUser } from "models/User";
 import { wrapper } from "store";
 import { selectUserEmail } from "store/userSlice";
@@ -47,18 +46,15 @@ import { IEntity } from "models/Entity";
 
 const initialEventQueryParams = (entityUrl: string) => ({
   eventUrl: entityUrl,
-  populate: "eventOrgs"
+  populate: "eventOrgs",
 });
 const initialOrgQueryParams = (entityUrl: string) => ({
   orgUrl: entityUrl,
   populate:
-    "orgBanner orgDescription orgEvents orgLists orgLogo orgProjects orgSubscriptions orgTopics orgs"
+    "orgBanner orgDescription orgEvents orgLogo orgProjects orgSubscriptions orgTopics orgs",
 });
 const initialUserQueryParams = (entityUrl: string) => ({
-  slug: entityUrl
-});
-const subQueryParams = (email: string) => ({
-  email
+  slug: entityUrl,
 });
 
 function getError(query: AppQuery<IEntity>) {
@@ -80,7 +76,7 @@ const ErrorPage = ({
   const columnProps = {
     maxWidth: "4xl",
     m: "0 auto",
-    p: props.isMobile ? 2 : 3
+    p: props.isMobile ? 2 : 3,
   };
   const error = getError(query);
   return (
@@ -106,7 +102,7 @@ const HashPage = ({ ...props }: PageProps) => {
   const columnProps = {
     maxWidth: "4xl",
     m: "0 auto",
-    p: props.isMobile ? 2 : 3
+    p: props.isMobile ? 2 : 3,
   };
   const router = useRouter();
   const { data: session } = useSession();
@@ -123,29 +119,26 @@ const HashPage = ({ ...props }: PageProps) => {
 
   //#region queries
   const [eventQueryParams, setEventQueryParams] = useState<GetEventParams>(
-    initialEventQueryParams(entityUrl)
+    initialEventQueryParams(entityUrl),
   );
   const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
-    initialOrgQueryParams(entityUrl)
+    initialOrgQueryParams(entityUrl),
   );
   // const [userQueryParams, setUserQueryParams] = useState<UserQueryParams>(
   //   initialUserQueryParams(entityUrl)
   // );
   const [skip, setSkip] = useState(false);
   const eventQuery = useGetEventQuery(eventQueryParams, {
-    skip
+    skip,
   }) as AppQuery<IEvent>;
   const orgQuery = useGetOrgQuery(orgQueryParams, { skip }) as AppQuery<IOrg>;
-  const subQuery = useGetSubscriptionQuery(
-    subQueryParams(userEmail)
-  ) as AppQuery<ISubscription>;
   const userQuery = useGetUserQuery(
     {
       slug: entityUrl,
       populate:
-        session?.user.userName === entityUrl ? "userProjects" : undefined
+        session?.user.userName === entityUrl ? "userProjects" : undefined,
     },
-    { skip }
+    { skip },
   ) as AppQuery<IUser>;
   const eventQueryStatus = eventQuery.error?.status || 200;
   const orgQueryStatus = orgQuery.error?.status || 200;
@@ -171,7 +164,7 @@ const HashPage = ({ ...props }: PageProps) => {
         //setUserQueryParams({ ...userQueryParams, slug: entityUrl });
       }
     },
-    [entityUrl]
+    [entityUrl],
   );
   // useEffect(() => {
   //   if (!orgQuery.data?._id) {
@@ -217,7 +210,6 @@ const HashPage = ({ ...props }: PageProps) => {
       <EventPage
         {...props}
         eventQuery={eventQuery as AppQueryWithData<IEvent>}
-        subQuery={subQuery}
         tab={currentTabLabel}
         tabItem={entityTabItem}
       />
@@ -249,7 +241,6 @@ const HashPage = ({ ...props }: PageProps) => {
         <OrgPage
           {...props}
           orgQuery={orgQuery as AppQueryWithData<IOrg>}
-          subQuery={subQuery}
           currentTabLabel={currentTabLabel}
           tabItem={entityTabItem}
         />
@@ -310,7 +301,10 @@ export const getServerSideProps = wrapper.getServerSideProps(
       // )
       if (entityUrl !== normalizedEntityUrl)
         return {
-          redirect: { permanent: false, destination: "/" + normalizedEntityUrl }
+          redirect: {
+            permanent: false,
+            destination: "/" + normalizedEntityUrl,
+          },
         };
 
       // todo: pass ctx.req.headers.cookie
@@ -318,7 +312,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
       store.dispatch(getEvent.initiate(initialEventQueryParams(entityUrl)));
       store.dispatch(getUser.initiate(initialUserQueryParams(entityUrl)));
       const [orgQuery, eventQuery, userQuery] = await Promise.all(
-        store.dispatch(getRunningQueriesThunk())
+        store.dispatch(getRunningQueriesThunk()),
       );
 
       //@ts-ignore
@@ -327,8 +321,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
           redirect: {
             permanent: false,
             //@ts-ignore
-            destination: "/" + orgQuery.data.redirectUrl
-          }
+            destination: "/" + orgQuery.data.redirectUrl,
+          },
         };
       }
 
@@ -340,7 +334,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 
     return { props: {} };
-  }
+  },
 );
 
 // export async function getServerSideProps( ctx: GetServerSidePropsContext): Promise<{ props?: {}; redirect?: { permanent: boolean; destination: string }; }> {}

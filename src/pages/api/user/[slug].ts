@@ -5,12 +5,12 @@ import nextConnect from "next-connect";
 import { IUser } from "models/User";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
-import { sendMail } from "server/email";
+//import { sendMail } from "server/email";
 import { createUserPasswordResetMail, emailR } from "utils/email";
 import {
   createEndpointError,
   databaseErrorCodes,
-  duplicateError
+  duplicateError,
 } from "utils/errors";
 import { logJson, normalize, phoneR } from "utils/string";
 import { randomNumber } from "utils/randomNumber";
@@ -30,15 +30,15 @@ handler.get<
   NextApiResponse
 >(async function getUser(req, res) {
   const {
-    query: { slug, populate, ...query }
+    query: { slug, populate, ...query },
   } = req;
   const notFoundResponse = () =>
     res
       .status(404)
       .json(
         createEndpointError(
-          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
-        )
+          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`),
+        ),
       );
 
   try {
@@ -75,7 +75,7 @@ handler.get<
       if (populate.includes("userProjects") && isSelf) {
         user = user.populate({
           path: "userProjects",
-          populate: [{ path: "createdBy" }]
+          populate: [{ path: "createdBy" }],
         });
         user = await user.execPopulate();
       }
@@ -101,15 +101,15 @@ handler.post<
   NextApiResponse
 >(async function postResetPasswordMail(req, res) {
   const {
-    query: { slug, ...query }
+    query: { slug, ...query },
   } = req;
   const notFoundResponse = () =>
     res
       .status(404)
       .json(
         createEndpointError(
-          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`)
-        )
+          new Error(`L'utilisateur ${slug} n'a pas pu être trouvé`),
+        ),
       );
 
   try {
@@ -132,14 +132,14 @@ handler.post<
     const securityCodeSalt = "" + randomNumber(3);
     user = await models.User.findOneAndUpdate(selector, {
       securityCode,
-      securityCodeSalt
+      securityCodeSalt,
     });
 
-    const mail = createUserPasswordResetMail({
-      email: slug,
-      securityCode: "" + Number(securityCode) * Number(securityCodeSalt)
-    });
-    sendMail(mail);
+    // const mail = createUserPasswordResetMail({
+    //   email: slug,
+    //   securityCode: "" + Number(securityCode) * Number(securityCodeSalt)
+    // });
+    // sendMail(mail);
 
     res.status(200).json({});
   } catch (error) {
@@ -157,7 +157,7 @@ handler.put<
   const session = await getSession({ req });
   const {
     query: { slug },
-    body
+    body,
   }: {
     query: { slug: string };
     body: Partial<IUser>;
@@ -176,7 +176,7 @@ handler.put<
 
       const user = await models.User.findOneAndUpdate(
         { email: slug },
-        { ...body, securityCode: null, securityCodeSalt: null }
+        { ...body, securityCode: null, securityCodeSalt: null },
       );
 
       return res.status(200).json(user);
@@ -208,7 +208,9 @@ handler.put<
         return res
           .status(404)
           .json(
-            createEndpointError(new Error(`L'utilisateur ${slug} n'existe pas`))
+            createEndpointError(
+              new Error(`L'utilisateur ${slug} n'existe pas`),
+            ),
           );
       }
     }
@@ -227,8 +229,8 @@ handler.put<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'utilisateur ${slug} n'a pas pu être modifié`)
-          )
+            new Error(`L'utilisateur ${slug} n'a pas pu être modifié`),
+          ),
         );
     }
 
@@ -236,7 +238,7 @@ handler.put<
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY) {
       res.status(400).json({
-        userName: "Ce nom d'utilisateur n'est pas disponible"
+        userName: "Ce nom d'utilisateur n'est pas disponible",
       });
     } else {
       res.status(500).json(createEndpointError(error));

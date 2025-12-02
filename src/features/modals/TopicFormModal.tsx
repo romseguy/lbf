@@ -4,13 +4,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import React from "react";
 import { EntityButton, Modal } from "features/common";
 import { TopicForm } from "features/forms/TopicForm";
 import { IEntity } from "models/Entity";
-import { ISubscription } from "models/Subscription";
+
 import { ITopic } from "models/Topic";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicCopyForm } from "features/forms/TopicCopyForm";
@@ -18,7 +18,6 @@ import { Session } from "utils/auth";
 
 export const TopicFormModal = (props: {
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isOpen: boolean;
   isCreator?: boolean;
@@ -58,7 +57,6 @@ export const TopicFormModal = (props: {
 
 export const TopicCopyFormModal = (props: {
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   session: Session;
   isOpen: boolean;

@@ -14,15 +14,10 @@ import {
   Td,
   Tooltip,
   Tr,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/react";
 import { DarkModeSwitch, Delimiter, Link, LoginButton } from "features/common";
-import {
-  EventPopover,
-  NotificationPopover,
-  OrgPopover,
-  TopicPopover
-} from "features/layout";
+import { EventPopover, OrgPopover, TopicPopover } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity } from "models/Entity";
@@ -55,8 +50,8 @@ export const Nav = ({
 
   const headingProps = {
     _hover: {
-      color: "orange"
-    }
+      color: "orange",
+    },
   };
 
   const iconProps = {
@@ -69,7 +64,7 @@ export const Nav = ({
     mr: 3,
     px: 5,
     py: 6,
-    _hover: { bg: "blue.400", color: "white" }
+    _hover: { bg: "blue.400", color: "white" },
   };
 
   return (
@@ -246,14 +241,6 @@ export const Nav = ({
                     offset={[isMobile ? -106 : 140, 15]}
                     iconProps={iconProps}
                   />
-                  {!isMobile && (
-                    <NotificationPopover
-                      isMobile={isMobile}
-                      session={session}
-                      offset={[isMobile ? -141 : 140, 15]}
-                      iconProps={iconProps}
-                    />
-                  )}
                 </Flex>
               </Td>
             </Tr>

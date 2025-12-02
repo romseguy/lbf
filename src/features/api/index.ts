@@ -9,10 +9,10 @@ export const api = createApi({
       return action.payload[reducerPath];
     }
   },
-  tagTypes: ["Orgs", "Events", "Projects", "Subscriptions", "Topics", "Users"],
-  endpoints: () => ({})
+  tagTypes: ["Orgs", "Events", "Projects", "Topics", "Users"],
+  endpoints: () => ({}),
 });
 
 export const {
-  util: { getRunningQueriesThunk }
+  util: { getRunningQueriesThunk },
 } = api;

@@ -7,7 +7,7 @@ import {
   useToast,
   Flex,
   Alert,
-  AlertIcon
+  AlertIcon,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -21,14 +21,13 @@ import {
   AddTopicPayload,
   EditTopicPayload,
   useAddTopicMutation,
-  useEditTopicMutation
+  useEditTopicMutation,
 } from "features/api/topicsApi";
 import { useSession } from "hooks/useSession";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IEntity, isEvent, isOrg } from "models/Entity";
 import { EEventVisibility, IEvent } from "models/Event";
 import { EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { handleError } from "utils/form";
@@ -37,14 +36,11 @@ import { AppQuery, AppQueryWithData, Optional } from "utils/types";
 
 export const TopicForm = ({
   query,
-  subQuery,
   ...props
 }: {
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
   topic?: ITopic;
   isCreator?: boolean;
-  isFollowed?: boolean;
   onCancel?: () => void;
   onSubmit?: (topic: Partial<ITopic>) => void;
 }) => {
@@ -68,8 +64,8 @@ export const TopicForm = ({
   const topicCategories = isE
     ? entity.eventTopicCategories
     : isO
-      ? entity.orgTopicCategories
-      : [];
+    ? entity.orgTopicCategories
+    : [];
   const topicCategory =
     props.topic &&
     props.topic.topicCategory &&
@@ -87,7 +83,7 @@ export const TopicForm = ({
     clearErrors,
     setValue,
     watch,
-    formState
+    formState,
   } = useFormPersist(
     useForm<{
       topicName: string;
@@ -100,9 +96,9 @@ export const TopicForm = ({
         topicCategory: topicCategory
           ? { label: topicCategory.label, value: topicCategory.catId }
           : null,
-        topicMessage: ""
-      }
-    })
+        topicMessage: "",
+      },
+    }),
   );
   useLeaveConfirm({ formState });
 
@@ -127,24 +123,24 @@ export const TopicForm = ({
       topicCategory: form.topicCategory ? form.topicCategory.value : null,
       topicName: form.topicName,
       topicVisibility: (form.topicVisibility || []).map(
-        ({ label, value }) => value
-      )
+        ({ label, value }) => value,
+      ),
     };
 
     try {
       if (props.topic) {
         const payload: EditTopicPayload = {
-          topic
+          topic,
         };
 
         await editTopic({
           payload,
-          topicId: props.topic._id
+          topicId: props.topic._id,
         }).unwrap();
 
         toast({
           title: "La discussion a été modifiée",
-          status: "success"
+          status: "success",
         });
 
         setIsLoading(false);
@@ -155,24 +151,24 @@ export const TopicForm = ({
             {
               message: form.topicMessage,
               //messageHtml: form.topicMessage,
-              createdBy: session.user.userId
-            }
+              createdBy: session.user.userId,
+            },
           ];
         }
 
         let payload: AddTopicPayload = {
           event,
           org,
-          topic
+          topic,
         };
 
         const newTopic = await addTopic({
-          payload
+          payload,
         }).unwrap();
 
         toast({
           title: "La discussion a été ajoutée !",
-          status: "success"
+          status: "success",
         });
 
         setIsLoading(false);
@@ -183,7 +179,7 @@ export const TopicForm = ({
       handleError(error, (message, field) =>
         field
           ? setError(field, { type: "manual", message })
-          : setError("formErrorMessage", { type: "manual", message })
+          : setError("formErrorMessage", { type: "manual", message }),
       );
     }
   };
@@ -196,7 +192,7 @@ export const TopicForm = ({
         <Input
           name="topicName"
           ref={register({
-            required: "Veuillez saisir l'objet de la discussion"
+            required: "Veuillez saisir l'objet de la discussion",
           })}
           autoComplete="off"
           placeholder="Objet"
@@ -245,7 +241,7 @@ export const TopicForm = ({
                   topicCategories.map(({ catId: value, label }) => {
                     return {
                       label,
-                      value
+                      value,
                     };
                   }) || []
                 }
@@ -261,9 +257,9 @@ export const TopicForm = ({
                         isE
                           ? "de l'événement"
                           : isO
-                            ? orgTypeFull(entity.orgType)
-                            : ""
-                      } pour ajouter une catégorie`
+                          ? orgTypeFull(entity.orgType)
+                          : ""
+                      } pour ajouter une catégorie`,
                     });
                     return;
                   }
@@ -293,26 +289,26 @@ export const TopicForm = ({
                           ...topicCategories,
                           {
                             catId,
-                            label: inputValue
-                          }
-                        ]
-                      }
+                            label: inputValue,
+                          },
+                        ],
+                      },
                     }).unwrap();
                     //}
 
                     setValue("topicCategory", {
                       label: inputValue,
-                      value: catId
+                      value: catId,
                     });
                     toast({
                       status: "success",
-                      title: "La catégorie a été ajoutée !"
+                      title: "La catégorie a été ajoutée !",
                     });
                   } catch (error) {
                     console.error(error);
                     toast({
                       status: "error",
-                      title: defaultErrorMessage
+                      title: defaultErrorMessage,
                     });
                   }
                 }}
@@ -325,14 +321,14 @@ export const TopicForm = ({
                   control: (defaultStyles: any) => {
                     return {
                       ...defaultStyles,
-                      borderColor: "#e2e8f0"
+                      borderColor: "#e2e8f0",
                     };
                   },
                   placeholder: () => {
                     return {
-                      color: "#A0AEC0"
+                      color: "#A0AEC0",
                     };
-                  }
+                  },
                 }}
               />
             );
@@ -342,57 +338,6 @@ export const TopicForm = ({
           <ErrorMessage errors={errors} name="topicCategory" />
         </FormErrorMessage>
       </FormControl>
-
-      {org && !isEntityPrivate && (
-        <FormControl mb={3}>
-          <FormLabel>Visibilité (optionnel)</FormLabel>
-          <Controller
-            name="topicVisibility"
-            control={control}
-            defaultValue={
-              props.topic?.topicVisibility.map((listName) => ({
-                label: listName,
-                value: listName
-              })) || []
-            }
-            render={(renderProps) => {
-              return (
-                <MultiSelect
-                  value={renderProps.value}
-                  onChange={renderProps.onChange}
-                  options={
-                    org.orgLists.map(({ listName }) => ({
-                      label: listName,
-                      value: listName
-                    })) || []
-                  }
-                  allOptionLabel="Toutes les listes"
-                  //closeMenuOnSelect={false}
-                  placeholder="Sélectionner une ou plusieurs listes"
-                  noOptionsMessage={() => "Aucun résultat"}
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (defaultStyles: any) => {
-                      return {
-                        ...defaultStyles,
-                        borderColor: "#e2e8f0"
-                      };
-                    },
-                    placeholder: () => {
-                      return {
-                        color: "#A0AEC0"
-                      };
-                    }
-                  }}
-                />
-              );
-            }}
-          />
-        </FormControl>
-      )}
 
       {/*hasItems(topicVisibility) && (
         <Alert status="warning" mb={3}>

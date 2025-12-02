@@ -8,7 +8,7 @@ import {
   getDayOfYear,
   isBefore,
   addWeeks,
-  setSeconds
+  setSeconds,
 } from "date-fns";
 import { getEventCategories } from "models/Org";
 import { LatLon } from "use-places-autocomplete";
@@ -25,7 +25,7 @@ export const getEvents = ({
   isCreator,
   origin,
   distance,
-  selectedCategories
+  selectedCategories,
 }: {
   events: IEvent[];
   isCreator?: boolean;
@@ -51,7 +51,7 @@ export const getEvents = ({
       if (distance > 0 && origin && event.eventLat && event.eventLng) {
         const d = getDistance(origin, {
           lat: event.eventLat,
-          lng: event.eventLng
+          lng: event.eventLng,
         });
 
         if (d / 1000 > distance) continue;
@@ -60,7 +60,7 @@ export const getEvents = ({
 
         event = {
           ...event,
-          eventDistance
+          eventDistance,
         };
       }
 
@@ -81,8 +81,8 @@ export const getEvents = ({
             const eventMaxDate = otherDay.endTime
               ? parseISO(otherDay.endTime)
               : end
-                ? setDay(end, otherDay.dayNumber + 1)
-                : undefined;
+              ? setDay(end, otherDay.dayNumber + 1)
+              : undefined;
 
             if (
               Array.isArray(otherDay.monthRepeat) &&
@@ -92,12 +92,12 @@ export const getEvents = ({
                 const NthDayOfMonth = getNthDayOfMonth(
                   new Date(),
                   otherDay.dayNumber === 6 ? 0 : otherDay.dayNumber - 1,
-                  monthRepeat + 1
+                  monthRepeat + 1,
                 );
 
                 const eventMinDate = setMinutes(
                   setHours(NthDayOfMonth, getHours(start)),
-                  getMinutes(start)
+                  getMinutes(start),
                 );
                 const eventMaxDate = end;
 
@@ -109,7 +109,7 @@ export const getEvents = ({
                   previousEvents.push({
                     ...event,
                     eventMinDate,
-                    eventMaxDate
+                    eventMaxDate,
                   });
                 } else {
                   if (isBefore(eventMinDate, addWeeks(today, 1))) {
@@ -121,7 +121,7 @@ export const getEvents = ({
                     currentEvents.push({
                       ...event,
                       eventMinDate,
-                      eventMaxDate
+                      eventMaxDate,
                     });
                   } else {
                     // console.log(
@@ -131,7 +131,7 @@ export const getEvents = ({
                     nextEvents.push({
                       ...event,
                       eventMinDate,
-                      eventMaxDate
+                      eventMaxDate,
                     });
                   }
                 }
@@ -142,7 +142,7 @@ export const getEvents = ({
                 previousEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate
+                  eventMaxDate,
                 });
               } else {
                 if (isBefore(eventMinDate, addWeeks(today, 1))) {
@@ -151,14 +151,14 @@ export const getEvents = ({
                   currentEvents.push({
                     ...event,
                     eventMinDate,
-                    eventMaxDate
+                    eventMaxDate,
                   });
                 } else {
                   // console.log("nextEvents.otherDay.push", event.eventName);
                   nextEvents.push({
                     ...event,
                     eventMinDate,
-                    eventMaxDate
+                    eventMaxDate,
                   });
                 }
               }
@@ -171,7 +171,7 @@ export const getEvents = ({
           previousEvents.push({
             ...event,
             eventMinDate: start,
-            eventMaxDate: end
+            eventMaxDate: end,
           });
         } else {
           if (!pushedMonthRepeat && isBefore(start, addWeeks(today, 1))) {
@@ -179,14 +179,14 @@ export const getEvents = ({
             currentEvents.push({
               ...event,
               eventMinDate: start,
-              eventMaxDate: end
+              eventMaxDate: end,
             });
           } else {
             // console.log("nextEvents.push", event.eventName);
             nextEvents.push({
               ...event,
               eventMinDate: start,
-              eventMaxDate: end
+              eventMaxDate: end,
             });
           }
         }
@@ -209,7 +209,7 @@ export const getEvents = ({
           currentEvents.push({
             ...event,
             eventMinDate,
-            eventMaxDate
+            eventMaxDate,
           });
 
           if (event.otherDays) {
@@ -217,13 +217,13 @@ export const getEvents = ({
               let eventMinDate = moveDateToCurrentWeek(
                 otherDay.startDate
                   ? parseISO(otherDay.startDate)
-                  : setDay(start, otherDay.dayNumber + 1)
+                  : setDay(start, otherDay.dayNumber + 1),
               );
               let eventMaxDate = end
                 ? moveDateToCurrentWeek(
                     otherDay.endTime
                       ? parseISO(otherDay.endTime)
-                      : setDay(end, otherDay.dayNumber + 1)
+                      : setDay(end, otherDay.dayNumber + 1),
                   )
                 : undefined;
               if (isBefore(eventMinDate, today)) {
@@ -241,7 +241,7 @@ export const getEvents = ({
               currentEvents.push({
                 ...event,
                 eventMinDate,
-                eventMaxDate
+                eventMaxDate,
               });
             }
           }
@@ -256,7 +256,7 @@ export const getEvents = ({
               previousEvents.push({
                 ...event,
                 eventMinDate,
-                eventMaxDate
+                eventMaxDate,
               });
             } else {
               if (isBefore(addWeeks(today, 1), eventMinDate)) {
@@ -264,13 +264,13 @@ export const getEvents = ({
                 currentEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate
+                  eventMaxDate,
                 });
               } else {
                 nextEvents.push({
                   ...event,
                   eventMinDate,
-                  eventMaxDate
+                  eventMaxDate,
                 });
               }
             }
@@ -283,8 +283,8 @@ export const getEvents = ({
                 const end = otherDay.endTime
                   ? addWeeks(parseISO(otherDay.endTime), i)
                   : eventMaxDate
-                    ? setDay(eventMaxDate, otherDay.dayNumber + 1)
-                    : undefined;
+                  ? setDay(eventMaxDate, otherDay.dayNumber + 1)
+                  : undefined;
 
                 if (isBefore(today, eventMinDate)) {
                   // console.log(
@@ -295,7 +295,7 @@ export const getEvents = ({
                     ...event,
                     eventMinDate: start,
                     eventMaxDate: end,
-                    repeat: otherDay.dayNumber + 1
+                    repeat: otherDay.dayNumber + 1,
                   });
                 } else {
                   if (isBefore(addWeeks(today, 1), eventMinDate)) {
@@ -306,13 +306,13 @@ export const getEvents = ({
                     currentEvents.push({
                       ...event,
                       eventMinDate: start,
-                      eventMaxDate: end
+                      eventMaxDate: end,
                     });
                   } else {
                     nextEvents.push({
                       ...event,
                       eventMinDate: start,
-                      eventMaxDate: end
+                      eventMaxDate: end,
                     });
                   }
                 }
@@ -334,51 +334,23 @@ export const getCategories = (event: IEvent<string | Date>) => {
 };
 //#endregion
 
-//#region notifications
-export const isAttending = ({
-  email,
-  event
-}: {
-  email?: string | null;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.OK;
-  });
-};
-
-export const isNotAttending = ({
-  email,
-  event
-}: {
-  email?: string | null;
-  event: IEvent;
-}) => {
-  if (!email) return false;
-  return !!event.eventNotifications.find(({ email: e, status }) => {
-    return e === email && status === EEventInviteStatus.NOK;
-  });
-};
-//#endregion
-
 //#region toString
 export const monthRepeatOptions: { [key: number]: string } = {
   0: "premier",
   1: "2ème",
   2: "3ème",
-  3: "dernier"
+  3: "dernier",
 };
 export const EventInviteStatuses: Record<EEventInviteStatus, string> = {
   [EEventInviteStatus.PENDING]: "La personne n'a pas encore indiqué participer",
   [EEventInviteStatus.OK]: "Participant",
-  [EEventInviteStatus.NOK]: "Invitation refusée"
+  [EEventInviteStatus.NOK]: "Invitation refusée",
 };
 
 export const EventVisibilities: Record<EEventVisibility, string> = {
   [EEventVisibility.FOLLOWERS]: "Abonnés",
   [EEventVisibility.SUBSCRIBERS]: "Adhérents",
   [EEventVisibility.PRIVATE]: "Privé",
-  [EEventVisibility.PUBLIC]: "Publique"
+  [EEventVisibility.PUBLIC]: "Publique",
 };
 //#endregion

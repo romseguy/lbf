@@ -7,15 +7,12 @@ import {
   EntityConfigLogoPanel,
   EntityConfigCategoriesPanel,
   EntityConfigStyles,
-  AppHeading
+  AppHeading,
 } from "features/common";
 import { OrgForm } from "features/forms/OrgForm";
 import { getEventCategories, IOrg } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { Session } from "utils/auth";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { OrgConfigListsPanel } from "./OrgConfigListsPanel";
-import { OrgConfigSubscribersPanel } from "./OrgConfigSubscribersPanel";
 import { IsEditConfig } from "./OrgPage";
 import { OrgConfigButtons } from "./OrgConfigButtons";
 import { useSelector } from "react-redux";
@@ -27,25 +24,23 @@ export type OrgConfigVisibility = {
   isVisible: Record<string, boolean>;
   toggleVisibility: (
     key?: keyof OrgConfigVisibility["isVisible"],
-    bool?: boolean
+    bool?: boolean,
   ) => void;
 };
 
 export const OrgConfigPanel = ({
   session,
   orgQuery,
-  subQuery,
   isCreator,
   isEdit,
   isEditConfig,
   isVisible,
   setIsConfig,
   setIsEdit,
-  toggleVisibility
+  toggleVisibility,
 }: OrgConfigVisibility & {
   session: Session;
   orgQuery: AppQueryWithData<IOrg>;
-  subQuery: AppQuery<ISubscription>;
   isCreator?: boolean;
   isEdit: boolean;
   isEditConfig?: IsEditConfig;
@@ -84,7 +79,7 @@ export const OrgConfigPanel = ({
 
               if (orgUrl !== org.orgUrl) {
                 await router.push(`/${orgUrl}`, `/${orgUrl}`, {
-                  shallow: true
+                  shallow: true,
                 });
               }
             }}
@@ -110,23 +105,6 @@ export const OrgConfigPanel = ({
 
             <EntityConfigBannerPanel
               query={orgQuery}
-              isVisible={isVisible}
-              toggleVisibility={toggleVisibility}
-            />
-          </Column>
-
-          <Column mb={3} pt={1}>
-            <AppHeading mb={1}>Membres & Listes</AppHeading>
-            <OrgConfigSubscribersPanel
-              orgQuery={orgQuery}
-              subQuery={subQuery}
-              isVisible={isVisible}
-              toggleVisibility={toggleVisibility}
-              mb={3}
-            />
-
-            <OrgConfigListsPanel
-              orgQuery={orgQuery}
               isVisible={isVisible}
               toggleVisibility={toggleVisibility}
             />

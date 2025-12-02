@@ -1,16 +1,7 @@
 import type { IProject } from "models/Project";
-import { IProjectNotification } from "models/INotification";
 import { api } from "./";
 
-export type AddProjectPayload = Omit<
-  IProject,
-  "_id" | "createdBy" | "projectNotifications"
->;
-
-export interface AddProjectNotifPayload {
-  orgListsNames?: string[];
-  email?: string;
-}
+export type AddProjectPayload = Omit<IProject, "_id" | "createdBy">;
 
 export const projectApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -23,7 +14,7 @@ export const projectApi = api.injectEndpoints({
         return {
           url: `projects`,
           method: "POST",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) => {
@@ -31,32 +22,12 @@ export const projectApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: result?.projectOrgs[0]._id
-            }
+              id: result?.projectOrgs[0]._id,
+            },
           ];
 
         return [{ type: "Projects", id: "LIST" }];
-      }
-    }),
-    addProjectNotif: build.mutation<
-      { notifications: IProjectNotification[] },
-      {
-        payload: AddProjectNotifPayload;
-        projectId: string;
-      }
-    >({
-      query: ({ payload, projectId }) => {
-        //console.groupCollapsed("addProjectNotif");
-        //console.log("addProjectNotif: projectId", projectId);
-        //console.log("addProjectNotif: payload", payload);
-        //console.groupEnd();
-
-        return {
-          url: `project/${projectId}`,
-          method: "POST",
-          body: payload
-        };
-      }
+      },
     }),
     deleteProject: build.mutation<IProject, string>({
       query: (projectId) => ({ url: `project/${projectId}`, method: "DELETE" }),
@@ -65,12 +36,12 @@ export const projectApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: result?.projectOrgs[0]._id
-            }
+              id: result?.projectOrgs[0]._id,
+            },
           ];
 
         return [{ type: "Topics", id: "LIST" }];
-      }
+      },
     }),
     editProject: build.mutation<
       IProject,
@@ -80,8 +51,8 @@ export const projectApi = api.injectEndpoints({
         const id = projectId
           ? projectId
           : "_id" in payload
-            ? payload._id
-            : undefined;
+          ? payload._id
+          : undefined;
 
         //console.log("editProject: projectId", id);
         //console.log("editProject: payload", payload);
@@ -89,7 +60,7 @@ export const projectApi = api.injectEndpoints({
         return {
           url: `project/${id}`,
           method: "PUT",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) => {
@@ -97,19 +68,18 @@ export const projectApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: result?.projectOrgs[0]._id
-            }
+              id: result?.projectOrgs[0]._id,
+            },
           ];
 
         return [{ type: "Topics", id: "LIST" }];
-      }
-    })
-  })
+      },
+    }),
+  }),
 });
 
 export const {
   useAddProjectMutation,
-  useAddProjectNotifMutation,
   useDeleteProjectMutation,
-  useEditProjectMutation
+  useEditProjectMutation,
 } = projectApi;

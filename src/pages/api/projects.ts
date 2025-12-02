@@ -2,7 +2,6 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendToAdmin } from "server/email";
 import { getSession } from "server/auth";
 import { IProject } from "models/Project";
 import api from "utils/api";
@@ -22,7 +21,7 @@ handler.get<
 >(async function getProjects(req, res) {
   try {
     const {
-      query: { populate }
+      query: { populate },
     } = req;
 
     let projects;
@@ -36,7 +35,7 @@ handler.get<
     for (const project of projects) {
       if (project.forwardedFrom?.projectId) {
         const e = await models.Project.findOne({
-          _id: project.forwardedFrom?.projectId
+          _id: project.forwardedFrom?.projectId,
         });
         if (e) {
           project.projectName = e.projectName;
@@ -64,7 +63,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
       const { body }: { body: IProject } = req;
       const project = await models.Project.create({
         ...body,
-        createdBy: session.user.userId
+        createdBy: session.user.userId,
       });
       const projectOrgs = body.projectOrgs;
 
@@ -73,45 +72,22 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
           {
             _id: {
               $in: projectOrgs.map((projectOrg) =>
-                typeof projectOrg === "object" ? projectOrg._id : projectOrg
-              )
-            }
+                typeof projectOrg === "object" ? projectOrg._id : projectOrg,
+              ),
+            },
           },
           {
             $push: {
-              orgProjects: project?._id
-            }
-          }
+              orgProjects: project?._id,
+            },
+          },
         );
-
-        const admin = await models.User.findOne({ isAdmin: true });
-
-        if (
-          admin &&
-          (!project.projectVisibility || !hasItems(project.projectVisibility))
-        ) {
-          sendToAdmin({ project: body });
-
-          if (admin.userSubscription) {
-            try {
-              const data = await api.sendPushNotification({
-                message: "Appuyez pour ouvrir la page de l'organisation",
-                subscription: admin.userSubscription,
-                title: "Un projet attend votre approbation",
-                url: projectOrgs[0].orgUrl
-              });
-              console.log("sent push notif", data);
-            } catch (error: any) {
-              console.log("could not send push notif", error.message);
-            }
-          }
-        }
       } else {
         await models.User.updateOne(
           {
-            _id: session.user.userId
+            _id: session.user.userId,
           },
-          { $push: { userProjects: project._id } }
+          { $push: { userProjects: project._id } },
         );
       }
 
@@ -121,7 +97,7 @@ handler.post<NextApiRequest & { body: Partial<IProject> }, NextApiResponse>(
 
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export default handler;

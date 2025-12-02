@@ -7,25 +7,24 @@ import {
   IEntityLogo,
   IEntityPhone,
   IEntityStyles,
-  IEntityWeb
+  IEntityWeb,
 } from "models/Entity";
 import { IEvent } from "models/Event";
 import { IProject } from "models/Project";
-import { ISubscription } from "models/Subscription";
 import { ETopicsListOrder, ITopic } from "models/Topic";
 import { AppIcon } from "utils/types";
 
 export enum EOrgType {
   GENERIC = "GENERIC",
   NETWORK = "NETWORK",
-  TREETOOLS = "TREETOOLS"
+  TREETOOLS = "TREETOOLS",
 }
 
 export enum EOrgVisibility {
   FRONT = "FRONT",
   LINK = "LINK",
   PUBLIC = "PUBLIC",
-  PRIVATE = "PRIVATE"
+  PRIVATE = "PRIVATE",
 }
 
 export interface IOrg extends IEntity {
@@ -43,9 +42,7 @@ export interface IOrg extends IEntity {
   orgWeb: IEntityWeb[];
   orgEventCategories: IOrgEventCategory[];
   orgEvents: IEvent[];
-  orgLists: IOrgList[];
   orgProjects: IProject[];
-  orgSubscriptions: ISubscription[];
   orgTopicCategories: IOrgTopicCategory[];
   orgTopicOrder?: ETopicsListOrder;
   orgTopics: ITopic[];
@@ -63,11 +60,6 @@ export interface IOrg extends IEntity {
 }
 
 export interface IOrgEventCategory extends IEntityCategory {}
-
-export interface IOrgList {
-  listName: string;
-  subscriptions: ISubscription[];
-}
 
 export interface IOrgTab {
   label: string | string[];

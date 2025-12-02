@@ -11,7 +11,7 @@ import {
   Tooltip,
   Tr,
   useColorMode,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { compareAsc, getDayOfYear } from "date-fns";
 import { useRouter } from "next/router";
@@ -21,21 +21,15 @@ import { LatLon } from "use-places-autocomplete";
 import {
   useDeleteEventMutation,
   useEditEventMutation,
-  useAddEventNotifMutation
 } from "features/api/eventsApi";
 import { AppHeading, LocationButton } from "features/common";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import {
-  NotifModalState,
-  EntityNotifModal
-} from "features/modals/EntityNotifModal";
 import { EntityModal } from "features/modals/EntityModal";
 import { EventForwardFormModal } from "features/modals/EventForwardFormModal";
 import { MapModal } from "features/modals/MapModal";
 import { useSession } from "hooks/useSession";
 import { getEvents, IEvent } from "models/Event";
 import { IOrg, orgTypeFull } from "models/Org";
-import { EOrgSubscriptionType } from "models/Subscription";
 import { AppQueryWithData } from "utils/types";
 import { hasItems } from "utils/array";
 import { EventsListCategories } from "./EventsListCategories";
@@ -66,8 +60,6 @@ const EventsListTable = ({
   setEventToShow,
   eventToShowOnMap,
   setEventToShowOnMap,
-  notifyModalState,
-  setNotifyModalState,
   ...props
 }: EventsListProps & {
   city: string | null;
@@ -89,10 +81,6 @@ const EventsListTable = ({
   setEventToShowOnMap: React.Dispatch<
     React.SetStateAction<IEvent<string | Date> | null>
   >;
-  notifyModalState: NotifModalState<IEvent<string | Date>>;
-  setNotifyModalState: React.Dispatch<
-    React.SetStateAction<NotifModalState<IEvent<string | Date>>>
-  >;
 }) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -108,17 +96,6 @@ const EventsListTable = ({
 
   //#region org
   const org = orgQuery?.data;
-  const orgFollowersCount = org?.orgSubscriptions
-    .map(
-      (subscription) =>
-        (subscription.orgs || []).filter((orgSubscription) => {
-          return (
-            orgSubscription.orgId === org?._id &&
-            orgSubscription.type === EOrgSubscriptionType.FOLLOWER
-          );
-        }).length
-    )
-    .reduce((a, b) => a + b, 0);
   //#endregion
 
   //#region local state
@@ -135,7 +112,7 @@ const EventsListTable = ({
     isCreator,
     origin,
     distance,
-    selectedCategories
+    selectedCategories,
   });
   let currentDateP: Date | null = null;
   let currentDate: Date | null = null;
@@ -164,7 +141,6 @@ const EventsListTable = ({
     isDark,
     org,
     orgQuery,
-    orgFollowersCount,
     session,
     isLoading,
     setIsLoading,
@@ -178,8 +154,6 @@ const EventsListTable = ({
     setEventToShow,
     eventToShowOnMap,
     setEventToShowOnMap,
-    notifyModalState,
-    setNotifyModalState
   };
 
   return (
@@ -248,7 +222,7 @@ const EventsListTable = ({
                   borderColor: isDark ? undefined : "black",
                   borderRadius: "lg",
                   color: isDark ? undefined : "black",
-                  _placeholder: { color: isDark ? undefined : "black" }
+                  _placeholder: { color: isDark ? undefined : "black" },
                 }}
                 onClick={() => setShowLocationButton(false)}
                 //onLocationChange={(coordinates) => setOrigin(coordinates)}
@@ -483,7 +457,7 @@ export const EventsList = ({
   events,
   orgQuery,
   isCreator = false,
-  setTitle
+  setTitle,
 }: BoxProps & EventsListProps) => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -491,7 +465,6 @@ export const EventsList = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const org = orgQuery?.data;
-  const addEventNotifMutation = useAddEventNotifMutation();
 
   //#region local state
   const [showPreviousEvents, setShowPreviousEvents] = useState(false);
@@ -538,7 +511,7 @@ export const EventsList = ({
       if (!origin)
         setOrigin({
           lat: parseFloat(storedLat),
-          lng: parseFloat(storedLng)
+          lng: parseFloat(storedLng),
         });
       else if (
         origin.lat !== parseFloat(storedLat) ||
@@ -546,7 +519,7 @@ export const EventsList = ({
       )
         setOrigin({
           lat: parseFloat(storedLat),
-          lng: parseFloat(storedLng)
+          lng: parseFloat(storedLng),
         });
     }
   }, []);
@@ -558,18 +531,8 @@ export const EventsList = ({
     string | Date
   > | null>(null);
   const [eventToForward, setEventToForward] = useState<IEvent<Date> | null>(
-    null
+    null,
   );
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<IEvent<string | Date>>
-  >({});
-  useEffect(() => {
-    if (notifyModalState.entity) {
-      setNotifyModalState({
-        entity: events.find(({ _id }) => _id === notifyModalState.entity!._id)
-      });
-    }
-  }, [events]);
   //#endregion
 
   return (
@@ -587,8 +550,8 @@ export const EventsList = ({
                 if (org && !isCreator)
                   throw new Error(
                     `Vous n'avez pas la permission ${orgTypeFull(
-                      org.orgType
-                    )} pour ajouter un événement`
+                      org.orgType,
+                    )} pour ajouter un événement`,
                   );
 
                 url = `/evenements/ajouter?orgId=${org._id}`;
@@ -596,7 +559,7 @@ export const EventsList = ({
               } catch (error: any) {
                 toast({
                   status: "error",
-                  title: error.message
+                  title: error.message,
                 });
               }
             }}
@@ -628,8 +591,6 @@ export const EventsList = ({
         setEventToShow={setEventToShow}
         eventToShowOnMap={eventToShowOnMap}
         setEventToShowOnMap={setEventToShowOnMap}
-        notifyModalState={notifyModalState}
-        setNotifyModalState={setNotifyModalState}
       />
 
       {session && eventToForward && (
@@ -661,22 +622,12 @@ export const EventsList = ({
             events={[eventToShowOnMap]}
             center={{
               lat: eventToShowOnMap.eventLat,
-              lng: eventToShowOnMap.eventLng
+              lng: eventToShowOnMap.eventLng,
             }}
             zoomLevel={16}
             onClose={() => setEventToShowOnMap(null)}
           />
         )}
-
-      {session && orgQuery && (
-        <EntityNotifModal
-          query={orgQuery}
-          mutation={addEventNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )}
     </>
   );
 };

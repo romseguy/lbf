@@ -2,10 +2,6 @@ import { Document, Types } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import {
-  sendTopicMessageNotifications,
-  sendTopicNotifications
-} from "server/email";
 import { AddTopicPayload } from "features/api/topicsApi";
 import { getSession } from "server/auth";
 import { getRefId } from "models/Entity";
@@ -31,7 +27,7 @@ handler.get<
 >(async function getTopics(req, res) {
   try {
     const {
-      query: { populate, createdBy }
+      query: { populate, createdBy },
     } = req;
 
     const selector = createdBy ? { createdBy } : {};
@@ -42,12 +38,12 @@ handler.get<
     if (populate?.includes("topicMessages.createdBy")) {
       topics = await models.Topic.find(
         selector,
-        "-topicMessages.message"
+        "-topicMessages.message",
       ).populate([
         {
           path: "topicMessages",
-          populate: [{ path: "createdBy", select: "_id" }]
-        }
+          populate: [{ path: "createdBy", select: "_id" }],
+        },
       ]);
     } else {
       topics = await models.Topic.find(selector);
@@ -92,7 +88,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
     try {
       const {
-        body
+        body,
       }: {
         body: AddTopicPayload;
       } = req;
@@ -110,9 +106,9 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           .json(
             createEndpointError(
               new Error(
-                "La discussion doit être associée à une organisation ou à un événément"
-              )
-            )
+                "La discussion doit être associée à une organisation ou à un événément",
+              ),
+            ),
           );
       }
 
@@ -129,15 +125,15 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             .json(
               createEndpointError(
                 new Error(
-                  "Vous devez indiquer la réponse à ajouter à cette discussion"
-                )
-              )
+                  "Vous devez indiquer la réponse à ajouter à cette discussion",
+                ),
+              ),
             );
         }
 
         topic = await models.Topic.findOne(
           { _id: body.topic._id },
-          "topicName topicMessages"
+          "topicName topicMessages",
         );
 
         if (!topic) {
@@ -146,9 +142,9 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
             .json(
               createEndpointError(
                 new Error(
-                  "Impossible d'ajouter une réponse à une discussion inexistante"
-                )
-              )
+                  "Impossible d'ajouter une réponse à une discussion inexistante",
+                ),
+              ),
             );
         }
 
@@ -156,27 +152,10 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
 
         const newMessage = {
           ...body.topic.topicMessages[0],
-          createdBy: session.user.userId
+          createdBy: session.user.userId,
         };
         topic.topicMessages.push(newMessage);
         await topic.save();
-
-        const subscriptions = await models.Subscription.find({
-          "topics.topic": body.topic._id,
-          user: { $ne: session.user.userId }
-        }).populate({ path: "user", select: "email phone userSubscription" });
-
-        logJson(
-          `POST /topics: topic subscriptions`,
-          subscriptions.map(({ _id, user, email }) => ({ _id, user, email }))
-        );
-
-        sendTopicMessageNotifications({
-          event: event ? event : undefined,
-          org,
-          subscriptions,
-          topic
-        });
       }
       //#endregion
       //#region new topic
@@ -199,11 +178,11 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           topicName,
           topicMessages: body.topic.topicMessages?.map((topicMessage) => ({
             ...topicMessage,
-            createdBy: session.user.userId
+            createdBy: session.user.userId,
           })),
           event,
           org,
-          createdBy: session.user.userId
+          createdBy: session.user.userId,
         });
 
         //#region add topic to entity and notify entity subscribers
@@ -215,53 +194,9 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
           await models.Org.updateOne(
             { _id: org._id },
             {
-              $push: { orgTopics: topic._id }
-            }
-          );
-          const subscriptions = await models.Subscription.find(
-            {
-              orgs: { $elemMatch: { orgId: org._id } },
-              user: { $ne: session.user.userId }
+              $push: { orgTopics: topic._id },
             },
-            "user email events orgs"
-          ).populate([{ path: "user", select: "email userSubscription" }]);
-          await sendTopicNotifications({ org, subscriptions, topic });
-        }
-        //#endregion
-
-        //#region subscribe self to topic
-        const user = await models.User.findOne({
-          _id: session.user.userId
-        });
-
-        if (user) {
-          let subscription = await models.Subscription.findOne({ user });
-
-          if (!subscription)
-            subscription = await models.Subscription.create({
-              user,
-              topics: [{ topic: topic._id, emailNotif: true, pushNotif: true }]
-            });
-          else {
-            const topicSubscription = subscription.topics?.find(
-              ({ topic: t }) => equals(getRefId(t), topic!._id)
-            );
-
-            if (!topicSubscription) {
-              await models.Subscription.updateOne(
-                { _id: subscription._id },
-                {
-                  $push: {
-                    topics: {
-                      topic: topic._id,
-                      emailNotif: true,
-                      pushNotif: true
-                    }
-                  }
-                }
-              );
-            }
-          }
+          );
         }
         //#endregion
       }
@@ -274,20 +209,20 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         metadata: {
           error,
           method: "POST",
-          url: `/api/topics`
-        }
+          url: `/api/topics`,
+        },
       });
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "50mb"
-    }
-  }
+      sizeLimit: "50mb",
+    },
+  },
 };
 
 export default handler;

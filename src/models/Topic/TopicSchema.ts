@@ -6,11 +6,11 @@ export const TopicSchema = new Schema<ITopic>(
   {
     event: {
       type: Schema.Types.ObjectId,
-      ref: "Event"
+      ref: "Event",
     },
     org: {
       type: Schema.Types.ObjectId,
-      ref: "Org"
+      ref: "Org",
     },
     isPinned: { type: Boolean, default: undefined },
     topicCategory: { type: String, trim: true },
@@ -19,27 +19,13 @@ export const TopicSchema = new Schema<ITopic>(
     topicName: {
       type: String,
       required: true,
-      trim: true
-    },
-    topicNotifications: {
-      type: [
-        {
-          email: String,
-          phone: String,
-          user: {
-            type: Schema.Types.ObjectId,
-            ref: "User"
-          },
-          createdAt: { type: String, required: true }
-        }
-      ],
-      default: []
+      trim: true,
     },
     topicVisibility: { type: [String], default: [] },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
-    }
+      ref: "User",
+    },
   },
-  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
+  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } },
 );

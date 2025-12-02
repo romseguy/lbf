@@ -4,7 +4,7 @@ import {
   ButtonProps,
   Icon,
   Tooltip,
-  TooltipProps
+  TooltipProps,
 } from "@chakra-ui/react";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
@@ -15,7 +15,7 @@ import {
   EOrgType,
   EOrgVisibility,
   orgTypeFull5,
-  OrgTypes
+  OrgTypes,
 } from "models/Org";
 import { IUser } from "models/User";
 import { ITopic } from "models/Topic";

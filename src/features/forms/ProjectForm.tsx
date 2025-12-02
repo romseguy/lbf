@@ -8,17 +8,17 @@ import {
   FormLabel,
   Input,
   Select,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useFormPersist from "hooks/useFormPersist";
-import { ErrorMessageText, ListsControl, RTEditor } from "features/common";
+import { ErrorMessageText, RTEditor } from "features/common";
 import {
   AddProjectPayload,
   useAddProjectMutation,
-  useEditProjectMutation
+  useEditProjectMutation,
 } from "features/api/projectsApi";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { IOrg } from "models/Org";
@@ -66,7 +66,7 @@ export const ProjectForm = ({
     clearErrors,
     watch,
     formState,
-    setValue
+    setValue,
   } = useFormPersist(
     useForm<FieldValues>({
       mode: "onChange",
@@ -74,9 +74,10 @@ export const ProjectForm = ({
         projectName: props.project?.projectName || "",
         projectDescription: props.project?.projectDescription || "",
         projectStatus:
-          props.project?.projectStatus || EProjectStatus[EProjectStatus.PENDING]
-      }
-    })
+          props.project?.projectStatus ||
+          EProjectStatus[EProjectStatus.PENDING],
+      },
+    }),
   );
   useLeaveConfirm({ formState });
 
@@ -88,7 +89,7 @@ export const ProjectForm = ({
 
   const projectVisibility = watch("projectVisibility");
   const statusOptions: string[] = Object.keys(EProjectStatus).map(
-    (key) => key as EProjectStatus
+    (key) => key as EProjectStatus,
   );
 
   const onChange = () => {
@@ -108,28 +109,28 @@ export const ProjectForm = ({
     let payload: AddProjectPayload = {
       ...form,
       projectOrgs: org ? [org] : [],
-      projectVisibility: form.projectVisibility?.map(({ value }) => value)
+      projectVisibility: form.projectVisibility?.map(({ value }) => value),
     };
 
     try {
       if (props.project) {
         await editProject({
           payload,
-          projectId: props.project._id
+          projectId: props.project._id,
         }).unwrap();
 
         toast({
           title: "Le projet a été modifié",
-          status: "success"
+          status: "success",
         });
       } else {
         await addProject({
-          ...payload
+          ...payload,
         });
 
         toast({
           title: "Le projet a été ajouté !",
-          status: "success"
+          status: "success",
         });
       }
 
@@ -155,7 +156,7 @@ export const ProjectForm = ({
         <Input
           name="projectName"
           ref={register({
-            required: "Veuillez saisir le nom du projet"
+            required: "Veuillez saisir le nom du projet",
           })}
           autoComplete="off"
           placeholder="Nom du projet"
@@ -193,7 +194,7 @@ export const ProjectForm = ({
           <Select
             name="projectStatus"
             ref={register({
-              required: "Veuillez sélectionner le statut du projet"
+              required: "Veuillez sélectionner le statut du projet",
             })}
             placeholder="Sélectionnez le statut du projet..."
             color="gray.400"
@@ -212,23 +213,6 @@ export const ProjectForm = ({
           </FormErrorMessage>
         </FormControl>
       )}
-
-      {/* {org && props.isCreator && (
-        <ListsControl
-          control={control}
-          errors={errors}
-          lists={org.orgLists}
-          name="projectVisibility"
-        />
-      )} */}
-
-      {/* {hasItems(projectVisibility) && (
-        <Alert status="info" mb={3}>
-          <AlertIcon />
-          Le projet ne sera visible que par les membres des listes
-          sélectionnées.
-        </Alert>
-      )} */}
 
       <ErrorMessage
         errors={errors}

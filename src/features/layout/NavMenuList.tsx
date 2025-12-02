@@ -4,11 +4,11 @@ import {
   Text,
   useColorMode,
   Box,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
-import { DarkModeSwitch, Link, SubscribeSwitch } from "features/common";
+import { DarkModeSwitch, Link } from "features/common";
 import { useSession } from "hooks/useSession";
 import { useAppDispatch } from "store";
 import { resetUserEmail } from "store/userSlice";
@@ -20,7 +20,7 @@ const { getEnv } = require("utils/env");
 export const NavMenuList = ({
   entity,
   email,
-  userName
+  userName,
 }: {
   entity?: IEntity;
   email: string;
@@ -66,9 +66,6 @@ export const NavMenuList = ({
       >
         <MenuItem>Ma page</MenuItem>
       </Link>
-      <MenuItem>
-        <SubscribeSwitch email={email} userName={userName} />
-      </MenuItem>
       <MenuItem>
         <Text
           onClick={async () => {

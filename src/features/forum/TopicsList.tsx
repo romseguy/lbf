@@ -13,20 +13,15 @@ import {
   Spinner,
   Text,
   useColorMode,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { useAddTopicNotifMutation } from "features/api/topicsApi";
 import { Button, AppHeading } from "features/common";
 import {
-  NotifModalState,
-  EntityNotifModal
-} from "features/modals/EntityNotifModal";
-import {
   TopicCopyFormModal,
-  TopicFormModal
+  TopicFormModal,
 } from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
 import {
@@ -34,10 +29,8 @@ import {
   getRefId,
   IEntity,
   isEvent,
-  isOrg
+  isOrg,
 } from "models/Entity";
-import { IOrgList } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { ETopicsListOrder, ITopic } from "models/Topic";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
@@ -45,7 +38,6 @@ import { AppQuery, AppQueryWithData } from "utils/types";
 import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
-import { TopicsListOrgLists } from "./TopicsListOrgLists";
 import { selectIsMobile } from "store/uiSlice";
 import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
 import { useEditEventMutation } from "features/api/eventsApi";
@@ -57,7 +49,6 @@ export type TopicModalState = {
 
 export const TopicsList = ({
   query,
-  subQuery,
   currentTopicName,
   addButtonLabel,
   ...props
@@ -66,21 +57,15 @@ export const TopicsList = ({
     currentTopic,
     selectedCategories,
     setSelectedCategories,
-    notifyModalState,
-    setNotifyModalState,
     topicModalState,
     setTopicModalState,
     topicCopyModalState,
-    setTopicCopyModalState
+    setTopicCopyModalState,
   }: {
     currentTopic: ITopic | null;
     selectedCategories?: string[];
     setSelectedCategories: React.Dispatch<
       React.SetStateAction<string[] | undefined>
-    >;
-    notifyModalState: NotifModalState<ITopic>;
-    setNotifyModalState: React.Dispatch<
-      React.SetStateAction<NotifModalState<ITopic>>
     >;
     topicModalState: TopicModalState;
     setTopicModalState: React.Dispatch<React.SetStateAction<TopicModalState>>;
@@ -90,9 +75,7 @@ export const TopicsList = ({
     >;
   }) => React.ReactNode;
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
   isCreator: boolean;
-  isFollowed?: boolean;
   currentTopicName?: string;
   addButtonLabel?: string;
 }) => {
@@ -104,7 +87,6 @@ export const TopicsList = ({
 
   const [editOrg] = useEditOrgMutation();
   const [editEvent] = useEditEventMutation();
-  const addTopicNotifMutation = useAddTopicNotifMutation();
 
   //#region local state
   const entity = query.data;
@@ -112,14 +94,13 @@ export const TopicsList = ({
   const isO = isOrg(entity);
   const edit = isO ? editOrg : editEvent;
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
-  const [selectedLists, setSelectedLists] = useState<IOrgList[]>();
   const defaultOrder = isO
     ? entity.orgTopicOrder
     : isE
     ? entity.eventTopicOrder
     : ETopicsListOrder.NEWEST;
   const [selectedOrder, setSelectedOrder] = useState<ETopicsListOrder>(
-    defaultOrder || ETopicsListOrder.NEWEST
+    defaultOrder || ETopicsListOrder.NEWEST,
   );
   const topicCategories = useMemo(
     () =>
@@ -128,15 +109,14 @@ export const TopicsList = ({
         : isO
         ? entity.orgTopicCategories
         : [] || [],
-    [entity]
+    [entity],
   );
   const topics = useMemo(() => {
     return (
       (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
         .filter((topic: ITopic) => {
-          if (hasItems(selectedCategories) || hasItems(selectedLists)) {
+          if (hasItems(selectedCategories)) {
             let belongsToCategory = false;
-            let belongsToList = false;
 
             if (
               Array.isArray(selectedCategories) &&
@@ -145,7 +125,8 @@ export const TopicsList = ({
               if (
                 topic.topicCategory &&
                 selectedCategories.find(
-                  (selectedCategory) => selectedCategory === topic.topicCategory
+                  (selectedCategory) =>
+                    selectedCategory === topic.topicCategory,
                 )
               )
                 belongsToCategory = true;
@@ -154,20 +135,7 @@ export const TopicsList = ({
             if (isE || (isO && entity.orgUrl === "forum"))
               return belongsToCategory;
 
-            if (Array.isArray(selectedLists) && selectedLists.length > 0) {
-              if (hasItems(topic.topicVisibility)) {
-                let found = false;
-
-                for (let i = 0; i < topic.topicVisibility.length; i++)
-                  for (let j = 0; j < selectedLists.length; j++)
-                    if (selectedLists[j].listName === topic.topicVisibility[i])
-                      found = true;
-
-                if (found) belongsToList = true;
-              }
-            }
-
-            return belongsToCategory || belongsToList;
+            return belongsToCategory;
           }
 
           return true;
@@ -185,7 +153,7 @@ export const TopicsList = ({
           return topicA.createdAt! > topicB.createdAt! ? -1 : 1;
         }) || []
     );
-  }, [entity, selectedCategories, selectedLists, selectedOrder]);
+  }, [entity, selectedCategories, selectedOrder]);
   const currentTopic = useMemo(() => {
     if (
       !currentTopicName ||
@@ -227,18 +195,18 @@ export const TopicsList = ({
 
   //#region topic modal state
   const [topicModalState, setTopicModalState] = useState<TopicModalState>({
-    isOpen: !!currentTopicName && ["ajouter", "a"].includes(currentTopicName)
+    isOpen: !!currentTopicName && ["ajouter", "a"].includes(currentTopicName),
   });
   const onClose = () => {
     setTopicModalState({
       ...topicModalState,
       isOpen: false,
-      topic: undefined
+      topic: undefined,
     });
     setTopicCopyModalState({
       ...topicCopyModalState,
       isOpen: false,
-      topic: undefined
+      topic: undefined,
     });
   };
   const onAddClick = () => {
@@ -254,14 +222,8 @@ export const TopicsList = ({
   //#region move topic modal state
   const [topicCopyModalState, setTopicCopyModalState] =
     useState<TopicModalState>({
-      isOpen: false
+      isOpen: false,
     });
-  //#endregion
-
-  //#region notify modal state
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<ITopic>
-  >({});
   //#endregion
 
   return (
@@ -300,11 +262,11 @@ export const TopicsList = ({
               onClick={async () => {
                 try {
                   const payload: EditOrgPayload = {
-                    [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder
+                    [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder,
                   };
                   const res = await edit({
                     [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
-                    payload
+                    payload,
                   }).unwrap();
                 } catch (error) {}
               }}
@@ -332,23 +294,6 @@ export const TopicsList = ({
               />
             </Flex>
           )}
-
-          {isO &&
-            entity.orgUrl !== "forum" &&
-            session &&
-            hasItems(entity.orgLists) && (
-              <Flex flexDirection="column" mb={3}>
-                <AppHeading smaller>Listes</AppHeading>
-                <TopicsListOrgLists
-                  org={entity}
-                  isCreator={props.isCreator}
-                  selectedLists={selectedLists}
-                  session={session}
-                  setSelectedLists={setSelectedLists}
-                  subQuery={subQuery}
-                />
-              </Flex>
-            )}
         </Box>
       )}
 
@@ -357,12 +302,10 @@ export const TopicsList = ({
           currentTopic,
           selectedCategories,
           setSelectedCategories,
-          notifyModalState,
-          setNotifyModalState,
           topicModalState,
           setTopicModalState,
           topicCopyModalState,
-          setTopicCopyModalState
+          setTopicCopyModalState,
         })
       ) : (
         <Box data-cy="topic-list">
@@ -372,13 +315,9 @@ export const TopicsList = ({
             <Alert status="warning" mb={3}>
               <AlertIcon />
               <Flex flexDirection="column">
-                {(selectedCategories && selectedCategories.length >= 1) ||
-                (selectedLists && selectedLists.length >= 1) ? (
+                {selectedCategories && selectedCategories.length >= 1 ? (
                   <>
-                    {selectedLists &&
-                    selectedLists.length >= 1 &&
-                    selectedCategories &&
-                    selectedCategories.length >= 1 ? (
+                    {selectedCategories && selectedCategories.length >= 1 ? (
                       <>
                         Aucune discussions appartenant :
                         <List listStyleType="square" ml={5}>
@@ -394,17 +333,6 @@ export const TopicsList = ({
                               </>
                             ))}
                           </ListItem>
-                          <ListItem>
-                            aux listes :
-                            {selectedLists.map(({ listName }, index) => (
-                              <>
-                                <TopicCategoryTag mx={1}>
-                                  {listName}
-                                </TopicCategoryTag>
-                                {index !== selectedLists.length - 1 && "ou"}
-                              </>
-                            ))}
-                          </ListItem>
                         </List>
                       </>
                     ) : selectedCategories && selectedCategories.length >= 1 ? (
@@ -415,7 +343,7 @@ export const TopicsList = ({
                             <TopicCategoryTag>
                               {getCategoryLabel(
                                 topicCategories,
-                                selectedCategories[0]
+                                selectedCategories[0],
                               )}
                             </TopicCategoryTag>
                           </>
@@ -429,29 +357,6 @@ export const TopicsList = ({
                                 </TopicCategoryTag>
                                 {index !== selectedCategories.length - 1 &&
                                   "ou"}
-                              </>
-                            ))}
-                          </>
-                        )}
-                      </Box>
-                    ) : selectedLists && selectedLists.length >= 1 ? (
-                      <Box>
-                        {selectedLists.length === 1 ? (
-                          <>
-                            Aucune discussions appartenant à la liste{" "}
-                            <TopicCategoryTag>
-                              {selectedLists[0].listName}
-                            </TopicCategoryTag>
-                          </>
-                        ) : (
-                          <>
-                            Aucune discussions appartenant aux listes
-                            {selectedLists.map(({ listName }, index) => (
-                              <>
-                                <TopicCategoryTag mx={1}>
-                                  {listName}
-                                </TopicCategoryTag>
-                                {index !== selectedLists.length - 1 && "ou"}
                               </>
                             ))}
                           </>
@@ -471,12 +376,6 @@ export const TopicsList = ({
               const isCurrent = topic._id === currentTopic?._id;
               const isTopicCreator =
                 props.isCreator || getRefId(topic) === session?.user.userId;
-              const isSubbedToTopic = !!subQuery.data?.topics?.find(
-                (topicSubscription) => {
-                  if (!topicSubscription.topic) return false;
-                  return topicSubscription.topic._id === topic._id;
-                }
-              );
 
               return (
                 <TopicsListItem
@@ -485,11 +384,9 @@ export const TopicsList = ({
                   session={session}
                   isCreator={props.isCreator}
                   query={query}
-                  subQuery={subQuery}
                   currentTopicName={currentTopicName}
                   topic={topic}
                   topicIndex={topicIndex}
-                  isSubbedToTopic={isSubbedToTopic}
                   isCurrent={isCurrent}
                   isTopicCreator={isTopicCreator}
                   isDark={isDark}
@@ -497,8 +394,6 @@ export const TopicsList = ({
                   //setIsLoading={setIsLoading}
                   selectedCategories={selectedCategories}
                   setSelectedCategories={setSelectedCategories}
-                  notifyModalState={notifyModalState}
-                  setNotifyModalState={setNotifyModalState}
                   topicModalState={topicModalState}
                   setTopicModalState={setTopicModalState}
                   topicCopyModalState={topicCopyModalState}
@@ -516,23 +411,11 @@ export const TopicsList = ({
         </Box>
       )}
 
-      {session && (
-        <EntityNotifModal
-          query={query}
-          mutation={addTopicNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
-        />
-      )}
-
       {topicModalState.isOpen && (
         <TopicFormModal
           {...topicModalState}
           query={query}
-          subQuery={subQuery}
           isCreator={props.isCreator}
-          isFollowed={props.isFollowed}
           onCancel={onClose}
           onSubmit={async (topic) => {
             // const topicName = normalize(topic.topicName);
@@ -549,10 +432,8 @@ export const TopicsList = ({
         <TopicCopyFormModal
           {...topicCopyModalState}
           query={query}
-          subQuery={subQuery}
           session={session}
           isCreator={props.isCreator}
-          isFollowed={props.isFollowed}
           onCancel={onClose}
           onSubmit={async (topic) => {
             // const topicName = normalize(topic.topicName);

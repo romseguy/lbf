@@ -7,49 +7,49 @@ export const EventSchema = new Schema<IEvent>(
     eventName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     eventUrl: {
       type: String,
       required: true,
       trim: true,
-      unique: true
+      unique: true,
     },
     eventCategory: { type: String, trim: true },
     eventMinDate: {
       type: String,
-      required: true
+      required: true,
     },
     eventMaxDate: {
       type: String,
-      required: false
+      required: false,
     },
     otherDays: [
       {
         dayNumber: {
           type: Number,
-          required: true
+          required: true,
         },
         startDate: String,
         endTime: String,
-        monthRepeat: [Number]
-      }
+        monthRepeat: [Number],
+      },
     ],
     eventDescription: {
       type: String,
-      trim: true
+      trim: true,
     },
     eventDescriptionHtml: {
       type: String,
-      trim: true
+      trim: true,
     },
     eventVisibility: {
       type: String,
-      enum: EEventVisibility
+      enum: EEventVisibility,
     },
     eventOrgs: {
       type: [{ type: Schema.Types.ObjectId, ref: "Org" }],
-      default: []
+      default: [],
     },
     eventAddress: [{ address: { type: String, trim: true } }],
     eventCity: String,
@@ -60,54 +60,36 @@ export const EventSchema = new Schema<IEvent>(
     eventWeb: [
       {
         url: { type: String, trim: true },
-        prefix: { type: String, trim: true }
-      }
+        prefix: { type: String, trim: true },
+      },
     ],
-    eventNotifications: {
-      type: [
-        {
-          email: String,
-          phone: String,
-          user: {
-            type: Schema.Types.ObjectId,
-            ref: "User"
-          },
-          status: {
-            type: String,
-            enum: EEventInviteStatus
-          },
-          createdAt: { type: String, required: true }
-        }
-      ],
-      default: []
-    },
     eventSubscriptions: {
       type: [
-        { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+        { type: Schema.Types.ObjectId, ref: "Subscription", required: true },
       ],
-      default: []
+      default: [],
     },
     eventTopicCategories: {
       type: [
         {
           catId: { type: String, required: true, trim: true },
-          label: { type: String, required: true, trim: true }
-        }
+          label: { type: String, required: true, trim: true },
+        },
       ],
-      default: []
+      default: [],
     },
     eventTopicOrder: {
       type: String,
       enum: ETopicsListOrder,
-      default: ETopicsListOrder.NEWEST
+      default: ETopicsListOrder.NEWEST,
     },
     eventTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-      default: []
+      default: [],
     },
     eventStyles: {
       type: Schema.Types.Mixed,
-      default: { showTitle: true }
+      default: { showTitle: true },
     },
     eventBanner: {
       type: {
@@ -116,32 +98,32 @@ export const EventSchema = new Schema<IEvent>(
         headerHeight: Number,
         width: Number,
         mode: String,
-        url: { type: String, trim: true }
+        url: { type: String, trim: true },
       },
-      select: false
+      select: false,
     },
     eventLogo: {
       type: {
         base64: String,
         width: Number,
         height: Number,
-        url: { type: String, trim: true }
+        url: { type: String, trim: true },
       },
-      select: false
+      select: false,
     },
     forwardedFrom: {
       eventId: {
         type: Schema.Types.ObjectId,
-        ref: "Event"
+        ref: "Event",
       },
-      eventUrl: String
+      eventUrl: String,
     },
     isApproved: Boolean,
     repeat: Number,
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
-    }
+      ref: "User",
+    },
   },
-  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
+  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } },
 );

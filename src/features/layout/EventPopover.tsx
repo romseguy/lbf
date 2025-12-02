@@ -13,16 +13,14 @@ import {
   Text,
   VStack,
   useDisclosure,
-  IconButtonProps
+  IconButtonProps,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGetEventsQuery } from "features/api/eventsApi";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { EntityAddButton, EntityButton } from "features/common";
 import { EEventInviteStatus } from "models/Event";
-import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
@@ -31,7 +29,7 @@ let cachedRefetchSubscription = false;
 
 const EventPopoverContent = ({
   session,
-  onClose
+  onClose,
 }: {
   session: Session;
   onClose: () => void;
@@ -51,30 +49,15 @@ const EventPopoverContent = ({
             else if (a.createdAt > b.createdAt) return -1;
           }
           return 0;
-        })
-      })
-    }
+        }),
+      }),
+    },
   );
   const eventsQuery = useGetEventsQuery(void 0, {
     selectFromResult: (query) => ({
       ...query,
-      attendedEvents: (query.data || []).filter(({ eventNotifications }) =>
-        eventNotifications.find(
-          ({ email, status }) =>
-            email === email && status === EEventInviteStatus.OK
-        )
-      )
-    })
+    }),
   });
-  const { attendedEvents } = eventsQuery;
-  //#endregion
-
-  //#region my sub
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
-    populate: "events"
-  });
-  const followedEvents = subQuery.data?.events || [];
   //#endregion
 
   //#region local state
@@ -82,13 +65,6 @@ const EventPopoverContent = ({
     "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
   >("showEventsAdded");
   //#endregion
-
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-    }
-  }, [refetchSubscription]);
 
   return (
     <>
@@ -107,7 +83,7 @@ const EventPopoverContent = ({
               e.target.value as
                 | "showEventsAdded"
                 | "showEventsFollowed"
-                | "showEventsAttended"
+                | "showEventsAttended",
             )
           }
         >
@@ -141,7 +117,7 @@ const EventPopoverContent = ({
                     onClick={() => {
                       onClose();
                       router.push(`/${event.eventUrl}`, `/${event.eventUrl}`, {
-                        shallow: true
+                        shallow: true,
                       });
                     }}
                   />
@@ -150,48 +126,6 @@ const EventPopoverContent = ({
             ) : (
               <Text fontSize="smaller">
                 Vous n'avez ajouté aucun événements.
-              </Text>
-            )}
-          </>
-        )}
-
-        {showEvents === "showEventsFollowed" && (
-          <>
-            {hasItems(followedEvents) ? (
-              <VStack
-                alignItems="flex-start"
-                overflow="auto"
-                height="200px"
-                spacing={2}
-              >
-                {followedEvents.map(({ event }) => (
-                  <EntityButton key={event._id} event={event} p={1} />
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller">
-                Vous n'êtes abonné à aucun événements.
-              </Text>
-            )}
-          </>
-        )}
-
-        {showEvents === "showEventsAttended" && (
-          <>
-            {hasItems(attendedEvents) ? (
-              <VStack
-                alignItems="flex-start"
-                overflow="auto"
-                height="200px"
-                spacing={2}
-              >
-                {attendedEvents.map((event) => (
-                  <EntityButton key={event._id} event={event} p={1} />
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller">
-                Vous ne participez à aucun événements.
               </Text>
             )}
           </>

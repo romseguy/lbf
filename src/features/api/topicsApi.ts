@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import { IEvent } from "models/Event";
-import { ITopicNotification } from "models/INotification";
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
@@ -19,13 +18,6 @@ export interface AddTopicPayload {
   topic: Partial<ITopic>;
   org?: Partial<IOrg>;
   event?: Partial<IEvent>;
-}
-
-export interface AddTopicNotifPayload {
-  email?: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
-  orgListsNames?: string[];
 }
 
 export interface EditTopicPayload {
@@ -48,7 +40,7 @@ export const topicApi = api.injectEndpoints({
         return {
           url: `topics`,
           method: "POST",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) => {
@@ -56,37 +48,14 @@ export const topicApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: params.payload.org?._id
+              id: params.payload.org?._id,
             },
-            { type: "Subscriptions", id: globalEmail }
           ];
 
-        return [
-          { type: "Topics", id: "LIST" }
-          //{ type: "Subscriptions", id: params.payload.email || "LIST" }
-        ];
-      }
+        return [{ type: "Topics", id: "LIST" }];
+      },
     }),
-    addTopicNotif: build.mutation<
-      { notifications: ITopicNotification[] },
-      {
-        payload: AddTopicNotifPayload;
-        topicId: string;
-      }
-    >({
-      query: ({ payload, topicId }) => {
-        //console.groupCollapsed("addTopicNotif");
-        //console.log("addTopicNotif: topicId", topicId);
-        //console.log("addTopicNotif: payload", payload);
-        //console.groupEnd();
 
-        return {
-          url: `topic/${topicId}`,
-          method: "POST",
-          body: payload
-        };
-      }
-    }),
     deleteTopic: build.mutation<ITopic, string>({
       query: (topicId) => ({ url: `topic/${topicId}`, method: "DELETE" }),
       invalidatesTags: (result, error, params) => {
@@ -94,12 +63,12 @@ export const topicApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: result?.org?._id
-            }
+              id: result?.org?._id,
+            },
           ];
 
         return [{ type: "Topics", id: "LIST" }];
-      }
+      },
     }),
     editTopic: build.mutation<
       {},
@@ -117,7 +86,7 @@ export const topicApi = api.injectEndpoints({
         return {
           url: `topic/${topicId ? topicId : payload.topic._id}`,
           method: "PUT",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) => {
@@ -125,12 +94,12 @@ export const topicApi = api.injectEndpoints({
           return [
             {
               type: "Orgs",
-              id: params.payload.topic.org?._id
-            }
+              id: params.payload.topic.org?._id,
+            },
           ];
 
         return [{ type: "Topics", id: "LIST" }];
-      }
+      },
     }),
     getTopics: build.query<
       ITopic[],
@@ -144,20 +113,19 @@ export const topicApi = api.injectEndpoints({
         //console.groupEnd();
 
         return {
-          url: `topics${query ? `?${objectToQueryString(query)}` : ""}`
+          url: `topics${query ? `?${objectToQueryString(query)}` : ""}`,
         };
-      }
-    })
-  })
+      },
+    }),
+  }),
 });
 
 export const {
   useAddTopicMutation,
   // useAddTopicDetailsMutation,
-  useAddTopicNotifMutation,
   useDeleteTopicMutation,
   useEditTopicMutation,
-  useGetTopicsQuery
+  useGetTopicsQuery,
   // useGetTopicByNameQuery,
   // useGetTopicsByCreatorQuery
 } = topicApi;

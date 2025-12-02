@@ -2,17 +2,9 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendEventNotifications, sendMail } from "server/email";
-import {
-  AddEventNotifPayload,
-  EditEventPayload,
-  GetEventParams
-} from "features/api/eventsApi";
+import { EditEventPayload, GetEventParams } from "features/api/eventsApi";
 import { getSession } from "server/auth";
 import { EEventInviteStatus, IEvent } from "models/Event";
-import { IEventNotification } from "models/INotification";
-import { getLists, getSubscriptions, IOrg } from "models/Org";
-import { ISubscription, EOrgSubscriptionType } from "models/Subscription";
 import { createEndpointError } from "utils/errors";
 import { createEventEmailNotif } from "utils/email";
 import { equals, logJson, normalize } from "utils/string";
@@ -30,7 +22,7 @@ handler.get<
   NextApiResponse
 >(async function getEvent(req, res) {
   const {
-    query: { eventUrl }
+    query: { eventUrl },
   } = req;
 
   const notFoundResponse = () =>
@@ -38,13 +30,13 @@ handler.get<
       .status(404)
       .json(
         createEndpointError(
-          new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`)
-        )
+          new Error(`L'événement ${eventUrl} n'a pas pu être trouvé`),
+        ),
       );
 
   try {
     let event = await models.Event.findOne({
-      eventUrl
+      eventUrl,
     });
 
     if (!event) event = await models.Event.findOne({ _id: eventUrl });
@@ -56,36 +48,6 @@ handler.get<
       session?.user.isAdmin || equals(event.createdBy, session?.user.userId);
 
     if (isCreator) {
-      event = await event
-        .populate({
-          path: "eventOrgs",
-          populate: [
-            {
-              path: "orgLists",
-              populate: {
-                path: "subscriptions",
-                select: isCreator ? "+email +phone" : undefined,
-                populate: {
-                  path: "user",
-                  select: isCreator ? "+email" : undefined
-                }
-              }
-            },
-            {
-              path: "orgSubscriptions",
-              select: isCreator ? "+email +phone" : undefined,
-              populate: {
-                path: "user",
-                select: isCreator ? "+email" : undefined
-              }
-            }
-          ]
-        })
-        .execPopulate();
-
-      for (const eventOrg of event.eventOrgs) {
-        eventOrg.orgLists = getLists(eventOrg);
-      }
     } else {
       event = event.populate("eventOrgs");
     }
@@ -99,11 +61,11 @@ handler.get<
             path: "topicMessages",
             populate: {
               path: "createdBy",
-              select: "_id userName"
-            }
+              select: "_id userName",
+            },
           },
-          { path: "createdBy", select: "_id userName" }
-        ]
+          { path: "createdBy", select: "_id userName" },
+        ],
       })
       .execPopulate();
 
@@ -112,170 +74,6 @@ handler.get<
     if (error.name === "CastError" && error.value === eventUrl)
       return notFoundResponse();
 
-    res.status(500).json(createEndpointError(error));
-  }
-});
-
-handler.post<
-  NextApiRequest & {
-    query: { eventUrl: string };
-    body: AddEventNotifPayload;
-  },
-  NextApiResponse
->(async function addEventNotif(req, res) {
-  const session = await getSession({ req });
-
-  if (!session) {
-    return res
-      .status(401)
-      .json(createEndpointError(new Error("Vous devez être identifié")));
-  }
-
-  try {
-    const {
-      query: { eventUrl: _id },
-      body
-    }: {
-      query: { eventUrl: string };
-      body: AddEventNotifPayload;
-    } = req;
-
-    let event = await models.Event.findOne({ _id });
-
-    if (!event) {
-      return res
-        .status(404)
-        .json(
-          createEndpointError(new Error(`L'événement ${_id} n'existe pas`))
-        );
-    }
-
-    if (
-      !equals(event.createdBy, session.user.userId) &&
-      !session.user.isAdmin
-    ) {
-      return res
-        .status(403)
-        .json(
-          createEndpointError(
-            new Error(
-              "Vous ne pouvez pas envoyer des notifications pour un événement que vous n'avez pas créé"
-            )
-          )
-        );
-    }
-
-    if (!event.isApproved) {
-      return res
-        .status(403)
-        .json(
-          createEndpointError(
-            new Error(
-              "Vous ne pouvez pas envoyer des notifications pour un événement qui n'est pas approuvé"
-            )
-          )
-        );
-    }
-
-    let notifications: IEventNotification[] = [];
-
-    if (typeof body.email === "string" && body.email.length > 0) {
-      const subscription = await models.Subscription.findOne({
-        email: body.email
-      });
-
-      event = await event.populate("eventOrgs").execPopulate();
-
-      const mail = createEventEmailNotif({
-        email: body.email,
-        event,
-        org: event.eventOrgs[0],
-        subscriptionId: subscription?._id || session.user.userId
-      });
-
-      try {
-        await sendMail(mail);
-      } catch (error: any) {
-        if (getEnv() === "development") {
-          if (error.command !== "CONN") {
-            throw error;
-          }
-        }
-      }
-
-      notifications = [
-        {
-          email: body.email,
-          status: EEventInviteStatus.PENDING,
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      if (body.email !== session.user.email) {
-        event.eventNotifications =
-          event.eventNotifications.concat(notifications);
-        await event.save();
-      }
-    } else if (body.orgListsNames) {
-      //console.log(`POST /event/${_id}: orgListsNames`, body.orgListsNames);
-
-      for (const orgListName of body.orgListsNames) {
-        const [_, listName, orgId] = orgListName.match(/([^\.]+)\.(.+)/) || [];
-
-        let org: (IOrg & Document<any, IOrg>) | null | undefined;
-        org = await models.Org.findOne({ _id: orgId });
-        if (!org) return res.status(400).json("Organisation introuvable");
-
-        let subscriptions: ISubscription[] = [];
-
-        if (["Abonnés"].includes(listName)) {
-          org = await org
-            .populate({
-              path: "orgSubscriptions",
-              select: "+email +phone",
-              populate: {
-                path: "user",
-                select: "+email +phone +userSubscription"
-              }
-            })
-            .execPopulate();
-          subscriptions = subscriptions.concat(
-            getSubscriptions(org, EOrgSubscriptionType.FOLLOWER)
-          );
-        } else {
-          org = await org
-            .populate({
-              path: "orgLists",
-              populate: [
-                {
-                  path: "subscriptions",
-                  select: "+email +phone",
-                  populate: {
-                    path: "user",
-                    select: "+email +phone +userSubscription"
-                  }
-                }
-              ]
-            })
-            .execPopulate();
-
-          const list = org.orgLists.find(
-            (orgList) => orgList.listName === listName
-          );
-
-          if (list && list.subscriptions) subscriptions = list.subscriptions;
-        }
-
-        notifications = await sendEventNotifications({
-          event,
-          org,
-          subscriptions
-        });
-      }
-    }
-
-    res.status(200).json({ notifications });
-  } catch (error) {
     res.status(500).json(createEndpointError(error));
   }
 });
@@ -289,9 +87,8 @@ handler.put<
 >(async function editEvent(req, res) {
   const session = await getSession({ req });
   let { body }: { body: EditEventPayload<string> } = req;
-  const eventNotifications = !Array.isArray(body) && body.eventNotifications;
 
-  if (!session && !eventNotifications) {
+  if (!session) {
     return res
       .status(401)
       .json(createEndpointError(new Error("Vous devez être identifié")));
@@ -306,8 +103,8 @@ handler.put<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être trouvé`)
-          )
+            new Error(`L'événement ${_id} n'a pas pu être trouvé`),
+          ),
         );
     }
 
@@ -322,9 +119,9 @@ handler.put<
         .json(
           createEndpointError(
             new Error(
-              "Vous ne pouvez pas modifier un événement que vous n'avez pas créé"
-            )
-          )
+              "Vous ne pouvez pas modifier un événement que vous n'avez pas créé",
+            ),
+          ),
         );
     }
 
@@ -372,7 +169,7 @@ handler.put<
         body = {
           ...body,
           eventName: body.eventName.trim(),
-          eventUrl: normalize(body.eventName.trim())
+          eventUrl: normalize(body.eventName.trim()),
         };
       }
 
@@ -392,16 +189,16 @@ handler.put<
               { _id: org._id },
               {
                 $push: {
-                  orgEvents: event._id
-                }
-              }
+                  orgEvents: event._id,
+                },
+              },
             );
           }
         }
 
         if (staleEventOrgsIds.length > 0) {
           body.eventOrgs = body.eventOrgs.filter(
-            (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id)
+            (eventOrg) => !staleEventOrgsIds.find((id) => id === eventOrg._id),
           );
         }
       }
@@ -413,9 +210,9 @@ handler.put<
             .json(
               createEndpointError(
                 new Error(
-                  `Vous devez être le créateur de l'événement "${event.eventName}" pour créer une catégorie de discussions`
-                )
-              )
+                  `Vous devez être le créateur de l'événement "${event.eventName}" pour créer une catégorie de discussions`,
+                ),
+              ),
             );
         }
       }
@@ -429,8 +226,8 @@ handler.put<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être modifié`)
-          )
+            new Error(`L'événement ${_id} n'a pas pu être modifié`),
+          ),
         );
     }
 
@@ -463,8 +260,8 @@ handler.delete<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être trouvé`)
-          )
+            new Error(`L'événement ${_id} n'a pas pu être trouvé`),
+          ),
         );
     }
 
@@ -477,9 +274,9 @@ handler.delete<
         .json(
           createEndpointError(
             new Error(
-              "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé"
-            )
-          )
+              "Vous ne pouvez pas supprimer un événement que vous n'avez pas créé",
+            ),
+          ),
         );
     }
 
@@ -490,19 +287,19 @@ handler.delete<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'événement ${_id} n'a pas pu être supprimé`)
-          )
+            new Error(`L'événement ${_id} n'a pas pu être supprimé`),
+          ),
         );
     }
 
     for (const eventOrgRef of event.eventOrgs) {
       const eventOrg = await models.Org.findOne({
-        _id: getRefId(eventOrgRef)
+        _id: getRefId(eventOrgRef),
       });
 
       if (eventOrg) {
         eventOrg.orgEvents = eventOrg.orgEvents.filter(
-          (orgEvent) => !equals(orgEvent, event?._id)
+          (orgEvent) => !equals(orgEvent, event?._id),
         );
         await eventOrg.save();
       }

@@ -6,52 +6,35 @@ export const ProjectSchema = new Schema<IProject>(
     projectName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     projectDescription: {
       type: String,
-      trim: true
+      trim: true,
     },
     projectDescriptionHtml: {
       type: String,
-      trim: true
+      trim: true,
     },
     projectOrgs: {
       type: [{ type: Schema.Types.ObjectId, ref: "Org" }],
-      default: []
+      default: [],
     },
     projectStatus: {
       type: String,
-      enum: EProjectStatus
+      enum: EProjectStatus,
     },
     projectVisibility: [String],
-    projectNotifications: {
-      type: [
-        {
-          email: String,
-          phone: String,
-          user: {
-            type: Schema.Types.ObjectId,
-            ref: "User"
-          },
-          status: {
-            type: String,
-            enum: EProjectInviteStatus
-          }
-        }
-      ],
-      default: []
-    },
     forwardedFrom: {
       projectId: {
         type: Schema.Types.ObjectId,
-        ref: "Project"
-      }
+        ref: "Project",
+      },
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
-    }
+      ref: "User",
+    },
   },
-  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
+  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } },
 );

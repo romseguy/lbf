@@ -7,30 +7,30 @@ export const OrgSchema = new Schema<IOrg>(
     orgName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     orgUrl: {
       type: String,
       required: true,
       trim: true,
-      unique: true
+      unique: true,
     },
     redirectUrl: {
-      type: String
+      type: String,
     },
     orgType: {
       type: String,
       enum: EOrgType,
-      required: true
+      required: true,
     },
     orgDescription: {
       type: String,
       trim: true,
-      select: false
+      select: false,
     },
     orgAddress: {
       type: [{ address: { type: String, trim: true } }],
-      default: []
+      default: [],
     },
     orgCity: { type: String, trim: true },
     orgLat: Number,
@@ -41,78 +41,55 @@ export const OrgSchema = new Schema<IOrg>(
       type: [
         {
           url: { type: String, trim: true },
-          prefix: { type: String, trim: true }
-        }
+          prefix: { type: String, trim: true },
+        },
       ],
-      default: []
+      default: [],
     },
     orgEventCategories: {
       type: [
         {
           catId: { type: String, required: true, trim: true },
-          label: { type: String, required: true, trim: true }
-        }
+          label: { type: String, required: true, trim: true },
+        },
       ],
-      default: []
+      default: [],
     },
     orgEvents: {
       type: [{ type: Schema.Types.ObjectId, ref: "Event" }],
-      default: []
-    },
-    orgLists: {
-      type: [
-        {
-          listName: {
-            type: String,
-            required: true,
-            trim: true,
-            unique: true,
-            sparse: true
-          },
-          subscriptions: {
-            type: [
-              {
-                type: Schema.Types.ObjectId,
-                ref: "Subscription"
-              }
-            ],
-            default: []
-          }
-        }
-      ],
-      default: []
+      default: [],
     },
     orgProjects: {
       type: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-      default: []
+      default: [],
     },
     orgSubscriptions: {
       type: [
-        { type: Schema.Types.ObjectId, ref: "Subscription", required: true }
+        { type: Schema.Types.ObjectId, ref: "Subscription", required: true },
       ],
-      default: []
+      default: [],
     },
     orgTopicCategories: {
       type: [
         {
           catId: { type: String, required: true, trim: true },
-          label: { type: String, required: true, trim: true }
-        }
+          label: { type: String, required: true, trim: true },
+        },
       ],
-      default: []
+      default: [],
     },
     orgTopicOrder: {
       type: String,
       enum: ETopicsListOrder,
-      default: ETopicsListOrder.NEWEST
+      default: ETopicsListOrder.NEWEST,
     },
     orgTopics: {
       type: [{ type: Schema.Types.ObjectId, ref: "Topic" }],
-      default: []
+      default: [],
     },
     orgStyles: {
       type: Schema.Types.Mixed,
-      default: { showTitle: true }
+      default: { showTitle: true },
     },
     orgBanner: {
       type: {
@@ -121,42 +98,42 @@ export const OrgSchema = new Schema<IOrg>(
         headerHeight: Number,
         width: Number,
         mode: String,
-        url: { type: String, trim: true }
+        url: { type: String, trim: true },
       },
-      select: false
+      select: false,
     },
     orgLogo: {
       type: {
         base64: String,
         width: Number,
         height: Number,
-        url: { type: String, trim: true }
+        url: { type: String, trim: true },
       },
-      select: false
+      select: false,
     },
     orgPassword: { type: String, select: false },
     orgSalt: String,
     orgTabs: {
       type: [{ label: { type: Schema.Types.Mixed }, url: Schema.Types.Mixed }],
-      default: undefined
+      default: undefined,
     },
     orgVisibility: {
       type: String,
       enum: EOrgVisibility,
       required: true,
-      default: EOrgVisibility.PUBLIC
+      default: EOrgVisibility.PUBLIC,
     },
     orgs: { type: [{ type: Schema.Types.ObjectId, ref: "Org" }], default: [] },
     orgPermissions: {
       type: { anyoneCanAddChildren: Boolean },
-      default: undefined
+      default: undefined,
     },
     isApproved: Boolean,
     isArchived: Boolean,
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
-    }
+      ref: "User",
+    },
   },
-  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
+  { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } },
 );

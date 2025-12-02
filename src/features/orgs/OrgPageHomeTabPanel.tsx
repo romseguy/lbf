@@ -2,7 +2,7 @@ import {
   SmallAddIcon,
   EditIcon,
   ChevronRightIcon,
-  ChevronUpIcon
+  ChevronUpIcon,
 } from "@chakra-ui/icons";
 import {
   Alert,
@@ -20,7 +20,7 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -30,7 +30,7 @@ import {
   FaNewspaper,
   FaRecycle,
   FaRegMap,
-  FaTree
+  FaTree,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import {
@@ -41,7 +41,7 @@ import {
   Link,
   TabContainer,
   TabContainerContent,
-  TabContainerHeader
+  TabContainerHeader,
 } from "features/common";
 import { MapModal } from "features/modals/MapModal";
 import {
@@ -49,9 +49,9 @@ import {
   getNetworks,
   orgTypeFull,
   EOrgType,
-  orgTypeFull2
+  orgTypeFull2,
 } from "models/Org";
-import { ISubscription } from "models/Subscription";
+
 import { useAppDispatch } from "store";
 import { selectIsMobile } from "store/uiSlice";
 import { getItem, hasItems } from "utils/array";
@@ -66,13 +66,11 @@ export const OrgPageHomeTabPanel = ({
   orgQuery,
   session,
   setIsEdit,
-  subQuery
 }: {
   isCreator: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   session: Session | null;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
-  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -82,7 +80,7 @@ export const OrgPageHomeTabPanel = ({
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
-    ml: 2
+    ml: 2,
   };
 
   //#region org
@@ -105,7 +103,7 @@ export const OrgPageHomeTabPanel = ({
 
   //#region local state
   const [description, setDescription] = useState<string | undefined>(
-    org.orgDescription
+    org.orgDescription,
   );
   useEffect(() => {
     if (!org.orgDescription) return setDescription(undefined);
@@ -122,12 +120,12 @@ export const OrgPageHomeTabPanel = ({
   const {
     isOpen: isMapModalOpen,
     onOpen: openMapModal,
-    onClose: closeMapModal
+    onClose: closeMapModal,
   } = useDisclosure({ defaultIsOpen: false });
   const {
     isOpen: isNetworksModalOpen,
     onOpen: openNetworksModal,
-    onClose: closeNetworksModal
+    onClose: closeNetworksModal,
   } = useDisclosure({ defaultIsOpen: false });
   //#endregion
 
@@ -147,7 +145,7 @@ export const OrgPageHomeTabPanel = ({
               router.push(
                 `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
                 `${org.orgUrl}${isChildrenOpen ? "" : "/foret"}`,
-                { shallow: true }
+                { shallow: true },
               )
             }
           >
@@ -175,7 +173,7 @@ export const OrgPageHomeTabPanel = ({
                           colorScheme="teal"
                           isDisabled={
                             !org.orgs.find(
-                              ({ orgLat, orgLng }) => !!orgLat && !!orgLng
+                              ({ orgLat, orgLng }) => !!orgLat && !!orgLng,
                             )
                           }
                           leftIcon={<FaRegMap />}
@@ -193,7 +191,7 @@ export const OrgPageHomeTabPanel = ({
                                 (org) =>
                                   typeof org.orgLat === "number" &&
                                   typeof org.orgLng === "number" &&
-                                  org.orgUrl !== "forum"
+                                  org.orgUrl !== "forum",
                               ) || []
                             }
                             onClose={closeMapModal}
@@ -216,29 +214,28 @@ export const OrgPageHomeTabPanel = ({
                                   ? (orgType) => [
                                       {
                                         key: EOrderKey.orgName,
-                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                        label: `Nom de ${orgTypeFull(orgType)}`,
                                       },
                                       {
                                         key: EOrderKey.latestActivity,
-                                        label: "Dernier message"
-                                      }
+                                        label: "Dernier message",
+                                      },
                                     ]
                                   : (orgType) => [
                                       {
                                         key: EOrderKey.orgName,
-                                        label: `Nom de ${orgTypeFull(orgType)}`
+                                        label: `Nom de ${orgTypeFull(orgType)}`,
                                       },
                                       {
                                         key: EOrderKey.latestActivity,
-                                        label: "Dernier message"
+                                        label: "Dernier message",
                                       },
                                       {
                                         key: EOrderKey.createdAt,
-                                        label: "Créé il y a"
-                                      }
+                                        label: "Créé il y a",
+                                      },
                                     ]
                               }
-                              //subQuery={subQuery}
                               orgType={EOrgType.GENERIC}
                             />
                           </Column>
@@ -310,7 +307,7 @@ export const OrgPageHomeTabPanel = ({
             router.push(
               `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
               `${org.orgUrl}${isInfoOpen ? "" : "/info"}`,
-              { shallow: true }
+              { shallow: true },
             )
           }
         >
@@ -359,7 +356,7 @@ export const OrgPageHomeTabPanel = ({
               >
                 <IconButton
                   aria-label={`Ajouter des métadonnées ${orgTypeFull2(
-                    org.orgType
+                    org.orgType,
                   )}`}
                   alignSelf="flex-start"
                   colorScheme="teal"
@@ -472,7 +469,7 @@ export const OrgPageHomeTabPanel = ({
               <div className="rteditor">
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: sanitize(description)
+                    __html: sanitize(description),
                   }}
                 />
               </div>
@@ -483,7 +480,7 @@ export const OrgPageHomeTabPanel = ({
               >
                 <IconButton
                   aria-label={`Ajouter une description ${orgTypeFull2(
-                    org.orgType
+                    org.orgType,
                   )}`}
                   alignSelf="flex-start"
                   colorScheme="teal"
@@ -680,7 +677,6 @@ const orgsWithLocation = org.orgs.filter(({ orgLat, orgLng }) => !!orgLat && !!o
                     >
                       <OrgsList
                         query={orgQuery}
-                        subQuery={subQuery}
                         orgType={EOrgType.GENERIC}
                       />
                     </Column>

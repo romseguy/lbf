@@ -15,7 +15,7 @@ import {
   useDisclosure,
   useToast,
   PopoverFooter,
-  IconButtonProps
+  IconButtonProps,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -23,11 +23,6 @@ import { FaBellSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton, Link } from "features/common";
 import { useGetTopicsQuery } from "features/api/topicsApi";
-import {
-  useDeleteSubscriptionMutation,
-  useGetSubscriptionQuery
-} from "features/api/subscriptionsApi";
-import { selectSubscriptionRefetch } from "store/subscriptionSlice";
 import { selectUserEmail } from "store/userSlice";
 import { getRefId } from "models/Entity";
 import { OrgTypes } from "models/Org";
@@ -39,7 +34,7 @@ let cachedRefetchSubscription = false;
 
 const TopicPopoverContent = ({
   session,
-  onClose
+  onClose,
 }: {
   session: Session;
   onClose: () => void;
@@ -49,13 +44,12 @@ const TopicPopoverContent = ({
   const router = useRouter();
   const toast = useToast({ position: "top" });
   const userEmail = useSelector(selectUserEmail);
-  const [deleteSubscription] = useDeleteSubscriptionMutation();
 
   //#region topics
   const myTopicsQuery = useGetTopicsQuery(
     {
       createdBy: session.user.userId,
-      populate: "org event"
+      populate: "org event",
     },
     {
       selectFromResult: (query) => ({
@@ -67,9 +61,9 @@ const TopicPopoverContent = ({
               else if (a.createdAt > b.createdAt) return -1;
             }
             return 0;
-          }) || []
-      })
-    }
+          }) || [],
+      }),
+    },
   );
 
   const topicsQuery = useGetTopicsQuery(
@@ -82,29 +76,13 @@ const TopicPopoverContent = ({
             if (topic.org === null || topic.event === null) return false;
 
             return !!topic.topicMessages.find(
-              (topicMessage) => getRefId(topicMessage) === session.user.userId
+              (topicMessage) => getRefId(topicMessage) === session.user.userId,
             );
-          }) || []
-      })
-    }
+          }) || [],
+      }),
+    },
   );
   const { answeredTopics } = topicsQuery;
-  //#endregion
-
-  //#region my sub
-  const subQuery = useGetSubscriptionQuery(
-    {
-      email: userEmail,
-      populate: "topics.topic.org topics.topic.event"
-    },
-    {
-      selectFromResult: (query) => ({
-        ...query,
-        followedTopics: query.data?.topics?.map((topics) => topics.topic) || []
-      })
-    }
-  );
-  const { followedTopics } = subQuery;
   //#endregion
 
   //#region local state
@@ -112,14 +90,6 @@ const TopicPopoverContent = ({
     "showTopicsAdded" | "showTopicsFollowed" | "showTopicsAnswered"
   >("showTopicsAdded");
   //#endregion
-
-  useEffect(() => {}, []);
-  const refetchSubscription = useSelector(selectSubscriptionRefetch);
-  useEffect(() => {
-    if (refetchSubscription !== cachedRefetchSubscription) {
-      cachedRefetchSubscription = refetchSubscription;
-    }
-  }, [refetchSubscription]);
 
   const pages = divideArray(myTopicsQuery.data, 10);
   let elements = [];
@@ -153,7 +123,7 @@ const TopicPopoverContent = ({
                 router.push(
                   `/${
                     topic.org ? topic.org.orgUrl : topic.event?.eventUrl
-                  }/discussions/${topic.topicName}`
+                  }/discussions/${topic.topicName}`,
                 );
               }}
             />
@@ -202,7 +172,7 @@ const TopicPopoverContent = ({
           defaultValue={showTopics}
           onChange={(e) =>
             setShowTopics(
-              e.target.value as "showTopicsAdded" | "showTopicsFollowed"
+              e.target.value as "showTopicsAdded" | "showTopicsFollowed",
             )
           }
         >
@@ -250,86 +220,6 @@ const TopicPopoverContent = ({
             )}
           </>
         )}
-
-        {showTopics === "showTopicsFollowed" &&
-          (hasItems(followedTopics) ? (
-            <VStack
-              alignItems="flex-start"
-              overflowX="auto"
-              height="250px"
-              spacing={2}
-              pr={1}
-            >
-              {followedTopics.map((topic, index) => {
-                if (!topic) return null;
-                return (
-                  <Box
-                    key={`followed-${topic._id}`}
-                    //alignSelf={index % 2 === 0 ? "flex-start" : "flex-end"}
-                    borderColor={isDark ? "gray.600" : "gray.300"}
-                    borderRadius="lg"
-                    borderStyle="solid"
-                    borderWidth="1px"
-                    p={1}
-                  >
-                    {(topic.event || topic.org) && (
-                      <Box display="flex" alignItems="center" mb={1}>
-                        <Text fontSize="smaller" mx={1}>
-                          {topic.org
-                            ? OrgTypes[topic.org.orgType]
-                            : "Événement"}
-                        </Text>
-                        <EntityButton event={topic.event} org={topic.org} />
-                      </Box>
-                    )}
-
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      //justifyContent={index % 2 === 0 ? "flex-start" : "flex-end"}
-                    >
-                      <EntityButton topic={topic} mr={1} />
-                      <IconButton
-                        aria-label="Se désabonner de la discussion"
-                        icon={<FaBellSlash />}
-                        variant="outline"
-                        colorScheme="red"
-                        ml="auto"
-                        onClick={async () => {
-                          const unsubscribe = confirm(
-                            `Êtes vous sûr de vouloir vous désabonner de la discussion : ${topic.topicName} ?`
-                          );
-
-                          if (unsubscribe) {
-                            try {
-                              await deleteSubscription({
-                                subscriptionId: subQuery.data?._id || "",
-                                topicId: topic._id
-                              });
-                              toast({
-                                title: `Vous êtes désabonné de ${topic.topicName}`,
-                                status: "success"
-                              });
-                            } catch (error) {
-                              console.error(error);
-                              toast({
-                                title: `Vous n'avez pas pu être désabonné à la discussion ${topic.topicName}`,
-                                status: "error"
-                              });
-                            }
-                          }
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                );
-              })}
-            </VStack>
-          ) : (
-            <Text fontSize="smaller">
-              Vous n'êtes abonné à aucune discussions.
-            </Text>
-          ))}
 
         {showTopics === "showTopicsAnswered" &&
           (hasItems(answeredTopics) ? (

@@ -9,7 +9,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ import {
   EntityPageDocuments,
   EntityPageTab,
   EntityPageTabList,
-  EntityPageTopics
+  EntityPageTopics,
 } from "features/common";
 import { EventsList } from "features/events/EventsList";
 import { scrollbarCss } from "features/layout/theme";
@@ -36,9 +36,9 @@ import {
   getDefaultTab,
   IOrg,
   IOrgTabWithMetadata,
-  orgTypeFull
+  orgTypeFull,
 } from "models/Org";
-import { ISubscription } from "models/Subscription";
+
 import { normalize } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { IsEditConfig } from "./OrgPage";
@@ -52,24 +52,20 @@ export const OrgPageTabs = ({
   currentItemName,
   currentTabLabel = "Accueil",
   isCreator,
-  isFollowed,
   orgQuery,
   isConfig,
   setIsConfig,
   isEdit,
   setIsEdit,
-  subQuery
 }: {
   currentItemName?: string;
   currentTabLabel?: string;
   isCreator: boolean;
-  isFollowed: boolean;
   orgQuery: AppQueryWithData<IOrg>;
   isConfig: boolean;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
   isEdit: boolean;
   setIsEdit: (arg: boolean | IsEditConfig) => void;
-  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -80,10 +76,10 @@ export const OrgPageTabs = ({
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
-    ml: 1
+    ml: 1,
   };
   const columnProps: ColumnProps = {
-    bg: isDark ? "gray.700" : "lightblue"
+    bg: isDark ? "gray.700" : "lightblue",
   };
   const [editOrg] = useEditOrgMutation();
   const org = orgQuery.data;
@@ -102,7 +98,7 @@ export const OrgPageTabs = ({
 
       return {
         ...dt,
-        ...metadata
+        ...metadata,
       };
     })
     .sort(sortOn("order", ["0", "1", "2", "3", "4", "5"]));
@@ -186,18 +182,18 @@ export const OrgPageTabs = ({
               pb: 1,
               pl: 1,
               pt: 2,
-              pr: 1
+              pr: 1,
             }
           : {
               overflowX: "auto",
-              p: 3
+              p: 3,
             })}
       >
         {tabs.map((tab, tabIndex) => {
           //if (tab.label === "") return null;
 
           const key = `org-${normalize(
-            Array.isArray(tab.label) ? tab.label[0] : tab.label
+            Array.isArray(tab.label) ? tab.label[0] : tab.label,
           )}-tab`;
           const url = Array.isArray(tab.url) ? tab.url[0] : tab.url;
 
@@ -216,7 +212,7 @@ export const OrgPageTabs = ({
               {...(isMobile ? {} : {})}
               onClick={() => {
                 router.push(`/${org.orgUrl}${url}`, `/${org.orgUrl}${url}`, {
-                  shallow: true
+                  shallow: true,
                 });
               }}
               data-cy={key}
@@ -262,7 +258,6 @@ export const OrgPageTabs = ({
                 orgQuery={orgQuery}
                 session={session}
                 setIsEdit={setIsEdit}
-                subQuery={subQuery}
               />
             </TabPanel>
           )}
@@ -272,9 +267,7 @@ export const OrgPageTabs = ({
               <EntityPageTopics
                 currentTopicName={currentItemName}
                 isCreator={isCreator}
-                isFollowed={isFollowed}
                 query={orgQuery}
-                subQuery={subQuery}
               />
             </TabPanel>
           )}
@@ -308,9 +301,7 @@ export const OrgPageTabs = ({
                 <ProjectsList
                   org={org}
                   orgQuery={orgQuery}
-                  subQuery={subQuery}
                   isCreator={isCreator}
-                  isFollowed={isFollowed}
                 />
               </Column>
             </TabPanel>
@@ -346,7 +337,7 @@ export const OrgPageTabs = ({
                         isChecked={
                           !!tabsState.find(
                             (t) =>
-                              belongs(t.label, defaultTab.label) && t.checked
+                              belongs(t.label, defaultTab.label) && t.checked,
                           )
                         }
                         isDisabled={label === "Accueil"}
@@ -355,7 +346,7 @@ export const OrgPageTabs = ({
                           const newTabs = tabsState.map((t) =>
                             t.label === defaultTab.label
                               ? { ...t, checked: e.target.checked }
-                              : t
+                              : t,
                           );
                           setTabsState(newTabs);
 
@@ -364,18 +355,18 @@ export const OrgPageTabs = ({
                           if (
                             e.target.checked &&
                             !org.orgTabs?.find(
-                              ({ label }) => label === defaultTab.label
+                              ({ label }) => label === defaultTab.label,
                             )
                           ) {
                             orgTabs = [
                               ...tabs.map(({ label, url }) => ({
                                 label,
-                                url
+                                url,
                               })),
                               {
                                 label: defaultTab.label,
-                                url: defaultTab.url
-                              }
+                                url: defaultTab.url,
+                              },
                             ];
                           } else {
                             orgTabs = newTabs
@@ -387,7 +378,7 @@ export const OrgPageTabs = ({
 
                           await editOrg({
                             orgId: org._id,
-                            payload: { orgTabs }
+                            payload: { orgTabs },
                           });
                         }}
                       />

@@ -7,7 +7,6 @@ import { createEndpointError } from "utils/errors";
 import { getSession } from "server/auth";
 // import { sendProjectToOrgFollowers } from "api/email";
 import { equals, logJson, normalize } from "utils/string";
-import { IProjectNotification } from "models/INotification";
 
 const handler = nextConnect<NextApiRequest, NextApiResponse>();
 
@@ -23,7 +22,7 @@ handler.put<
   const session = await getSession({ req });
   const { body }: { body: IProject } = req;
 
-  if (!session && !body.projectNotifications) {
+  if (!session) {
     return res
       .status(401)
       .json(createEndpointError(new Error("Vous devez être identifié")));
@@ -33,7 +32,7 @@ handler.put<
     const projectId = req.query.projectId;
 
     let project = await models.Project.findOne({ _id: projectId }).populate(
-      "projectOrgs"
+      "projectOrgs",
     );
 
     if (!project) {
@@ -41,12 +40,12 @@ handler.put<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
-          )
+            new Error(`Le projet ${projectId} n'a pas pu être trouvé`),
+          ),
         );
     }
 
-    if (!body.projectNotifications && session) {
+    if (session) {
       if (
         !equals(project.createdBy, session.user.userId) &&
         !session.user.isAdmin
@@ -56,9 +55,9 @@ handler.put<
           .json(
             createEndpointError(
               new Error(
-                "Vous ne pouvez pas modifier un projet que vous n'avez pas créé"
-              )
-            )
+                "Vous ne pouvez pas modifier un projet que vous n'avez pas créé",
+              ),
+            ),
           );
       }
     }
@@ -79,9 +78,9 @@ handler.put<
             { _id: org._id },
             {
               $push: {
-                orgProjects: project._id
-              }
-            }
+                orgProjects: project._id,
+              },
+            },
           );
         }
       }
@@ -89,7 +88,7 @@ handler.put<
       if (staleProjectOrgsIds.length > 0) {
         body.projectOrgs = body.projectOrgs.filter(
           (projectOrg) =>
-            !staleProjectOrgsIds.find((id) => id === projectOrg._id)
+            !staleProjectOrgsIds.find((id) => id === projectOrg._id),
         );
       }
     }
@@ -125,8 +124,8 @@ handler.delete<
           .status(404)
           .json(
             createEndpointError(
-              new Error(`Le projet ${projectId} n'a pas pu être trouvé`)
-            )
+              new Error(`Le projet ${projectId} n'a pas pu être trouvé`),
+            ),
           );
       }
 
@@ -139,26 +138,26 @@ handler.delete<
           .json(
             createEndpointError(
               new Error(
-                "Vous ne pouvez pas supprimer un projet que vous n'avez pas créé"
-              )
-            )
+                "Vous ne pouvez pas supprimer un projet que vous n'avez pas créé",
+              ),
+            ),
           );
       }
 
       const { deletedCount } = await models.Project.deleteOne({
-        _id: projectId
+        _id: projectId,
       });
 
       if (deletedCount === 1) {
         if (project && project.projectOrgs) {
           for (const projectOrg of project.projectOrgs) {
             const o = await models.Org.findOne({
-              _id: typeof projectOrg === "object" ? projectOrg._id : projectOrg
+              _id: typeof projectOrg === "object" ? projectOrg._id : projectOrg,
             });
 
             if (o) {
               o.orgProjects = o.orgProjects.filter(
-                (orgProject) => !equals(orgProject, project?._id)
+                (orgProject) => !equals(orgProject, project?._id),
               );
               o.save();
             }
@@ -171,8 +170,8 @@ handler.delete<
           .status(400)
           .json(
             createEndpointError(
-              new Error(`Le projet ${projectId} n'a pas pu être supprimé`)
-            )
+              new Error(`Le projet ${projectId} n'a pas pu être supprimé`),
+            ),
           );
       }
     } catch (error) {

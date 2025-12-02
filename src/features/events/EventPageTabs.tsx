@@ -6,7 +6,7 @@ import { FaHome, FaImages } from "react-icons/fa";
 import {
   EntityPageDocuments,
   EntityPageTab,
-  EntityPageTabList
+  EntityPageTabList,
 } from "features/common";
 import { IEvent } from "models/Event";
 import { normalize } from "utils/string";
@@ -21,22 +21,18 @@ import {
   AppHeading,
   Button,
   Column,
-  EmailPreview,
   EntityButton,
   EntityPageTopics,
-  EntityNotified
 } from "features/common";
-import { EventNotifForm } from "features/forms/EventNotifForm";
 import { scrollbarCss } from "features/layout/theme";
 import { useSession } from "hooks/useSession";
-import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 import { EventPageHomeTabPanel } from "./EventPageHomeTabPanel";
 
 const defaultTabs: { [key: string]: { icon: AppIcon; url: string } } = {
   Accueil: { icon: FaHome, url: "/accueil" },
   Discussions: { icon: ChatIcon, url: "/discussions" },
-  Galerie: { icon: FaImages, url: "/galerie" }
+  Galerie: { icon: FaImages, url: "/galerie" },
 };
 
 export const EventPageTabs = ({
@@ -44,19 +40,15 @@ export const EventPageTabs = ({
   currentTabLabel = "Accueil",
   eventQuery,
   isCreator,
-  isFollowed,
   setIsConfig,
   setIsEdit,
-  subQuery
 }: {
   currentItemName?: string;
   currentTabLabel?: string;
   eventQuery: AppQueryWithData<IEvent>;
   isCreator: boolean;
-  isFollowed: boolean;
   setIsConfig: React.Dispatch<React.SetStateAction<boolean>>;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -66,7 +58,7 @@ export const EventPageTabs = ({
 
   const event = eventQuery.data;
   const columnProps = {
-    bg: isDark ? "gray.700" : "lightblue"
+    bg: isDark ? "gray.700" : "lightblue",
   };
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [showNotifForm, setShowNotifForm] = useState(false);
@@ -74,7 +66,7 @@ export const EventPageTabs = ({
   if (isCreator)
     defaultTabs["Invitations"] = {
       icon: EmailIcon,
-      url: "/invitations"
+      url: "/invitations",
     };
 
   useEffect(() => {
@@ -118,11 +110,11 @@ export const EventPageTabs = ({
               pb: 1,
               pl: 1,
               pt: 2,
-              pr: 1
+              pr: 1,
             }
           : {
               overflowX: "auto",
-              p: 3
+              p: 3,
             })}
       >
         {Object.keys(defaultTabs).map((tabLabel, tabIndex) => {
@@ -140,8 +132,8 @@ export const EventPageTabs = ({
                   `/${event.eventUrl}${tab.url}`,
                   `/${event.eventUrl}${tab.url}`,
                   {
-                    shallow: true
-                  }
+                    shallow: true,
+                  },
                 );
               }}
               data-cy={key}
@@ -171,100 +163,13 @@ export const EventPageTabs = ({
           <EntityPageTopics
             currentTopicName={currentItemName}
             isCreator={isCreator}
-            isFollowed={isFollowed}
             query={eventQuery}
-            subQuery={subQuery}
           />
         </TabPanel>
 
         <TabPanel aria-hidden>
           <EntityPageDocuments isCreator={isCreator} query={eventQuery} />
         </TabPanel>
-
-        {session && isCreator && (
-          <TabPanel aria-hidden>
-            <AppHeading mb={3}>Rappels</AppHeading>
-
-            <AppHeading mb={3}>Invitations</AppHeading>
-
-            <Column {...columnProps}>
-              {!showNotifForm && (
-                <Flex>
-                  <Button
-                    as="div"
-                    colorScheme="teal"
-                    cursor="pointer"
-                    leftIcon={<ArrowForwardIcon />}
-                    size={isMobile ? "xs" : undefined}
-                    onClick={() => {
-                      if (!event.isApproved)
-                        alert(
-                          "L'événement doit être vérifié par un modérateur avant de pouvoir envoyer des invitations."
-                        );
-                      else setShowNotifForm(!showNotifForm);
-                    }}
-                  >
-                    Envoyer des invitations à{" "}
-                    {isMobile ? (
-                      "l'événement"
-                    ) : (
-                      <EntityButton
-                        event={event}
-                        bg={"whiteAlpha.500"}
-                        ml={2}
-                        py={isMobile ? 3 : undefined}
-                        onClick={null}
-                      />
-                    )}
-                  </Button>
-                </Flex>
-              )}
-
-              {/* {showNotifForm && (
-                    <Flex>
-                      <Button
-                        colorScheme="teal"
-                        leftIcon={<ArrowBackIcon />}
-                        onClick={() => setShowNotifForm(false)}
-                      >
-                        Revenir à la liste des invitations envoyées
-                      </Button>
-                    </Flex>
-                  )} */}
-
-              {showNotifForm && (
-                <>
-                  <AppHeading>Aperçu de l'e-mail d'invitation</AppHeading>
-                  <EmailPreview
-                    entity={event}
-                    event={event}
-                    session={session}
-                    mt={5}
-                  />
-
-                  <EventNotifForm
-                    event={event}
-                    eventQuery={eventQuery}
-                    session={session}
-                    onCancel={() => setShowNotifForm(false)}
-                    onSubmit={() => setShowNotifForm(false)}
-                  />
-                </>
-              )}
-            </Column>
-
-            {!showNotifForm && (
-              <>
-                <AppHeading my={3}>
-                  Historique des invitations envoyées
-                </AppHeading>
-                <Column {...columnProps}>
-                  <EntityNotified entity={event} />
-                </Column>
-              </>
-            )}
-          </TabPanel>
-        )}
       </TabPanels>
     </Tabs>
   );

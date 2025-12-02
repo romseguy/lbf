@@ -12,27 +12,23 @@ import {
   Text,
   VStack,
   useDisclosure,
-  IconButtonProps
+  IconButtonProps,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { EntityAddButton, EntityButton } from "features/common";
 import { useGetOrgsQuery } from "features/api/orgsApi";
-import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
 import { selectUserEmail } from "store/userSlice";
 import { EOrgType, IOrg } from "models/Org";
-import { getFollowerSubscription, ISubscription } from "models/Subscription";
-import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
-import { AppQuery } from "utils/types";
 import { EOrgsListOrder } from "features/orgs/OrgsList";
 
 const OrgPopoverContent = ({
   orgType,
   session,
-  onClose
+  onClose,
 }: {
   orgType: EOrgType;
   session: Session;
@@ -40,13 +36,6 @@ const OrgPopoverContent = ({
 }) => {
   const router = useRouter();
   const userEmail = useSelector(selectUserEmail);
-
-  //#region my sub
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail,
-    populate: "orgs"
-  }) as AppQuery<ISubscription>;
-  //#endregion
 
   //#region local state
   const [showOrgs, setShowOrgs] = useState<
@@ -78,32 +67,18 @@ const OrgPopoverContent = ({
         ...rest,
         myOrgs: [...data]
           .sort(bySelectedOrder)
-          .filter((org) => org.orgUrl !== "forum" && org.orgType === orgType)
-      })
-    }
+          .filter((org) => org.orgUrl !== "forum" && org.orgType === orgType),
+      }),
+    },
   );
   const myOrgs = myOrgsQuery.myOrgs.filter(({ isArchived }) => !isArchived);
   const myArchivedOrgs = myOrgsQuery.myOrgs.filter(
-    ({ isArchived }) => isArchived
+    ({ isArchived }) => isArchived,
   );
   //#endregion
 
   //#region orgs
-  const orgsQuery = useGetOrgsQuery(
-    { orgType },
-    {
-      selectFromResult: ({ data = [], ...rest }) => ({
-        ...rest,
-        followedOrgs: [...data]
-          .sort(bySelectedOrder)
-          .filter(
-            (org) =>
-              org.orgUrl !== "forum" &&
-              !!getFollowerSubscription({ org, subQuery })
-          )
-      })
-    }
-  );
+  const orgsQuery = useGetOrgsQuery({ orgType });
   //#endregion
 
   return (
@@ -120,7 +95,7 @@ const OrgPopoverContent = ({
               e.target.value as
                 | "showOrgsAdded"
                 | "showOrgsFollowed"
-                | "showOrgsSubscribed"
+                | "showOrgsSubscribed",
             )
           }
         >
@@ -177,7 +152,7 @@ const OrgPopoverContent = ({
                     onClick={() => {
                       onClose();
                       router.push(`/${org.orgUrl}`, `/${org.orgUrl}`, {
-                        shallow: true
+                        shallow: true,
                       });
                     }}
                   />
@@ -189,31 +164,6 @@ const OrgPopoverContent = ({
                 {orgType === EOrgType.NETWORK
                   ? "ajouté aucune planètes"
                   : "ajouté aucun arbres"}
-                .
-              </Text>
-            )}
-          </>
-        )}
-
-        {showOrgs === "showOrgsFollowed" && (
-          <>
-            {hasItems(orgsQuery.followedOrgs) ? (
-              <VStack
-                alignItems="flex-start"
-                overflowX="auto"
-                height="200px"
-                spacing={2}
-              >
-                {orgsQuery.followedOrgs.map((org, index) => (
-                  <EntityButton key={org._id} org={org} p={1} />
-                ))}
-              </VStack>
-            ) : (
-              <Text fontSize="smaller">
-                Vous n'êtes abonné{" "}
-                {orgType === EOrgType.NETWORK
-                  ? "aucune planètes"
-                  : "aucun arbres"}
                 .
               </Text>
             )}

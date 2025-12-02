@@ -3,7 +3,7 @@ import {
   EmailIcon,
   InfoIcon,
   UpDownIcon,
-  WarningIcon
+  WarningIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -13,14 +13,13 @@ import {
   IconButton,
   Td,
   Text,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
 import { format, formatISO, getMinutes, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import React, { useState } from "react";
 import { FaRetweet } from "react-icons/fa";
 import { Link, GridItem, EntityButton } from "features/common";
-import { NotifModalState } from "features/modals/EntityNotifModal";
 import { getCategories, IEvent } from "models/Event";
 import { IOrg, IOrgEventCategory } from "models/Org";
 import { hasItems } from "utils/array";
@@ -47,8 +46,6 @@ export const EventsListItem = ({
   setEventToShowOnMap,
   isLoading,
   setIsLoading,
-  notifyModalState,
-  setNotifyModalState,
   selectedCategories,
   setSelectedCategories,
   city,
@@ -73,10 +70,6 @@ export const EventsListItem = ({
   setEventToShowOnMap: (event: IEvent<string | Date> | null) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  notifyModalState: NotifModalState<IEvent<string | Date>>;
-  setNotifyModalState: (
-    modalState: NotifModalState<IEvent<string | Date>>
-  ) => void;
   selectedCategories: string[];
   setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
   session: Session | null;
@@ -131,9 +124,9 @@ export const EventsListItem = ({
                       isCategorySelected
                         ? selectedCategories.filter(
                             (selectedCategory) =>
-                              selectedCategory !== event.eventCategory!
+                              selectedCategory !== event.eventCategory!,
                           )
-                        : [...selectedCategories, event.eventCategory!]
+                        : [...selectedCategories, event.eventCategory!],
                     );
                   }}
                 >
@@ -192,7 +185,7 @@ export const EventsListItem = ({
           {/* eventMinDate */}
           <Text fontWeight="bold">
             {format(minDate, `H'h'${getMinutes(minDate) !== 0 ? "mm" : ""}`, {
-              locale: fr
+              locale: fr,
             })}
           </Text>
 
@@ -208,8 +201,8 @@ export const EventsListItem = ({
                   maxDate,
                   `H'h'${getMinutes(maxDate) !== 0 ? "mm" : ""}`,
                   {
-                    locale: fr
-                  }
+                    locale: fr,
+                  },
                 )}
               </Text>
             </>
@@ -231,35 +224,6 @@ export const EventsListItem = ({
               {!event.isApproved && (
                 <Tooltip label="Événement en attente de modération">
                   <WarningIcon color="orange" />
-                </Tooltip>
-              )}
-
-              {org && isCreator && (
-                <Tooltip
-                  label={`Envoyer des invitations à cet événement`}
-                  placement="right"
-                  hasArrow
-                >
-                  <IconButton
-                    aria-label={`Envoyer des invitations à cet événement`}
-                    icon={<EmailIcon />}
-                    isLoading={isLoading}
-                    isDisabled={!event.isApproved}
-                    bg="transparent"
-                    height="auto"
-                    minWidth={0}
-                    mx={2}
-                    _hover={{
-                      background: "transparent",
-                      color: "green"
-                    }}
-                    onClick={(e) => {
-                      setNotifyModalState({
-                        ...notifyModalState,
-                        entity: event
-                      });
-                    }}
-                  />
                 </Tooltip>
               )}
             </>
@@ -295,7 +259,7 @@ export const EventsListItem = ({
                       setEventToShow({
                         ...event,
                         eventMinDate: formatISO(minDate),
-                        eventMaxDate: maxDate ? formatISO(maxDate) : undefined
+                        eventMaxDate: maxDate ? formatISO(maxDate) : undefined,
                       })
                     }
                   >
@@ -357,7 +321,7 @@ export const EventsListItem = ({
                       setEventToForward({
                         ...event,
                         eventMinDate: minDate,
-                        eventMaxDate: maxDate
+                        eventMaxDate: maxDate,
                       });
                     }}
                   />
@@ -379,13 +343,13 @@ export const EventsListItem = ({
                   _hover={{ background: "transparent", color: "red" }}
                   onClick={async () => {
                     const confirmed = confirm(
-                      "Êtes vous sûr de vouloir annuler la rediffusion ?"
+                      "Êtes vous sûr de vouloir annuler la rediffusion ?",
                     );
 
                     if (confirmed) {
                       if (event.eventOrgs.length <= 1) {
                         await deleteEvent({
-                          eventId: event.forwardedFrom?.eventId
+                          eventId: event.forwardedFrom?.eventId,
                         }).unwrap();
                       } else {
                         await editEvent({
@@ -394,23 +358,23 @@ export const EventsListItem = ({
                             eventOrgs: event.eventOrgs.filter((eventOrg) =>
                               typeof eventOrg === "object"
                                 ? eventOrg._id !== org._id
-                                : eventOrg !== org._id
-                            )
-                          }
+                                : eventOrg !== org._id,
+                            ),
+                          },
                         });
                         await editOrg({
                           orgId: org._id,
                           payload: {
                             orgEvents: org.orgEvents.filter(
-                              (orgEvent) => orgEvent._id !== event._id
-                            )
-                          }
+                              (orgEvent) => orgEvent._id !== event._id,
+                            ),
+                          },
                         });
                       }
 
                       toast({
                         title: `La rediffusion a été annulée.`,
-                        status: "success"
+                        status: "success",
                       });
                     }
                   }}

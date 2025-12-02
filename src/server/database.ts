@@ -8,8 +8,6 @@ import { IOrg } from "models/Org";
 import { OrgSchema } from "models/Org/OrgSchema";
 import { IProject } from "models/Project";
 import { ProjectSchema } from "models/Project/ProjectSchema";
-import { ISubscription } from "models/Subscription";
-import { SubscriptionSchema } from "models/Subscription/SubscriptionSchema";
 import { ISetting } from "models/Setting";
 import { SettingSchema } from "models/Setting/SettingSchema";
 import { ITopic } from "models/Topic";
@@ -24,7 +22,7 @@ if (!cached) {
 }
 console.log(process.env.DATABASE_URL);
 const connection = mongoose.createConnection(process.env.DATABASE_URL, {
-  autoIndex: false
+  autoIndex: false,
 });
 const clientPromise = connection.then((connection) => connection.getClient());
 const modelsPromise = connection.then((connection) => {
@@ -32,13 +30,9 @@ const modelsPromise = connection.then((connection) => {
     Event: connection.model<IEvent>("Event", EventSchema),
     Org: connection.model<IOrg>("Org", OrgSchema),
     Project: connection.model<IProject>("Project", ProjectSchema),
-    Subscription: connection.model<ISubscription>(
-      "Subscription",
-      SubscriptionSchema
-    ),
     Setting: connection.model<ISetting>("Setting", SettingSchema),
     Topic: connection.model<ITopic>("Topic", TopicSchema),
-    User: connection.model<IUser>("User", UserSchema)
+    User: connection.model<IUser>("User", UserSchema),
   };
 });
 
@@ -47,7 +41,6 @@ export let models: {
   Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
   Project: Model<IProject, {}, {}>;
-  Subscription: Model<ISubscription, {}, {}>;
   Setting: Model<ISetting, {}, {}>;
   Topic: Model<ITopic, {}, {}>;
   User: Model<IUser, {}, {}>;
@@ -55,7 +48,7 @@ export let models: {
 export default async function database(
   req: NextApiRequest,
   res: NextApiResponse,
-  next: NextHandler
+  next: NextHandler,
 ) {
   if (!cached.promise) {
     cached.promise = (await clientPromise).connect().then((client) => {
@@ -63,7 +56,7 @@ export default async function database(
 
       return {
         client,
-        db
+        db,
       };
     });
     cached.conn = await cached.promise;

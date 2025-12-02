@@ -9,7 +9,7 @@ import {
   Th,
   Thead,
   Tr,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/react";
 import { compareAsc, compareDesc, parseISO } from "date-fns";
 import React, { useMemo, useState } from "react";
@@ -18,9 +18,8 @@ import { css } from "twin.macro";
 import { EntityButton } from "features/common";
 import { scrollbarCss } from "features/layout/theme";
 import { MapModal } from "features/modals/MapModal";
-import { SubscribePopover } from "features/subscriptions/SubscribePopover";
 import { EOrgType, IOrg, orgTypeFull } from "models/Org";
-import { ISubscription } from "models/Subscription";
+
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
@@ -35,14 +34,14 @@ export enum EOrderKey {
   icon = "icon",
   latestActivity = "latestActivity",
   orgName = "orgName",
-  subscription = "subscription"
+  subscription = "subscription",
 }
 
 export enum EOrgsListOrder {
   ALPHA = "ALPHA",
   NEWEST = "NEWEST",
   OLDEST = "OLDEST",
-  PINNED = "PINNED"
+  PINNED = "PINNED",
 }
 
 const defaultKeys = (orgType: EOrgType) => [
@@ -52,25 +51,24 @@ const defaultKeys = (orgType: EOrgType) => [
   // },
   {
     key: EOrderKey.orgName,
-    label: `Nom de ${orgTypeFull(orgType)}`
+    label: `Nom de ${orgTypeFull(orgType)}`,
   },
   // { key: "orgType", label: "Type" },
   // { key: "orgCity", label: "Position" },
   {
     key: EOrderKey.createdBy,
-    label: "Créé par"
-  }
+    label: "Créé par",
+  },
 ];
 
 const iconProps = {
   boxSize: 6,
-  mt: -1
+  mt: -1,
 };
 
 export const OrgsList = ({
   //query,
   data,
-  subQuery,
   orgType = EOrgType.NETWORK,
   ...props
 }: {
@@ -80,7 +78,6 @@ export const OrgsList = ({
     label: string;
   }[];
   //query: AppQuery<IOrg | IOrg[]>;
-  subQuery?: AppQuery<ISubscription>;
   orgType?: EOrgType;
 }) => {
   const { colorMode } = useColorMode();
@@ -92,14 +89,14 @@ export const OrgsList = ({
     order: "asc" | "desc";
   }>({
     key: EOrderKey.latestActivity,
-    order: "asc"
+    order: "asc",
   });
   const setSelectedOrder = (key: EOrderKey) => {
     const order = !selectedOrder
       ? "asc"
       : selectedOrder?.key === key && selectedOrder?.order === "asc"
-        ? "desc"
-        : "asc";
+      ? "desc"
+      : "asc";
     _setSelectedOrder({ key, order });
   };
 
@@ -127,7 +124,7 @@ export const OrgsList = ({
               record[org._id] = {
                 latestMessageCreatedAt: createdAt,
                 latestMessageUpdatedAt: updatedAt,
-                latestTopic: orgTopic
+                latestTopic: orgTopic,
               };
             } else {
               // if createdAt is before saved createdAt
@@ -295,20 +292,6 @@ export const OrgsList = ({
                   </Td>
                 )}
 
-                {keys.find(({ key }) => key === EOrderKey.subscription) &&
-                  subQuery && (
-                    <Td p={isMobile ? 0 : undefined}>
-                      <SubscribePopover
-                        org={org}
-                        //query={query}
-                        subQuery={subQuery}
-                        isIconOnly
-                        my={isMobile ? 2 : 0}
-                        mr={isMobile ? 2 : 0}
-                      />
-                    </Td>
-                  )}
-
                 {keys.find(({ key }) => key === EOrderKey.orgName) && (
                   <Td>
                     {/* {org.orgType === EOrgType.TREETOOLS
@@ -407,7 +390,7 @@ export const OrgsList = ({
           orgs={[orgToShow]}
           center={{
             lat: orgToShow.orgLat,
-            lng: orgToShow.orgLng
+            lng: orgToShow.orgLng,
           }}
           zoomLevel={16}
           onClose={() => setOrgToShow()}

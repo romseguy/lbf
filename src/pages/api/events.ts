@@ -2,7 +2,6 @@ import { Document } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import database, { models } from "server/database";
-import { sendToAdmin } from "server/email";
 import { AddEventPayload } from "features/api/eventsApi";
 import { IEvent, EEventVisibility } from "models/Event";
 import { EOrgVisibility, IOrg } from "models/Org";
@@ -23,7 +22,7 @@ handler.get<
   NextApiResponse
 >(async function getEvents(req, res) {
   const {
-    query: { createdBy }
+    query: { createdBy },
   } = req;
   let events;
   let selector = {};
@@ -33,7 +32,7 @@ handler.get<
   try {
     events = await models.Event.find(selector)
       .sort({
-        eventMinDate: "ascending"
+        eventMinDate: "ascending",
       })
       .populate("eventOrgs")
       .populate("createdBy", "userName");
@@ -41,7 +40,7 @@ handler.get<
     for (const event of events) {
       if (event.forwardedFrom?.eventId) {
         const e = await models.Event.findOne({
-          _id: event.forwardedFrom?.eventId
+          _id: event.forwardedFrom?.eventId,
         });
         if (e) {
           event.eventName = e.eventName;
@@ -78,8 +77,8 @@ handler.post<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`Ce nom d'événement n'est pas autorisé`)
-          )
+            new Error(`Ce nom d'événement n'est pas autorisé`),
+          ),
         );
     }
 
@@ -87,7 +86,7 @@ handler.post<
       ...body,
       createdBy: session.user.userId,
       eventName,
-      eventUrl
+      eventUrl,
     };
 
     let event: (IEvent & Document<any, IEvent>) | null = null;
@@ -98,13 +97,13 @@ handler.post<
 
       for (const eventOrg of body.eventOrgs) {
         const o = await models.Org.findOne({ _id: eventOrg._id }).populate(
-          "orgEvents"
+          "orgEvents",
         );
 
         if (
           o &&
           !o.orgEvents.find((orgEvent) =>
-            equals(orgEvent.eventUrl, body.eventUrl)
+            equals(orgEvent.eventUrl, body.eventUrl),
           )
         ) {
           eventOrgs.push(o);
@@ -114,7 +113,7 @@ handler.post<
       if (eventOrgs.length > 0) {
         if (event) {
           console.log(
-            "event has already been forwarded => adding new eventOrgs"
+            "event has already been forwarded => adding new eventOrgs",
           );
           event.eventOrgs = event.eventOrgs.concat(eventOrgs);
           await event.save();
@@ -132,7 +131,7 @@ handler.post<
         newEvent = {
           ...newEvent,
           eventName: eventName + "-" + uid,
-          eventUrl: eventUrl + "-" + uid
+          eventUrl: eventUrl + "-" + uid,
         };
       }
 
@@ -155,9 +154,9 @@ handler.post<
             .json(
               createEndpointError(
                 new Error(
-                  "Vous n'avez pas la permission d'ajouter un événement à cette planète"
-                )
-              )
+                  "Vous n'avez pas la permission d'ajouter un événement à cette planète",
+                ),
+              ),
             );
 
         eventOrgs.push(o);
@@ -172,25 +171,9 @@ handler.post<
       newEvent = {
         ...newEvent,
         eventOrgs,
-        isApproved
+        isApproved,
       };
       event = await models.Event.create(newEvent);
-
-      if (!isApproved) {
-        const admin = await models.User.findOne({ isAdmin: true });
-
-        if (admin && event.eventVisibility === EEventVisibility.PUBLIC) {
-          sendToAdmin({ event: newEvent });
-
-          if (admin.userSubscription)
-            await api.sendPushNotification({
-              subscription: admin.userSubscription,
-              message: "Appuyez pour ouvrir la page de l'événement",
-              title: "Un événement attend votre approbation",
-              url: newEvent.eventUrl
-            });
-        }
-      }
     }
 
     if (event) {
@@ -198,15 +181,15 @@ handler.post<
         {
           _id: {
             $in: eventOrgs.map((eventOrg) =>
-              typeof eventOrg === "object" ? eventOrg._id : eventOrg
-            )
-          }
+              typeof eventOrg === "object" ? eventOrg._id : eventOrg,
+            ),
+          },
         },
         {
           $push: {
-            orgEvents: event._id
-          }
-        }
+            orgEvents: event._id,
+          },
+        },
       );
     }
 

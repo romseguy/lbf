@@ -3,24 +3,21 @@ import nextConnect from "next-connect";
 import {
   DeleteOrgParams,
   EditOrgPayload,
-  GetOrgParams
+  GetOrgParams,
 } from "features/api/orgsApi";
 import { getRefId, isUser } from "models/Entity";
 import { EEventVisibility } from "models/Event";
 import {
   EOrgType,
   EOrgVisibility,
-  getLists,
   IOrg,
   orgTypeFull,
   orgTypeFull4,
   orgTypeFull5,
-  OrgTypes
+  OrgTypes,
 } from "models/Org";
-import { ISubscription, getFollowerSubscription } from "models/Subscription";
 import { getSession } from "server/auth";
 import database, { models } from "server/database";
-import { sendMail } from "server/email";
 import { logEvent, ServerEventTypes } from "server/logging";
 import { getClientIp } from "server/ip";
 import api from "utils/api";
@@ -28,7 +25,7 @@ import { hasItems } from "utils/array";
 import {
   createEndpointError,
   databaseErrorCodes,
-  duplicateError
+  duplicateError,
 } from "utils/errors";
 import { equals, logJson, normalize } from "utils/string";
 
@@ -43,7 +40,7 @@ handler.get<
   NextApiResponse
 >(async function getOrg(req, res) {
   let {
-    query: { orgUrl, hash, populate = "" }
+    query: { orgUrl, hash, populate = "" },
   } = req;
 
   try {
@@ -63,8 +60,8 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-          )
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`),
+          ),
         );
 
     logEvent({
@@ -72,8 +69,8 @@ handler.get<
       metadata: {
         method: "GET",
         ip: getClientIp(req),
-        url: `/api/${orgUrl}`
-      }
+        url: `/api/${orgUrl}`,
+      },
     });
 
     const session = await getSession({ req });
@@ -93,7 +90,7 @@ handler.get<
             orgType: org.orgType,
             orgUrl: org.orgUrl,
             createdAt: org.createdAt,
-            createdBy: org.createdBy
+            createdBy: org.createdBy,
           });
         }
 
@@ -110,12 +107,12 @@ handler.get<
         const privateNetworks = await models.Org.find(
           {
             orgType: EOrgType.NETWORK,
-            orgVisibility: EOrgVisibility.PRIVATE
+            orgVisibility: EOrgVisibility.PRIVATE,
           },
-          "+orgPassword"
+          "+orgPassword",
         ).populate("orgs");
         const orgNetwork = privateNetworks.find(
-          ({ orgs }) => !!orgs.find(({ orgName }) => orgName === org!.orgName)
+          ({ orgs }) => !!orgs.find(({ orgName }) => orgName === org!.orgName),
         );
         const orgBelongsToAtLeastOnePrivateNetwork = !!orgNetwork;
 
@@ -126,7 +123,7 @@ handler.get<
               orgSalt: orgNetwork.orgSalt,
               orgStyles: org.orgStyles,
               orgType: org.orgType,
-              orgUrl: org.orgUrl
+              orgUrl: org.orgUrl,
             });
 
           if (orgNetwork.orgPassword !== hash)
@@ -144,10 +141,9 @@ handler.get<
         [
           "orgs",
           "orgEvents",
-          "orgLists",
           "orgProjects",
           "orgTopics",
-          "orgSubscriptions"
+          "orgSubscriptions",
         ].includes(modelKey)
       ) {
         //console.log(prefix + `populating ${modelKey} with custom behavior`);
@@ -162,9 +158,9 @@ handler.get<
             {
               path: "orgTopics",
               select:
-                "topicName topicMessages.createdAt topicMessages.updatedAt"
-            }
-          ]
+                "topicName topicMessages.createdAt topicMessages.updatedAt",
+            },
+          ],
         });
       }
 
@@ -172,14 +168,14 @@ handler.get<
         org = await org
           .populate({
             path: "orgEvents",
-            populate: { path: "eventOrgs" }
+            populate: { path: "eventOrgs" },
           })
           .execPopulate();
 
         for (const orgEvent of org.orgEvents) {
           if (orgEvent.forwardedFrom?.eventId) {
             const event = await models.Event.findOne({
-              _id: orgEvent.forwardedFrom.eventId
+              _id: orgEvent.forwardedFrom.eventId,
             });
             if (event) {
               orgEvent.forwardedFrom.eventUrl = orgEvent._id;
@@ -188,66 +184,6 @@ handler.get<
             }
           }
         }
-
-        if (!isCreator) {
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
-          const isFollowed = !!getFollowerSubscription({
-            org,
-            subscription: subscription as ISubscription
-          });
-
-          org.orgEvents = org.orgEvents.filter(
-            ({ eventVisibility }) =>
-              eventVisibility === EEventVisibility.PUBLIC ||
-              (eventVisibility === EEventVisibility.FOLLOWERS && isFollowed)
-          );
-        }
-      }
-
-      if (modelKey === "orgLists") {
-        org = await org
-          .populate({
-            path: "orgLists",
-            populate: {
-              path: "subscriptions",
-              select: isCreator ? "+email +phone" : undefined,
-              populate: {
-                path: "user",
-                select: isCreator ? "+email" : undefined
-              }
-            }
-          })
-          .execPopulate();
-
-        org = await org
-          .populate({
-            path: "orgSubscriptions",
-            select: isCreator ? "+email +phone" : undefined,
-            populate: {
-              path: "user",
-              select: isCreator ? "+email +phone" : undefined
-            }
-          })
-          .execPopulate();
-
-        org.orgLists = getLists(org);
-
-        if (!isCreator) {
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
-
-          org.orgLists = subscription
-            ? org.orgLists.filter(
-                ({ subscriptions }) =>
-                  !!subscriptions.find(({ _id }) =>
-                    equals(_id, subscription._id)
-                  )
-              )
-            : [];
-        }
       }
 
       if (modelKey === "orgProjects") {
@@ -255,28 +191,9 @@ handler.get<
           path: "orgProjects",
           populate: [
             { path: "projectOrgs" },
-            { path: "createdBy", select: "_id userName" }
-          ]
+            { path: "createdBy", select: "_id userName" },
+          ],
         });
-
-        if (!isCreator) {
-          org = await org.execPopulate();
-
-          const subscription = await models.Subscription.findOne({
-            user: session?.user.userId
-          });
-          const isFollowed = !!getFollowerSubscription({
-            org,
-            subscription: subscription as ISubscription
-          });
-
-          org.orgProjects = org.orgProjects.filter(
-            ({ projectVisibility }) =>
-              !projectVisibility ||
-              !hasItems(projectVisibility) ||
-              (projectVisibility.includes("Abonnés") && isFollowed)
-          );
-        }
       }
 
       if (modelKey === "orgTopics") {
@@ -286,15 +203,15 @@ handler.get<
             populate: [
               {
                 path: "topicMessages",
-                populate: { path: "createdBy", select: "_id userName" }
+                populate: { path: "createdBy", select: "_id userName" },
               },
               { path: "createdBy", select: "_id userName" },
               {
                 path: "org",
-                select: "orgUrl"
+                select: "orgUrl",
               },
-              { path: "event", select: "eventUrl" }
-            ]
+              { path: "event", select: "eventUrl" },
+            ],
           })
           .execPopulate();
 
@@ -317,52 +234,10 @@ handler.get<
         if (!isCreator) {
           org = await org.execPopulate();
 
-          const subscription = session
-            ? await models.Subscription.findOne({
-                user: session.user.userId
-              })
-            : null;
-
-          org.orgTopics = subscription
-            ? org.orgTopics.filter(({ topicVisibility }) => {
-                if (!hasItems(topicVisibility)) return true;
-
-                for (const listName of topicVisibility) {
-                  if (listName === "Abonnés") {
-                    if (
-                      getFollowerSubscription({
-                        org: org as IOrg,
-                        subscription
-                      })
-                    ) {
-                      return true;
-                    }
-                  }
-
-                  const orgList = org?.orgLists.find(
-                    (orgList) => orgList.listName === listName
-                  );
-
-                  return !!orgList?.subscriptions?.find(({ _id }) =>
-                    equals(_id, subscription._id)
-                  );
-                }
-              })
-            : org.orgTopics.filter(
-                ({ topicVisibility }) => !hasItems(topicVisibility)
-              );
+          org.orgTopics = org.orgTopics.filter(
+            ({ topicVisibility }) => !hasItems(topicVisibility),
+          );
         }
-      }
-
-      if (modelKey === "orgSubscriptions") {
-        org = org.populate({
-          path: "orgSubscriptions",
-          select: isCreator ? "+email +phone" : undefined,
-          populate: {
-            path: "user",
-            select: isCreator ? "+email" : undefined
-          }
-        });
       }
     }
 
@@ -377,8 +252,8 @@ handler.get<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`)
-          )
+            new Error(`L'organisation ${orgUrl} n'a pas pu être trouvé`),
+          ),
         );
     res.status(500).json(createEndpointError(error));
   }
@@ -413,8 +288,8 @@ handler.put<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
-          )
+            new Error(`L'organisation ${_id} n'a pas pu être trouvé`),
+          ),
         );
     }
 
@@ -427,7 +302,6 @@ handler.put<
       canEdit =
         canEdit ||
         Array.isArray(body.orgTopicCategories) ||
-        Array.isArray(body.orgLists) ||
         (Array.isArray(body.orgs) && org.orgPermissions?.anyoneCanAddChildren);
     }
 
@@ -438,10 +312,10 @@ handler.put<
           createEndpointError(
             new Error(
               `Vous n'avez pas la permission de modifier ${orgTypeFull4(
-                org.orgType
-              )}`
-            )
-          )
+                org.orgType,
+              )}`,
+            ),
+          ),
         );
     }
 
@@ -463,7 +337,7 @@ handler.put<
 
           if (matches && matches.length === 4) {
             update = {
-              $pull: { [matches[1]]: { [matches[2]]: matches[3] } }
+              $pull: { [matches[1]]: { [matches[2]]: matches[3] } },
             };
           }
         } else if (key.includes("=")) {
@@ -472,13 +346,13 @@ handler.put<
 
           if (matches && matches.length === 3) {
             update = {
-              $pull: { [matches[1]]: matches[2] }
+              $pull: { [matches[1]]: matches[2] },
             };
 
             if (matches[1] === "orgTopicCategories") {
               await models.Topic.updateMany(
                 { topicCategory: matches[2] },
-                { topicCategory: null }
+                { topicCategory: null },
               );
             }
           }
@@ -491,7 +365,7 @@ handler.put<
         body = {
           ...body,
           orgName: body.orgName.trim(),
-          orgUrl: normalize(body.orgName.trim())
+          orgUrl: normalize(body.orgName.trim()),
         };
 
         if (
@@ -499,32 +373,6 @@ handler.put<
           (await models.Org.findOne({ orgName: body.orgName }))
         )
           throw duplicateError();
-      }
-
-      if (Array.isArray(body.orgLists) && body.orgLists.length > 0) {
-        if (!isCreator) {
-          return res
-            .status(401)
-            .json(
-              createEndpointError(
-                new Error(
-                  `Vous n'avez pas la permission ${orgTypeFull(
-                    org.orgType
-                  )} pour gérer les listes`
-                )
-              )
-            );
-        }
-
-        if (!body.orgLists[0].listName)
-          return res
-            .status(400)
-            .json(createEndpointError(new Error("Liste invalide")));
-
-        // TODO: if listName === "Abonnés"
-        // remove subscriptions.orgs.orgSubscription
-        // that were in org.orgLists
-        // but are not in body.org.orgLists
       }
 
       if (body.orgTopicCategories) {
@@ -535,10 +383,10 @@ handler.put<
               createEndpointError(
                 new Error(
                   `Vous n'avez pas la permission ${orgTypeFull(
-                    org.orgType
-                  )} pour gérer les catégories de discussions`
-                )
-              )
+                    org.orgType,
+                  )} pour gérer les catégories de discussions`,
+                ),
+              ),
             );
         }
       }
@@ -552,8 +400,8 @@ handler.put<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être modifiée`)
-          )
+            new Error(`L'organisation ${_id} n'a pas pu être modifiée`),
+          ),
         );
     }
 
@@ -561,7 +409,7 @@ handler.put<
   } catch (error: any) {
     if (error.code && error.code === databaseErrorCodes.DUPLICATE_KEY)
       return res.status(400).json({
-        [error.field || "orgName"]: "Ce nom n'est pas disponible"
+        [error.field || "orgName"]: "Ce nom n'est pas disponible",
       });
 
     res.status(500).json(createEndpointError(error));
@@ -591,8 +439,8 @@ handler.delete<
         .status(404)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être trouvé`)
-          )
+            new Error(`L'organisation ${_id} n'a pas pu être trouvé`),
+          ),
         );
     }
 
@@ -602,9 +450,9 @@ handler.delete<
         .json(
           createEndpointError(
             new Error(
-              "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé"
-            )
-          )
+              "Vous ne pouvez pas supprimer une organisation que vous n'avez pas créé",
+            ),
+          ),
         );
     }
 
@@ -615,28 +463,25 @@ handler.delete<
         .status(400)
         .json(
           createEndpointError(
-            new Error(`L'organisation ${_id} n'a pas pu être supprimé`)
-          )
+            new Error(`L'organisation ${_id} n'a pas pu être supprimé`),
+          ),
         );
     }
 
     if (req.query.isDeleteOrgEvents) {
       /*const { deletedCount, n, ok } = */ await models.Event.deleteMany({
-        _id: { $in: org.orgEvents }
+        _id: { $in: org.orgEvents },
       });
     }
     /*const { deletedCount, n, ok } = */ await models.Project.deleteMany({
-      _id: { $in: org.orgProjects }
-    });
-    /*const { deletedCount, n, ok } = */ await models.Subscription.deleteMany({
-      _id: { $in: org.orgSubscriptions }
+      _id: { $in: org.orgProjects },
     });
     /*const { deletedCount, n, ok } = */ await models.Topic.deleteMany({
-      _id: { $in: org.orgTopics }
+      _id: { $in: org.orgTopics },
     });
 
     await api.client.delete(`folder`, {
-      data: { orgId: _id }
+      data: { orgId: _id },
     });
 
     res.status(200).json(org);
@@ -648,10 +493,10 @@ handler.delete<
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "50mb"
+      sizeLimit: "50mb",
     },
-    responseLimit: "8mb"
-  }
+    responseLimit: "8mb",
+  },
 };
 
 export default handler;

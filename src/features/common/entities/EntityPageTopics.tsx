@@ -6,21 +6,16 @@ import { Column, AppHeading } from "features/common";
 import { TopicsList } from "features/forum/TopicsList";
 import { useScroll } from "hooks/useScroll";
 import { IEntity } from "models/Entity";
-import { ISubscription } from "models/Subscription";
 import { AppQuery, AppQueryWithData } from "utils/types";
 
 export const EntityPageTopics = ({
   currentTopicName,
   isCreator,
-  isFollowed,
   query,
-  subQuery
 }: {
   currentTopicName?: string;
   isCreator: boolean;
-  isFollowed: boolean;
   query: AppQueryWithData<IEntity>;
-  subQuery: AppQuery<ISubscription>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -47,9 +42,7 @@ export const EntityPageTopics = ({
         <TopicsList
           currentTopicName={currentTopicName}
           isCreator={isCreator}
-          isFollowed={isFollowed}
           query={query}
-          subQuery={subQuery}
         />
       </Column>
     </>

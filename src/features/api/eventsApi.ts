@@ -1,14 +1,8 @@
 import { api } from "./";
 import { IEvent } from "models/Event";
-import { IEventNotification } from "models/INotification";
 import { objectToQueryString } from "utils/query";
 
 export type AddEventPayload<T> = Omit<IEvent<T>, "_id" | "createdBy">;
-
-export interface AddEventNotifPayload {
-  orgListsNames?: string[];
-  email?: string;
-}
 
 export type EditEventPayload<T> = Partial<IEvent<T>> | string[];
 
@@ -29,7 +23,7 @@ export const eventApi = api.injectEndpoints({
         return {
           url: `events`,
           method: "POST",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) =>
@@ -37,34 +31,11 @@ export const eventApi = api.injectEndpoints({
           ? [
               ...result.eventOrgs.map((org) => ({
                 type: "Orgs" as const,
-                id: org._id
+                id: org._id,
               })),
-              { type: "Events", id: "LIST" }
+              { type: "Events", id: "LIST" },
             ]
-          : [{ type: "Events", id: "LIST" }]
-    }),
-    addEventNotif: build.mutation<
-      { notifications: IEventNotification[] },
-      {
-        payload: AddEventNotifPayload;
-        eventId: string;
-      }
-    >({
-      query: ({ payload, eventId }) => {
-        //console.groupCollapsed("addEventNotif");
-        //console.log("addEventNotif: eventId", eventId);
-        //console.log("addEventNotif: payload", payload);
-        //console.groupEnd();
-
-        return {
-          url: `event/${eventId}`,
-          method: "POST",
-          body: payload
-        };
-      },
-      invalidatesTags: (result, error, params) => [
-        { type: "Events", id: params.eventId }
-      ]
+          : [{ type: "Events", id: "LIST" }],
     }),
     deleteEvent: build.mutation<IEvent, { eventId: string }>({
       query: ({ eventId }) => ({ url: `event/${eventId}`, method: "DELETE" }),
@@ -73,14 +44,14 @@ export const eventApi = api.injectEndpoints({
           ? [
               ...result.eventOrgs.map((org) => ({
                 type: "Orgs" as const,
-                id: org._id
+                id: org._id,
               })),
-              { type: "Events", id: "LIST" }
+              { type: "Events", id: "LIST" },
             ]
           : [
               { type: "Orgs", id: "LIST" },
-              { type: "Events", id: "LIST" }
-            ]
+              { type: "Events", id: "LIST" },
+            ],
     }),
     editEvent: build.mutation<
       IEvent,
@@ -90,8 +61,8 @@ export const eventApi = api.injectEndpoints({
         const id = eventId
           ? eventId
           : "_id" in payload
-            ? payload._id
-            : undefined;
+          ? payload._id
+          : undefined;
 
         //console.groupCollapsed("editEvent");
         //console.log("eventId", id);
@@ -101,7 +72,7 @@ export const eventApi = api.injectEndpoints({
         return {
           url: `event/${id}`,
           method: "PUT",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) =>
@@ -109,11 +80,11 @@ export const eventApi = api.injectEndpoints({
           ? [
               ...result.eventOrgs.map((org) => ({
                 type: "Orgs" as const,
-                id: org._id
+                id: org._id,
               })),
-              { type: "Events", id: params.eventId }
+              { type: "Events", id: params.eventId },
             ]
-          : [{ type: "Events", id: params.eventId }]
+          : [{ type: "Events", id: params.eventId }],
     }),
     getEvent: build.query<IEvent, GetEventParams>({
       query: ({ eventUrl, email, populate }) => {
@@ -127,13 +98,13 @@ export const eventApi = api.injectEndpoints({
           url: email
             ? `event/${eventUrl}/${email}`
             : populate
-              ? `event/${eventUrl}?populate=${populate}`
-              : `event/${eventUrl}`
+            ? `event/${eventUrl}?populate=${populate}`
+            : `event/${eventUrl}`,
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Events" as const, id: result?._id }
-      ]
+        { type: "Events" as const, id: result?._id },
+      ],
     }),
     getEvents: build.query<IEvent[], { createdBy: string } | void>({
       query: (query) => {
@@ -144,7 +115,7 @@ export const eventApi = api.injectEndpoints({
         }
 
         return {
-          url: `events${query ? `?${objectToQueryString(query)}` : ""}`
+          url: `events${query ? `?${objectToQueryString(query)}` : ""}`,
         };
       },
       providesTags: (result) =>
@@ -152,21 +123,20 @@ export const eventApi = api.injectEndpoints({
           ? [
               ...result.map(({ _id }) => ({
                 type: "Events" as const,
-                id: _id
+                id: _id,
               })),
-              { type: "Events", id: "LIST" }
+              { type: "Events", id: "LIST" },
             ]
-          : [{ type: "Events", id: "LIST" }]
-    })
-  })
+          : [{ type: "Events", id: "LIST" }],
+    }),
+  }),
 });
 
 export const {
   useAddEventMutation,
-  useAddEventNotifMutation,
   useDeleteEventMutation,
   useEditEventMutation,
   useGetEventQuery,
-  useGetEventsQuery
+  useGetEventsQuery,
 } = eventApi;
 export const { getEvent, getEvents, deleteEvent } = eventApi.endpoints;

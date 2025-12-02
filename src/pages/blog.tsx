@@ -4,7 +4,7 @@ import {
   HStack,
   Spinner,
   useColorMode,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { GetOrgParams, useGetOrgQuery } from "features/api/orgsApi";
 import { useGetSubscriptionQuery } from "features/api/subscriptionsApi";
@@ -17,7 +17,7 @@ import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { getRefId } from "models/Entity";
 import { IOrg } from "models/Org";
-import { ISubscription } from "models/Subscription";
+
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectUserEmail } from "store/userSlice";
@@ -32,9 +32,6 @@ const BlogPage = ({ isMobile, ...props }: PageProps) => {
   const params: GetOrgParams = { orgUrl: "blog", populate: "orgTopics" };
   const query = useGetOrgQuery(params) as AppQuery<IOrg>;
   const blog = query.data;
-  const subQuery = useGetSubscriptionQuery({
-    email: userEmail
-  }) as AppQuery<ISubscription>;
 
   const [currentTopicName, setCurrentTopicName] = useState("");
   const title = "Dernières publications";
@@ -52,7 +49,6 @@ const BlogPage = ({ isMobile, ...props }: PageProps) => {
           <TopicsList
             currentTopicName={currentTopicName}
             query={query as AppQueryWithData<IOrg>}
-            subQuery={subQuery}
             isCreator
             addButtonLabel="Ajouter une publication"
           >
@@ -60,20 +56,12 @@ const BlogPage = ({ isMobile, ...props }: PageProps) => {
               currentTopic,
               selectedCategories,
               setSelectedCategories,
-              notifyModalState,
-              setNotifyModalState,
               topicModalState,
-              setTopicModalState
+              setTopicModalState,
             }) => {
               return blog?.orgTopics.map((topic, topicIndex) => {
                 const isCurrent = topic._id === currentTopic?._id;
                 const isTopicCreator = getRefId(topic) === session?.user.userId;
-                const isSubbedToTopic = !!subQuery.data?.topics?.find(
-                  (topicSubscription) => {
-                    if (!topicSubscription.topic) return false;
-                    return topicSubscription.topic._id === topic._id;
-                  }
-                );
 
                 return (
                   <TopicsListItem
@@ -83,11 +71,9 @@ const BlogPage = ({ isMobile, ...props }: PageProps) => {
                     session={session}
                     isCreator
                     query={query as AppQueryWithData<IOrg>}
-                    subQuery={subQuery}
                     //currentTopicName={currentTopicName}
                     topic={topic}
                     topicIndex={topicIndex}
-                    isSubbedToTopic={isSubbedToTopic}
                     isCurrent={isCurrent}
                     isTopicCreator={isTopicCreator}
                     isDark={isDark}
@@ -95,8 +81,6 @@ const BlogPage = ({ isMobile, ...props }: PageProps) => {
                     //setIsLoading={setIsLoading}
                     selectedCategories={selectedCategories}
                     setSelectedCategories={setSelectedCategories}
-                    notifyModalState={notifyModalState}
-                    setNotifyModalState={setNotifyModalState}
                     topicModalState={topicModalState}
                     setTopicModalState={setTopicModalState}
                     mb={topicIndex < blog.orgTopics.length - 1 ? 5 : 0}

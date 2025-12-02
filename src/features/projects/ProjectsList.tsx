@@ -3,7 +3,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   EditIcon,
-  EmailIcon
+  EmailIcon,
 } from "@chakra-ui/icons";
 import {
   Alert,
@@ -22,7 +22,7 @@ import {
   Tooltip,
   Tr,
   useColorMode,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
@@ -36,26 +36,17 @@ import {
   EProjectStatus,
   EProjectInviteStatus,
   ProjectInviteStatuses,
-  ProjectStatuses
+  ProjectStatuses,
 } from "models/Project";
-import { ISubscription } from "models/Subscription";
 import { IUser } from "models/User";
 import { hasItems } from "utils/array";
 import * as dateUtils from "utils/date";
 import { sanitize, toLowerCase } from "utils/string";
 import { AppQuery, AppQueryWithData } from "utils/types";
-import { ProjectAttendingForm } from "./ProjectAttendingForm";
 import { ProjectsListItemVisibility } from "./ProjectsListItemVisibility";
-import {
-  useAddProjectNotifMutation,
-  useDeleteProjectMutation
-} from "features/api/projectsApi";
+import { useDeleteProjectMutation } from "features/api/projectsApi";
 import { ProjectsListFilters } from "./ProjectsListFilters";
 import { ISelectedOrder, ProjectsListOrder } from "./ProjectsListOrder";
-import {
-  EntityNotifModal,
-  NotifModalState
-} from "features/modals/EntityNotifModal";
 import { getRefId } from "models/Entity";
 
 export const ProjectsList = ({
@@ -63,7 +54,6 @@ export const ProjectsList = ({
   orgQuery,
   user,
   userQuery,
-  subQuery,
   isCreator,
   isFollowed,
   ...props
@@ -75,7 +65,6 @@ export const ProjectsList = ({
   user?: IUser;
   userQuery?: AppQueryWithData<IUser>;
   // end either
-  subQuery?: AppQuery<ISubscription>;
   isCreator?: boolean;
   isFollowed?: boolean;
 }) => {
@@ -89,9 +78,6 @@ export const ProjectsList = ({
   //#region local state
   const [currentProject, setCurrentProject] = useState<IProject | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
-  const [notifyModalState, setNotifyModalState] = useState<
-    NotifModalState<IProject>
-  >({});
   const [projectModalState, setProjectModalState] = useState<{
     isOpen: boolean;
     project?: IProject;
@@ -100,15 +86,14 @@ export const ProjectsList = ({
     ISelectedOrder | undefined
   >({
     key: "createdAt",
-    order: "desc"
+    order: "desc",
   });
   const [selectedStatuses, setSelectedStatuses] = useState<EProjectStatus[]>(
-    []
+    [],
   );
   //#endregion
 
   //#region project
-  const addProjectNotifMutation = useAddProjectNotifMutation();
   const [deleteProject] = useDeleteProjectMutation();
   const projects = useMemo(
     () =>
@@ -121,8 +106,8 @@ export const ProjectsList = ({
             )
               return false;
             return true;
-          }
-        )
+          },
+        ),
       ].sort((a, b) => {
         if (!selectedOrder) return 0;
 
@@ -142,7 +127,7 @@ export const ProjectsList = ({
         return 0;
       }),
 
-    [org, user, selectedOrder, selectedStatuses]
+    [org, user, selectedOrder, selectedStatuses],
   );
   //#endregion
 
@@ -158,14 +143,14 @@ export const ProjectsList = ({
       if (deletedProject) {
         toast({
           title: `Le projet ${deletedProject.projectName} a été supprimé !`,
-          status: "success"
+          status: "success",
         });
       }
     } catch (error) {
       console.error(error);
       toast({
         title: `Le projet n'a pas pu être supprimé`,
-        status: "error"
+        status: "error",
       });
     }
   };
@@ -173,14 +158,7 @@ export const ProjectsList = ({
   const onEditClick = (project: IProject) => {
     setProjectModalState({
       isOpen: true,
-      project
-    });
-  };
-
-  const onNotifClick = (project: IProject) => {
-    setNotifyModalState({
-      ...notifyModalState,
-      entity: project
+      project,
     });
   };
 
@@ -233,7 +211,7 @@ export const ProjectsList = ({
           <Alert status="warning">
             <AlertIcon />{" "}
             {`Aucun projets ${toLowerCase(
-              ProjectStatuses[selectedStatuses[0]]
+              ProjectStatuses[selectedStatuses[0]],
             )}`}
           </Alert>
         ) : (
@@ -248,7 +226,7 @@ export const ProjectsList = ({
               projectStatus,
               projectVisibility,
               createdBy,
-              createdAt
+              createdAt,
             } = project;
 
             const projectCreatedByUserName =
@@ -297,8 +275,8 @@ export const ProjectsList = ({
                             projectStatus === EProjectStatus.PENDING
                               ? "red"
                               : projectStatus === EProjectStatus.ONGOING
-                                ? "orange"
-                                : "green"
+                              ? "orange"
+                              : "green"
                           }
                           variant="solid"
                           mr={2}
@@ -322,7 +300,7 @@ export const ProjectsList = ({
                               href={`/${projectCreatedByUserName}`}
                               _hover={{
                                 color: isDark ? "white" : "white",
-                                textDecoration: "underline"
+                                textDecoration: "underline",
                               }}
                             >
                               {projectCreatedByUserName}
@@ -341,7 +319,7 @@ export const ProjectsList = ({
                           <Text
                             cursor="default"
                             _hover={{
-                              color: isDark ? "white" : "white"
+                              color: isDark ? "white" : "white",
                             }}
                           >
                             {timeAgo}
@@ -357,33 +335,11 @@ export const ProjectsList = ({
                           projectVisibility={projectVisibility}
                           cursor="default"
                           _hover={{
-                            color: isDark ? "white" : "white"
+                            color: isDark ? "white" : "white",
                           }}
                         />
 
                         {/* <ProjectsListItemShare aria-label="Partager" project={project} /> */}
-
-                        {isCreator && (
-                          <>
-                            <Box as="span" aria-hidden mx={1}>
-                              ·
-                            </Box>
-
-                            <Link
-                              _hover={{
-                                color: isDark ? "white" : "white",
-                                textDecoration: "underline"
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onNotifClick(project);
-                              }}
-                            >
-                              {project.projectNotifications.length} personnes
-                              invitées
-                            </Link>
-                          </>
-                        )}
                       </Flex>
                     </Flex>
 
@@ -392,25 +348,6 @@ export const ProjectsList = ({
 
                       {!isLoading[project._id] && (
                         <>
-                          {org && isCreator && (
-                            <Tooltip
-                              placement="bottom"
-                              label="Envoyer des invitations"
-                            >
-                              <IconButton
-                                aria-label="Envoyer des invitations"
-                                icon={<EmailIcon />}
-                                variant="outline"
-                                colorScheme="blue"
-                                mr={3}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onNotifClick(project);
-                                }}
-                              />
-                            </Tooltip>
-                          )}
-
                           {isProjectCreator && (
                             <>
                               <Tooltip
@@ -487,7 +424,7 @@ export const ProjectsList = ({
                         <Box className="rteditor">
                           <div
                             dangerouslySetInnerHTML={{
-                              __html: sanitize(projectDescription)
+                              __html: sanitize(projectDescription),
                             }}
                           />
                         </Box>
@@ -496,7 +433,7 @@ export const ProjectsList = ({
                           onClick={() => {
                             setProjectModalState({
                               isOpen: true,
-                              project
+                              project,
                             });
                           }}
                           variant="underline"
@@ -505,63 +442,6 @@ export const ProjectsList = ({
                         </Link>
                       ) : (
                         <Text fontStyle="italic">Aucune description.</Text>
-                      )}
-                    </GridItem>
-
-                    <GridItem
-                      bg={isDark ? "#314356" : "orange.200"}
-                      overflowX="auto"
-                      borderBottomRadius="xl"
-                      minHeight="12px"
-                    >
-                      {org && (
-                        <>
-                          {isProjectCreator ? (
-                            <Table>
-                              <Tbody>
-                                {Array.isArray(project.projectNotifications) &&
-                                project.projectNotifications.length > 0 ? (
-                                  project.projectNotifications.map(
-                                    ({ email, status }) => (
-                                      <Tr>
-                                        <Td>{email}</Td>
-                                        <Td>
-                                          <Tag
-                                            variant="solid"
-                                            colorScheme={
-                                              status ===
-                                              EProjectInviteStatus.PENDING
-                                                ? "blue"
-                                                : status ===
-                                                    EProjectInviteStatus.OK
-                                                  ? "green"
-                                                  : "red"
-                                            }
-                                          >
-                                            {ProjectInviteStatuses[status]}
-                                          </Tag>
-                                        </Td>
-                                      </Tr>
-                                    )
-                                  )
-                                ) : (
-                                  <Tr>
-                                    <Td border={0}>
-                                      <Text fontStyle="italic">
-                                        Personne n'a indiqué participer.
-                                      </Text>
-                                    </Td>
-                                  </Tr>
-                                )}
-                              </Tbody>
-                            </Table>
-                          ) : (
-                            <ProjectAttendingForm
-                              project={project}
-                              query={query}
-                            />
-                          )}
-                        </>
                       )}
                     </GridItem>
                   </>
@@ -583,14 +463,14 @@ export const ProjectsList = ({
             setProjectModalState({
               ...projectModalState,
               isOpen: false,
-              project: undefined
+              project: undefined,
             })
           }
           onSubmit={async (project) => {
             setProjectModalState({
               ...projectModalState,
               isOpen: false,
-              project: undefined
+              project: undefined,
             });
             setCurrentProject(project ? project : null);
           }}
@@ -598,19 +478,9 @@ export const ProjectsList = ({
             setProjectModalState({
               ...projectModalState,
               isOpen: false,
-              project: undefined
+              project: undefined,
             })
           }
-        />
-      )}
-
-      {session && org && (
-        <EntityNotifModal
-          query={query as AppQueryWithData<IOrg>}
-          mutation={addProjectNotifMutation}
-          setModalState={setNotifyModalState}
-          modalState={notifyModalState}
-          session={session}
         />
       )}
     </>

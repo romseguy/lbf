@@ -9,7 +9,6 @@ import modal from "./modalSlice";
 import org from "./orgSlice";
 import session from "./sessionSlice";
 import setting from "./settingSlice";
-import subscription from "./subscriptionSlice";
 import ui from "./uiSlice";
 import user from "./userSlice";
 
@@ -25,18 +24,17 @@ export const makeStore = () =>
       org,
       session,
       setting,
-      subscription,
       ui,
       user,
       [api.reducerPath]: api.reducer,
-      [settingApi.reducerPath]: settingApi.reducer
+      [settingApi.reducerPath]: settingApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }).concat([
         api.middleware,
-        settingApi.middleware
+        settingApi.middleware,
       ]),
-    devTools: getEnv() !== "production"
+    devTools: getEnv() !== "production",
   });
 
 export const store = makeStore();

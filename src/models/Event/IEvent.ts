@@ -2,24 +2,22 @@ import {
   IEntity,
   IEntityBanner,
   IEntityLogo,
-  IEntityStyles
+  IEntityStyles,
 } from "models/Entity";
-import { IEventNotification } from "models/INotification";
 import { IOrg } from "models/Org";
-import { ISubscription } from "models/Subscription";
 import { ETopicsListOrder, ITopic } from "models/Topic";
 
 export enum EEventInviteStatus {
   PENDING = "PENDING",
   OK = "OK",
-  NOK = "NOK"
+  NOK = "NOK",
 }
 
 export enum EEventVisibility {
   FOLLOWERS = "FOLLOWERS",
   PRIVATE = "PRIVATE",
   PUBLIC = "PUBLIC",
-  SUBSCRIBERS = "SUBSCRIBERS" // deprecated
+  SUBSCRIBERS = "SUBSCRIBERS", // deprecated
 }
 
 export interface IEvent<T = string> extends IEntity {
@@ -45,8 +43,6 @@ export interface IEvent<T = string> extends IEntity {
   eventEmail?: { email: string }[];
   eventPhone?: { phone: string }[];
   eventWeb?: { url: string; prefix: string }[];
-  eventNotifications: IEventNotification[]; // list of emails the invitation has been sent to
-  eventSubscriptions: ISubscription[];
   eventTopicCategories: IEventTopicCategory[];
   eventTopicOrder?: ETopicsListOrder;
   eventTopics: ITopic[];
