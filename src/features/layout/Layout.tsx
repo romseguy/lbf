@@ -4,7 +4,7 @@ import {
   Flex,
   useColorMode,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -38,7 +38,7 @@ export interface LayoutProps {
 export const mainStyles = ({
   isDark,
   isMobile,
-  entity
+  entity,
 }: {
   isDark: boolean;
   isMobile: boolean;
@@ -107,7 +107,7 @@ export const Layout = ({
       } else {
         const { topicName } =
           entity.orgTopics.find(
-            ({ topicName }) => tabItem === normalize(topicName)
+            ({ topicName }) => tabItem === normalize(topicName),
           ) || {};
         if (topicName) {
           subtitle = ` – ${topicName}`;
@@ -181,27 +181,7 @@ export const Layout = ({
 
       {/* Footer */}
       <Flex as="footer" flexDir="column" alignItems="center" pb={3} mt={3}>
-        {/* <Image src="/images/bg.png" height="100px" m="0 auto" /> */}
-        <Box>
-          <PaypalButton />
-        </Box>
-        <Box fontSize="smaller" textAlign="center" mt={3}>
-          <Link href="/a_propos" variant="underline">
-            À propos
-          </Link>
-          <Delimiter />
-          <Link href="/privacy" variant="underline">
-            CGU
-          </Link>
-          <Delimiter />
-          <Link href="https://github.com/romseguy/lbf" variant="underline">
-            Code
-          </Link>
-          <Delimiter />
-          <Link href="/contact" variant="underline">
-            Contact
-          </Link>
-        </Box>
+        <Delimiter fontSize="xxx-large" />
       </Flex>
     </Flex>
   );
@@ -215,7 +195,7 @@ export const Layout = ({
       <>
         Une erreur est survenue, <ContactLink label="merci de nous contacter" />{" "}
         avec une description du scénario.
-      </>
+      </>,
     );
   };
 

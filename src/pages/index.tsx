@@ -6,7 +6,7 @@ import {
   Spinner,
   Switch,
   useColorMode,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ import {
   Column,
   EntityAddButton,
   AppHeading,
-  Delimiter
+  Delimiter,
 } from "features/common";
 import { Layout } from "features/layout";
 import { MapModal } from "features/modals/MapModal";
@@ -33,7 +33,7 @@ import { StarIcon } from "@chakra-ui/icons";
 const initialOrgsQueryParams = {
   orgType: EOrgType.NETWORK,
   //populate: "orgs orgTopics.topicMessages createdBy"
-  populate: "orgTopics.topicMessages"
+  populate: "orgTopics.topicMessages",
 };
 
 const IndexPage = (props: PageProps) => {
@@ -45,19 +45,19 @@ const IndexPage = (props: PageProps) => {
         ...query,
         data,
         front: data?.filter(
-          (org) => org.orgVisibility === EOrgVisibility.FRONT
+          (org) => org.orgVisibility === EOrgVisibility.FRONT,
         ),
         public: data?.filter(
-          (org) => org.orgVisibility === EOrgVisibility.PUBLIC
-        )
+          (org) => org.orgVisibility === EOrgVisibility.PUBLIC,
+        ),
       };
-    }
+    },
   });
 
   const myOrgsQuery = useGetOrgsQuery({
     orgType: EOrgType.NETWORK,
     createdBy: session?.user.userId,
-    populate: "orgTopics.topicMessages"
+    populate: "orgTopics.topicMessages",
   });
 
   const [data, setData] = useState(orgsQuery.front);
@@ -100,12 +100,12 @@ const IndexPage = (props: PageProps) => {
               keys={(orgType) => [
                 {
                   key: EOrderKey.orgName,
-                  label: `Nom du forum`
+                  label: `Nom du forum`,
                 },
                 {
                   key: EOrderKey.latestActivity,
-                  label: "Dernier message"
-                }
+                  label: "Dernier message",
+                },
               ]}
             />
           </>
@@ -113,7 +113,6 @@ const IndexPage = (props: PageProps) => {
 
         <Flex justifyContent="center">
           <EntityAddButton
-            label="Ajoutez un forum"
             orgType={EOrgType.NETWORK}
             mt={data && data.length > 0 ? (props.isMobile ? 1 : 5) : 0}
           />
@@ -131,7 +130,7 @@ const IndexPage = (props: PageProps) => {
                   ? { bg: "transparent", p: 1, my: 5, mx: 1 }
                   : { mx: 3, mb: 5 })}
               >
-                <AppHeading mb={5}>Vos forums</AppHeading>
+                <AppHeading mb={5}>Vos planètes</AppHeading>
 
                 <OrgsList
                   data={myOrgsQuery.data.filter((org) => {
@@ -140,12 +139,12 @@ const IndexPage = (props: PageProps) => {
                   keys={(orgType) => [
                     {
                       key: EOrderKey.orgName,
-                      label: `Nom du forum`
+                      label: `Nom`,
                     },
                     {
                       key: EOrderKey.latestActivity,
-                      label: "Dernier message"
-                    }
+                      label: "Dernier message",
+                    },
                   ]}
                 />
 
@@ -172,12 +171,12 @@ const IndexPage = (props: PageProps) => {
                   keys={(orgType) => [
                     {
                       key: EOrderKey.orgName,
-                      label: `Nom du forum`
+                      label: `Nom`,
                     },
                     {
                       key: EOrderKey.latestActivity,
-                      label: "Dernier message"
-                    }
+                      label: "Dernier message",
+                    },
                   ]}
                 />
 
@@ -203,9 +202,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
     await Promise.all(store.dispatch(getRunningQueriesThunk()));
 
     return {
-      props: {}
+      props: {},
     };
-  }
+  },
 );
 
 export default IndexPage;

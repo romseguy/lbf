@@ -1,6 +1,5 @@
 import nextConnect from "next-connect";
 import { NextApiRequest, NextApiResponse } from "next";
-import { sendMail } from "server/email";
 import { getSession } from "server/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createEndpointError } from "utils/errors";
@@ -13,7 +12,7 @@ handler.post<
 >(async function contact(req, res) {
   const session = await getSession({ req });
   const {
-    body: { email, message }
+    body: { email, message },
   }: { body: { email: string; message: string } } = req;
 
   try {
@@ -41,10 +40,10 @@ handler.post<
             </tbody>
           </table>
         </body>
-        `
+        `,
     };
 
-    await sendMail(mail, session);
+    //await sendMail(mail, session);
     res.status(200).json({});
   } catch (error) {
     res.status(500).json(createEndpointError(error));

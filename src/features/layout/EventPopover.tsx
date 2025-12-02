@@ -61,9 +61,8 @@ const EventPopoverContent = ({
   //#endregion
 
   //#region local state
-  const [showEvents, setShowEvents] = useState<
-    "showEventsAdded" | "showEventsFollowed" | "showEventsAttended"
-  >("showEventsAdded");
+  const [showEvents, setShowEvents] =
+    useState<"showEventsAdded">("showEventsAdded");
   //#endregion
 
   return (
@@ -78,23 +77,10 @@ const EventPopoverContent = ({
           lineHeight={2}
           mb={2}
           defaultValue={showEvents}
-          onChange={(e) =>
-            setShowEvents(
-              e.target.value as
-                | "showEventsAdded"
-                | "showEventsFollowed"
-                | "showEventsAttended",
-            )
-          }
+          onChange={(e) => setShowEvents(e.target.value as "showEventsAdded")}
         >
           <option value="showEventsAdded">
             Les événements que j'ai ajouté
-          </option>
-          <option value="showEventsFollowed">
-            Les événements où je suis abonné
-          </option>
-          <option value="showEventsAttended">
-            Les événements où je participe
           </option>
         </Select>
 

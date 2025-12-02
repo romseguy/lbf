@@ -87,7 +87,7 @@ const TopicPopoverContent = ({
 
   //#region local state
   const [showTopics, setShowTopics] = useState<
-    "showTopicsAdded" | "showTopicsFollowed" | "showTopicsAnswered"
+    "showTopicsAdded" | "showTopicsAnswered"
   >("showTopicsAdded");
   //#endregion
 
@@ -170,17 +170,10 @@ const TopicPopoverContent = ({
           lineHeight={2}
           mb={2}
           defaultValue={showTopics}
-          onChange={(e) =>
-            setShowTopics(
-              e.target.value as "showTopicsAdded" | "showTopicsFollowed",
-            )
-          }
+          onChange={(e) => setShowTopics(e.target.value as "showTopicsAdded")}
         >
           <option value="showTopicsAdded">
             Les discussions que j'ai ajouté
-          </option>
-          <option value="showTopicsFollowed">
-            Les discussions où je suis abonné
           </option>
           <option value="showTopicsAnswered">
             Les discussions où j'ai participé

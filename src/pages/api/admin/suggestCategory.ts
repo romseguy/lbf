@@ -3,7 +3,6 @@ import { isBefore, addDays, format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import { sendMail } from "server/email";
 import { getSession } from "server/auth";
 import { backgroundColor, textColor, mainBackgroundColor } from "utils/email";
 import { createEndpointError } from "utils/errors";
@@ -24,7 +23,7 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
       session.user.suggestedCategoryAt &&
       isBefore(
         new Date(),
-        addDays(parseISO(session.user.suggestedCategoryAt), 1)
+        addDays(parseISO(session.user.suggestedCategoryAt), 1),
       )
     )
       return res
@@ -35,14 +34,14 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
               `Vous devez attendre le ${format(
                 parseISO(session.user.suggestedCategoryAt),
                 "cccc d MMMM H'h'mm",
-                { locale: fr }
-              )} pour proposer une nouvelle catégorie`
-            )
-          )
+                { locale: fr },
+              )} pour proposer une nouvelle catégorie`,
+            ),
+          ),
         );
 
     let {
-      body: { category }
+      body: { category },
     }: { body: { category: string } } = req;
 
     if (typeof category !== "string")
@@ -50,8 +49,8 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
         .status(400)
         .json(
           createEndpointError(
-            new Error("La catégorie doit être une chaine de caractères")
-          )
+            new Error("La catégorie doit être une chaine de caractères"),
+          ),
         );
 
     try {
@@ -79,15 +78,15 @@ handler.post<NextApiRequest & { body: { category: string } }, NextApiResponse>(
             </tbody>
           </table>
         </body>
-        `
+        `,
       };
 
-      await sendMail(mail);
+      //await sendMail(mail);
       res.status(200).json({});
     } catch (error) {
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export default handler;

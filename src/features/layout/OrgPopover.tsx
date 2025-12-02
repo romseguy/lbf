@@ -39,10 +39,7 @@ const OrgPopoverContent = ({
 
   //#region local state
   const [showOrgs, setShowOrgs] = useState<
-    | "showOrgsAdded"
-    | "showOrgsFollowed"
-    | "showOrgsSubscribed"
-    | "showOrgsArchived"
+    "showOrgsAdded" | "showOrgsSubscribed" | "showOrgsArchived"
   >("showOrgsAdded");
 
   const defaultOrder = EOrgsListOrder.NEWEST;
@@ -92,20 +89,13 @@ const OrgPopoverContent = ({
           defaultValue={showOrgs}
           onChange={(e) =>
             setShowOrgs(
-              e.target.value as
-                | "showOrgsAdded"
-                | "showOrgsFollowed"
-                | "showOrgsSubscribed",
+              e.target.value as "showOrgsAdded" | "showOrgsSubscribed",
             )
           }
         >
           <option value="showOrgsAdded">
             Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai{" "}
             {orgType === EOrgType.NETWORK ? "ajouté" : "ajouté"}
-          </option>
-          <option value="showOrgsFollowed">
-            Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} où je me
-            suis abonné
           </option>
           <option value="showOrgsArchived">
             Les {orgType === EOrgType.NETWORK ? "planètes" : "arbres"} que j'ai

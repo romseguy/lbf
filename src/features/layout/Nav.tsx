@@ -98,20 +98,6 @@ export const Nav = ({
                       Blog
                     </Link>
                   </Heading>
-                  <Delimiter fontSize="xxx-large" />
-                  <Heading {...headingProps}>
-                    <Link
-                      href="/a_propos"
-                      variant={
-                        router.pathname === "/a_propos"
-                          ? "underline"
-                          : undefined
-                      }
-                      shallow
-                    >
-                      À propos
-                    </Link>
-                  </Heading>
                 </HStack>
               </Td>
               <Td border={0} display="flex" justifyContent="flex-end" gap={3}>
