@@ -7,7 +7,7 @@ import {
   Flex,
   Input,
   Text,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import {
   EditOrgPayload,
   useDeleteOrgMutation,
-  useEditOrgMutation
+  useEditOrgMutation,
 } from "features/api/orgsApi";
 import { Button, DeleteButton } from "features/common";
 import {
@@ -25,7 +25,7 @@ import {
   orgTypeFull,
   orgTypeFull2,
   orgTypeFull4,
-  orgTypeFull5
+  orgTypeFull5,
 } from "models/Org";
 import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
@@ -38,7 +38,7 @@ export const OrgConfigButtons = ({
   isEdit,
   orgQuery,
   setIsEdit,
-  toggleVisibility
+  toggleVisibility,
 }: OrgConfigVisibility & {
   isEdit: boolean;
   orgQuery: AppQueryWithData<IOrg>;
@@ -52,14 +52,10 @@ export const OrgConfigButtons = ({
   const org = orgQuery.data;
   const [deleteOrg, deleteQuery] = useDeleteOrgMutation();
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isDeleteOrgEvents, setIsDeleteOrgEvents] = useState(false);
 
   const onDelete = async () => {
     try {
-      const deletedOrg = await deleteOrg({
-        orgId: org._id,
-        isDeleteOrgEvents
-      }).unwrap();
+      const deletedOrg = await deleteOrg({ orgId: org._id }).unwrap();
 
       if (deletedOrg) {
         await router.push(`/`);
@@ -67,9 +63,9 @@ export const OrgConfigButtons = ({
           title: `${orgTypeFull5(deletedOrg.orgType, true)} ${
             deletedOrg.orgName
           } a été ${
-            deletedOrg.orgType === EOrgType.NETWORK ? "supprimée" : "déraciné"
+            deletedOrg.orgType === EOrgType.NETWORK ? "supprimée" : "supprimé"
           } !`,
-          status: "success"
+          status: "success",
         });
       }
     } catch (error) {
@@ -86,14 +82,14 @@ export const OrgConfigButtons = ({
     try {
       const isTree = org.orgType === EOrgType.GENERIC;
       const payload: EditOrgPayload = {
-        orgType: isTree ? EOrgType.NETWORK : EOrgType.GENERIC
+        orgType: isTree ? EOrgType.NETWORK : EOrgType.GENERIC,
       };
       await editOrg({ orgId: org._id, payload }).unwrap();
       toast({
         title: `${org.orgName} est maintenant ${
           isTree ? "une planète" : "un arbre"
         }`,
-        status: "success"
+        status: "success",
       });
     } catch (error) {
       showBoundary(error);
@@ -162,19 +158,10 @@ export const OrgConfigButtons = ({
                 autoComplete="off"
                 onChange={(e) =>
                   setIsDisabled(
-                    e.target.value.toLowerCase() !== org.orgName.toLowerCase()
+                    e.target.value.toLowerCase() !== org.orgName.toLowerCase(),
                   )
                 }
               />
-
-              {hasItems(org.orgEvents) && (
-                <Checkbox
-                  onChange={(e) => setIsDeleteOrgEvents(e.target.checked)}
-                >
-                  Supprimer les événements associés à{" "}
-                  {orgTypeFull4(org.orgType)}
-                </Checkbox>
-              )}
             </>
           }
           onClick={onDelete}

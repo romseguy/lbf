@@ -33,7 +33,7 @@ export type GetOrgsParams = {
   populate?: string;
 };
 
-export type DeleteOrgParams = { orgId: string; isDeleteOrgEvents: boolean };
+export type DeleteOrgParams = { orgId: string; isDeleteOrgEvents?: boolean };
 
 export const orgApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -46,10 +46,10 @@ export const orgApi = api.injectEndpoints({
         return {
           url: `orgs`,
           method: "POST",
-          body: payload
+          body: payload,
         };
       },
-      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      invalidatesTags: [{ type: "Orgs", id: "LIST" }],
     }),
     deleteOrg: build.mutation<IOrg, DeleteOrgParams>({
       query: ({ orgId, ...query }) => {
@@ -64,10 +64,10 @@ export const orgApi = api.injectEndpoints({
             Object.keys(query).length > 0
               ? `?${objectToQueryString(query)}`
               : ""
-          }`
+          }`,
         };
       },
-      invalidatesTags: [{ type: "Orgs", id: "LIST" }]
+      invalidatesTags: [{ type: "Orgs", id: "LIST" }],
     }),
     editOrg: build.mutation<IOrg, { payload: EditOrgPayload; orgId?: string }>({
       query: ({ payload, orgId }) => {
@@ -81,15 +81,15 @@ export const orgApi = api.injectEndpoints({
         return {
           url: `org/${id}`,
           method: "PUT",
-          body: payload
+          body: payload,
         };
       },
       invalidatesTags: (result, error, params) => {
         return [
           { type: "Orgs", id: params.orgId },
-          { type: "Orgs", id: "LIST" }
+          { type: "Orgs", id: "LIST" },
         ];
-      }
+      },
     }),
     getOrg: build.query<IOrg, GetOrgParams>({
       query: ({ orgUrl, ...query }) => {
@@ -104,12 +104,12 @@ export const orgApi = api.injectEndpoints({
             Object.keys(query).length > 0
               ? `?${objectToQueryString(query)}`
               : ""
-          }`
+          }`,
         };
       },
       providesTags: (result, error, params) => [
-        { type: "Orgs" as const, id: result?._id }
-      ]
+        { type: "Orgs" as const, id: result?._id },
+      ],
     }),
     getOrgs: build.query<IOrg[], GetOrgsParams | void>({
       query: ({ ...query } = {}) => {
@@ -120,7 +120,7 @@ export const orgApi = api.injectEndpoints({
           //console.groupEnd();
         }
         return {
-          url: `orgs${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`
+          url: `orgs${hasQueryParams ? `?${objectToQueryString(query)}` : ""}`,
         };
       },
       providesTags: (result) =>
@@ -128,13 +128,13 @@ export const orgApi = api.injectEndpoints({
           ? [
               ...result.map(({ _id }) => ({
                 type: "Orgs" as const,
-                id: _id
+                id: _id,
               })),
-              { type: "Orgs", id: "LIST" }
+              { type: "Orgs", id: "LIST" },
             ]
-          : [{ type: "Orgs", id: "LIST" }]
-    })
-  })
+          : [{ type: "Orgs", id: "LIST" }],
+    }),
+  }),
 });
 
 export const {
@@ -142,7 +142,7 @@ export const {
   useDeleteOrgMutation,
   useEditOrgMutation,
   useGetOrgQuery,
-  useGetOrgsQuery
+  useGetOrgsQuery,
 } = orgApi;
 
 export const { getOrg, getOrgs } = orgApi.endpoints;

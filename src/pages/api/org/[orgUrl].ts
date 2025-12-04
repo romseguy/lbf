@@ -431,9 +431,9 @@ handler.delete<
       _id: { $in: org.orgTopics },
     });
 
-    await api.client.delete(`folder`, {
-      data: { orgId: _id },
-    });
+    // await api.client.delete(`folder`, {
+    //   data: { orgId: _id },
+    // });
 
     res.status(200).json(org);
   } catch (error) {

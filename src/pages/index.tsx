@@ -45,60 +45,6 @@ const IndexPage = (props: PageProps) => {
 
   return (
     <Layout {...props} mainContainer={false} pageTitle="Accueil">
-      <Column
-        {...(props.isMobile
-          ? { bg: "transparent", p: 1, pt: 0, mt: 3, mb: 5, mx: 1 }
-          : { mx: 3, mb: 5 })}
-      >
-        {orgsQuery.isLoading && <Spinner />}
-
-        {Array.isArray(data) && data.length > 0 && (
-          <>
-            <Switch
-              display="flex"
-              alignItems="center"
-              fontSize="lg"
-              size="lg"
-              mb={5}
-              isChecked={isChecked}
-              onChange={(e) => {
-                if (isChecked) {
-                  setData(orgsQuery.front);
-                  setIsChecked(false);
-                } else {
-                  setData(orgsQuery.data);
-                  setIsChecked(true);
-                }
-              }}
-              {...(props.isMobile ? { m: 5 } : {})}
-            >
-              Afficher tous les forums public ?
-            </Switch>
-
-            <OrgsList
-              data={data}
-              keys={(orgType) => [
-                {
-                  key: EOrderKey.orgName,
-                  label: `Nom du forum`,
-                },
-                {
-                  key: EOrderKey.latestActivity,
-                  label: "Dernier message",
-                },
-              ]}
-            />
-          </>
-        )}
-
-        <Flex justifyContent="center">
-          <EntityAddButton
-            orgType={EOrgType.NETWORK}
-            mt={data && data.length > 0 ? (props.isMobile ? 1 : 5) : 0}
-          />
-        </Flex>
-      </Column>
-
       {session && (
         <>
           {myOrgsQuery.isLoading && <Spinner />}
@@ -130,7 +76,6 @@ const IndexPage = (props: PageProps) => {
 
                 <Flex justifyContent="center">
                   <EntityAddButton
-                    label="Ajoutez un forum"
                     orgType={EOrgType.NETWORK}
                     mt={props.isMobile ? 1 : 5}
                   />
@@ -162,7 +107,6 @@ const IndexPage = (props: PageProps) => {
 
                 <Flex justifyContent="center">
                   <EntityAddButton
-                    label="Ajoutez un forum"
                     orgType={EOrgType.NETWORK}
                     mt={props.isMobile ? 1 : 5}
                   />

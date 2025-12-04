@@ -23,6 +23,7 @@ import { IUser } from "models/User";
 import { Delimiter } from "features/common/Delimiter";
 import { ServerError } from "utils/errors";
 import { PaypalButton } from "features/common/forms/PaypalButton";
+import { useSession } from "hooks/useSession";
 
 export interface LayoutProps {
   banner?: Base64Image & { mode: "dark" | "light" };
@@ -96,6 +97,7 @@ export const Layout = ({
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const router = useRouter();
+  const { data: session } = useSession();
 
   let subtitle = "";
   const isO = isOrg(entity);
@@ -178,7 +180,7 @@ export const Layout = ({
 
       {/* Footer */}
       <Flex as="footer" flexDir="column" alignItems="center" pb={3} mt={3}>
-        <Delimiter fontSize="xxx-large" />
+        {session ? session.user.email : "Connectez vous pour utiliser l'appli"}
       </Flex>
     </Flex>
   );
