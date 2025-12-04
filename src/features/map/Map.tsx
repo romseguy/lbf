@@ -1,22 +1,22 @@
 import MarkerClusterer, {
-  ClusterIconStyle
+  ClusterIconStyle,
 } from "@googlemaps/markerclustererplus";
 import GoogleMap from "google-map-react";
 import React, { useEffect, useRef, useState } from "react";
 import { render } from "react-dom";
 import { LatLon } from "use-places-autocomplete";
-import { IEvent } from "models/Event";
+
 import { EOrgType, IOrg } from "models/Org";
 import { FullscreenControl } from "./FullscreenControl";
 import { withGoogleApi } from "./GoogleApiWrapper";
 import { Marker } from "./Marker";
 import { getMarkerUrl, SizeMap } from "utils/maps";
 import { EntityModal } from "features/modals/EntityModal";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { IEntity, isOrg } from "models/Entity";
 
 const defaultCenter = {
   lat: 46.227638,
-  lng: 2.213749
+  lng: 2.213749,
 };
 export const defaultZoomLevel = 5;
 
@@ -24,11 +24,10 @@ function getMarkers(items: IEntity[]) {
   let hash: { [key: string]: boolean } = {};
 
   return items.map((item, index: number) => {
-    const isE = isEvent(item);
     const isO = isOrg(item);
     const key = `marker-${index}`;
-    let lat = isE ? item.eventLat : isO ? item.orgLat : undefined;
-    let lng = isE ? item.eventLng : isO ? item.orgLng : undefined;
+    let lat = isO ? item.orgLat : undefined;
+    let lng = isO ? item.orgLng : undefined;
 
     if (lat && lng) {
       const latLng = `${lat}_${lng}`;
@@ -43,13 +42,12 @@ function getMarkers(items: IEntity[]) {
       key,
       lat,
       lng,
-      item
+      item,
     };
   });
 }
 
 export interface MapProps {
-  events?: IEvent[];
   orgs?: IOrg[];
   center?: LatLon;
   height?: string;
@@ -61,10 +59,9 @@ export interface MapProps {
 }
 
 export const Map = withGoogleApi({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
 })(
   ({
-    events,
     orgs,
     center,
     size,
@@ -79,10 +76,10 @@ export const Map = withGoogleApi({
     const mapRef = useRef(null);
     const [itemToShow, setItemToShow] = useState<IEntity | null>(null);
     const [zoomLevel, setZoomLevel] = useState<number>(defaultZoomLevel);
-    const [markers, setMarkers] = useState(getMarkers(events || orgs || []));
+    const [markers, setMarkers] = useState(getMarkers(orgs || []));
     const onGoogleApiLoaded = ({
       map,
-      maps: api
+      maps: api,
     }: {
       map: google.maps.Map;
       maps: typeof google.maps;
@@ -93,14 +90,14 @@ export const Map = withGoogleApi({
         const controlButtonDiv = document.createElement("div");
         render(
           <FullscreenControl onClick={onFullscreenControlClick} />,
-          controlButtonDiv
+          controlButtonDiv,
         );
         map.controls[api.ControlPosition.TOP_RIGHT].push(controlButtonDiv);
       }
 
       const gMarkers: google.maps.Marker[] = markers.map(({ lat, lng }) => {
         const gMarker = new api.Marker({
-          position: lat && lng ? { lat, lng } : null
+          position: lat && lng ? { lat, lng } : null,
         });
         gMarker.setVisible(false);
         return gMarker;
@@ -119,16 +116,16 @@ export const Map = withGoogleApi({
             id: !orgType
               ? "event"
               : orgType === EOrgType.NETWORK
-                ? "planet"
-                : "trees",
+              ? "planet"
+              : "trees",
             fill: "green",
             height,
-            width
+            width,
           }),
           anchorText: [23, 0],
           height,
-          width
-        }
+          width,
+        },
       ];
 
       const clusterer = new MarkerClusterer(map, gMarkers, {
@@ -138,11 +135,11 @@ export const Map = withGoogleApi({
             index: clusterIconStylesCount + 1,
             title: `${gMarkers.length} ${
               orgs ? "organisations" : "événements"
-            } à cet endroit`
+            } à cet endroit`,
           };
         },
         minimumClusterSize: 2,
-        styles
+        styles,
       });
 
       api.event.addListener(clusterer, "clusteringend", () => {
@@ -154,8 +151,8 @@ export const Map = withGoogleApi({
             gMarkerGroups.push(
               cluster.getMarkers().map((gMarker) => ({
                 lat: gMarker.getPosition()?.lat(),
-                lng: gMarker.getPosition()?.lng()
-              }))
+                lng: gMarker.getPosition()?.lng(),
+              })),
             );
         }
 
@@ -165,14 +162,14 @@ export const Map = withGoogleApi({
           markers.filter(
             (marker) =>
               !gMarkers.find(
-                ({ lat, lng }) => lat === marker.lat && lng === marker.lng
-              )
-          )
+                ({ lat, lng }) => lat === marker.lat && lng === marker.lng,
+              ),
+          ),
         );
       });
     };
 
-    if (!events && !orgs) return null;
+    if (!orgs) return null;
 
     return (
       <>
@@ -184,7 +181,7 @@ export const Map = withGoogleApi({
           zoom={props.zoomLevel || zoomLevel}
           options={(maps) => ({
             fullscreenControl: false,
-            gestureHandling: "greedy"
+            gestureHandling: "greedy",
             // zoomControl: boolean,
             // mapTypeControl: boolean,
             // scaleControl: boolean,
@@ -203,7 +200,7 @@ export const Map = withGoogleApi({
               ? {}
               : style || {
                   position: "relative",
-                  flex: 1
+                  flex: 1,
                 }
           }
         >
@@ -219,12 +216,10 @@ export const Map = withGoogleApi({
           ))}
         </GoogleMap>
 
-        {isEvent(itemToShow) ? (
-          <EntityModal event={itemToShow} onClose={() => setItemToShow(null)} />
-        ) : isOrg(itemToShow) ? (
+        {isOrg(itemToShow) ? (
           <EntityModal org={itemToShow} onClose={() => setItemToShow(null)} />
         ) : null}
       </>
     );
-  }
+  },
 );

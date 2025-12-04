@@ -2,16 +2,9 @@ import { Box, BoxProps, Image, useColorMode } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { css } from "twin.macro";
 import { Link } from "features/common";
-import { EventCategoryTag } from "features/events/EventCategoryTag";
 import theme, { logoHeight } from "features/layout/theme";
 import { FullscreenModal } from "features/modals/FullscreenModal";
-import {
-  IEntity,
-  IEntityBanner,
-  IEntityLogo,
-  isEvent,
-  isOrg
-} from "models/Entity";
+import { IEntity, IEntityBanner, IEntityLogo, isOrg } from "models/Entity";
 import { IOrg, orgTypeFull } from "models/Org";
 import { IUser } from "models/User";
 import { HeaderTitle } from "./HeaderTitle";
@@ -44,16 +37,11 @@ export const Header = ({
   //   console.log("🚀 ~ file: Header.tsx:41 ~ useEffect ~ executeScroll:");
   // }, [router.asPath]);
 
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
   let banner: IEntityBanner | undefined;
   let logo: IEntityLogo | undefined;
   let showTitle = true;
-  if (isE) {
-    banner = entity.eventBanner;
-    logo = entity.eventLogo;
-    showTitle = entity.eventStyles.showTitle;
-  } else if (isO) {
+  if (isO) {
     banner = entity.orgBanner;
     logo = entity.orgLogo;
     showTitle = entity.orgStyles.showTitle;
@@ -72,40 +60,36 @@ export const Header = ({
         display: flex;
         padding: 12px;
 
-        ${
-          isMobile
-            ? `
+        ${isMobile
+          ? `
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-end;
         `
-            : `
+          : `
         flex-direction: row;
-        `
-        }
+        `}
 
-        ${
-          banner &&
-          `
+        ${banner &&
+        `
           background-image: url("${banner.base64 || banner.url}");
           background-size: 100% 100%;
           background-repeat: no-repeat;
           cursor: pointer;
           height: ${banner.headerHeight}px;
           ${logo ? `` : ``}
-        `
-        }
+        `}
 
-        ${
-          !banner &&
-          `
-          /*background-color: ${isDark ? theme.colors.gray[700] : "lightblue"};*/
+        ${!banner &&
+        `
+          /*background-color: ${
+            isDark ? theme.colors.gray[700] : "lightblue"
+          };*/
           background-color: ${
             isDark ? theme.colors.gray[700] : theme.colors.blackAlpha[50]
           };
           ${logo ? `` : ``}
-        `
-        }
+        `}
       `}
       onClick={(e) => {
         e.stopPropagation();
@@ -141,23 +125,9 @@ export const Header = ({
         />
       )}
 
-      {isE && typeof entity.eventCategory === "string" && (
-        <EventCategoryTag
-          event={entity}
-          selectedCategory={entity.eventCategory}
-          ml={2}
-          variant="solid"
-        />
-      )}
-
       {banner && isBannerModalOpen && (
         <FullscreenModal
-          header={
-            <>
-              Bannière{" "}
-              {isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)}
-            </>
-          }
+          header={<>Bannière {orgTypeFull((entity as IOrg).orgType)}</>}
           bodyProps={{ bg: "black" }}
           onClose={() => {
             setIsBannerModalOpen(false);
@@ -174,12 +144,7 @@ export const Header = ({
 
       {logo && isLogoModalOpen && (
         <FullscreenModal
-          header={
-            <>
-              Logo{" "}
-              {isE ? "de l'événement" : orgTypeFull((entity as IOrg).orgType)}
-            </>
-          }
+          header={<>Logo {orgTypeFull((entity as IOrg).orgType)}</>}
           bodyProps={{ bg: "black" }}
           onClose={() => {
             setIsLogoModalOpen(false);

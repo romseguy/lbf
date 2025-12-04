@@ -1,21 +1,15 @@
 import {
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  useToast,
-  Flex,
   Alert,
   AlertIcon,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
-import React, { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import useFormPersist from "hooks/useFormPersist";
-import Creatable from "react-select/creatable";
-import { ErrorMessageText, MultiSelect, RTEditor } from "features/common";
-import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   AddTopicPayload,
@@ -23,16 +17,19 @@ import {
   useAddTopicMutation,
   useEditTopicMutation,
 } from "features/api/topicsApi";
-import { useSession } from "hooks/useSession";
+import { ErrorMessageText, RTEditor } from "features/common";
+import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
-import { IEntity, isEvent, isOrg } from "models/Entity";
-import { EEventVisibility, IEvent } from "models/Event";
+import { useSession } from "hooks/useSession";
+import { IEntity, isOrg } from "models/Entity";
 import { EOrgVisibility, IOrg, orgTypeFull } from "models/Org";
 import { ITopic } from "models/Topic";
-import { hasItems } from "utils/array";
+import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import Creatable from "react-select/creatable";
 import { handleError } from "utils/form";
 import { defaultErrorMessage } from "utils/string";
-import { AppQuery, AppQueryWithData, Optional } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 
 export const TopicForm = ({
   query,
@@ -50,22 +47,13 @@ export const TopicForm = ({
   //#region local state
   const [addTopic, addTopicMutation] = useAddTopicMutation();
   const [editTopic, editTopicMutation] = useEditTopicMutation();
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const event = isE ? (query.data as IEvent) : undefined;
   const org = isO ? (query.data as IOrg) : undefined;
-  const isEntityPrivate =
-    org?.orgVisibility === EOrgVisibility.PRIVATE ||
-    event?.eventVisibility === EEventVisibility.PRIVATE;
-  const edit = isE ? editEvent : editOrg;
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : isO
-    ? entity.orgTopicCategories
-    : [];
+  const isEntityPrivate = org?.orgVisibility === EOrgVisibility.PRIVATE;
+  const edit = editOrg;
+  const topicCategories = isO ? entity.orgTopicCategories : [];
   const topicCategory =
     props.topic &&
     props.topic.topicCategory &&
@@ -157,7 +145,6 @@ export const TopicForm = ({
         }
 
         let payload: AddTopicPayload = {
-          event,
           org,
           topic,
         };
@@ -254,11 +241,7 @@ export const TopicForm = ({
                     toast({
                       status: "error",
                       title: `Vous n'avez pas la permission ${
-                        isE
-                          ? "de l'événement"
-                          : isO
-                          ? orgTypeFull(entity.orgType)
-                          : ""
+                        isO ? orgTypeFull(entity.orgType) : ""
                       } pour ajouter une catégorie`,
                     });
                     return;
@@ -283,9 +266,9 @@ export const TopicForm = ({
                     //} else {
                     const catId = "" + topicCategories.length;
                     await edit({
-                      [isE ? "eventId" : "orgId"]: entity._id,
+                      ["orgId"]: entity._id,
                       payload: {
-                        [isE ? "eventTopicCategories" : "orgTopicCategories"]: [
+                        ["orgTopicCategories"]: [
                           ...topicCategories,
                           {
                             catId,

@@ -10,23 +10,20 @@ import {
   ModalOverlay,
   Text,
   useColorMode,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { isMobile } from "react-device-detect";
 import { EntityInfo, Link, Modal } from "features/common";
-import { EventTimeline } from "features/events/EventTimeline";
-import { IEvent } from "models/Event";
+
 import { EOrgType, IOrg } from "models/Org";
 import { sanitize } from "utils/string";
 
 export const EntityModal = ({
-  event,
   org,
   ...props
 }: {
-  event?: IEvent<string | Date>;
   org?: IOrg;
   onClose: () => void;
 }) => {
@@ -34,13 +31,11 @@ export const EntityModal = ({
   const isDark = colorMode === "dark";
   const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
 
-  const entityDescription = event
-    ? event.eventDescription
-    : org?.orgDescription;
-  const entityName = event ? event.eventName : org?.orgName;
-  const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const entityDescription = org?.orgDescription;
+  const entityName = org?.orgName;
+  const entityUrl = org?.orgUrl;
 
-  if (!event && !org) return null;
+  if (!org) return null;
 
   return (
     <Modal
@@ -60,8 +55,8 @@ export const EntityModal = ({
                   event
                     ? CalendarIcon
                     : org?.orgType === EOrgType.NETWORK
-                      ? FaGlobeEurope
-                      : FaTree
+                    ? FaGlobeEurope
+                    : FaTree
                 }
                 mr={1}
               />
@@ -78,13 +73,7 @@ export const EntityModal = ({
           <ModalCloseButton />
           <ModalBody px={3} pt={0}>
             <Flex flexDirection="row" flexWrap="wrap" mt={-3} mb={3}>
-              <EntityInfo
-                event={event}
-                org={org}
-                flexGrow={event ? 1 : undefined}
-                mt={3}
-              />
-              {event && <EventTimeline event={event} mt={3} />}
+              <EntityInfo org={org} mt={3} />
             </Flex>
 
             <Box
@@ -97,7 +86,7 @@ export const EntityModal = ({
                 <div className="rteditor">
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: sanitize(entityDescription)
+                      __html: sanitize(entityDescription),
                     }}
                   />
                 </div>

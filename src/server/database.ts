@@ -2,12 +2,8 @@ import type { Db } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
-import { IEvent } from "models/Event";
-import { EventSchema } from "models/Event/EventSchema";
 import { IOrg } from "models/Org";
 import { OrgSchema } from "models/Org/OrgSchema";
-import { IProject } from "models/Project";
-import { ProjectSchema } from "models/Project/ProjectSchema";
 import { ISetting } from "models/Setting";
 import { SettingSchema } from "models/Setting/SettingSchema";
 import { ITopic } from "models/Topic";
@@ -27,9 +23,7 @@ const connection = mongoose.createConnection(process.env.DATABASE_URL, {
 const clientPromise = connection.then((connection) => connection.getClient());
 const modelsPromise = connection.then((connection) => {
   return {
-    Event: connection.model<IEvent>("Event", EventSchema),
     Org: connection.model<IOrg>("Org", OrgSchema),
-    Project: connection.model<IProject>("Project", ProjectSchema),
     Setting: connection.model<ISetting>("Setting", SettingSchema),
     Topic: connection.model<ITopic>("Topic", TopicSchema),
     User: connection.model<IUser>("User", UserSchema),
@@ -38,9 +32,7 @@ const modelsPromise = connection.then((connection) => {
 
 export let db: Db;
 export let models: {
-  Event: Model<IEvent, {}, {}>;
   Org: Model<IOrg, {}, {}>;
-  Project: Model<IProject, {}, {}>;
   Setting: Model<ISetting, {}, {}>;
   Topic: Model<ITopic, {}, {}>;
   User: Model<IUser, {}, {}>;

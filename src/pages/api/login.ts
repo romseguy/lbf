@@ -9,7 +9,7 @@ import {
   setTokenCookie,
   sealOptions,
   createCookie,
-  TOKEN_NAME
+  TOKEN_NAME,
 } from "utils/auth";
 import { createEndpointError } from "utils/errors";
 import { normalize } from "utils/string";
@@ -50,7 +50,6 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
         let userName = normalize(data.email.replace(/@.+/, ""));
 
         if (
-          (await models.Event.findOne({ eventUrl: userName })) ||
           (await models.Org.findOne({ orgUrl: userName })) ||
           (await models.User.findOne({ userName }))
         ) {
@@ -60,7 +59,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
 
         user = await models.User.create({
           email: data.email,
-          userName
+          userName,
         });
       }
       if (!user) throw new Error();
@@ -68,7 +67,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
       const userToken = {
         email: data.email,
         userId: user._id,
-        userName: user.userName
+        userName: user.userName,
       };
 
       const token = await seal(userToken, process.env.SECRET, sealOptions);
@@ -78,7 +77,7 @@ handler.get<NextApiRequestWithAuthorizationHeader, NextApiResponse>(
     } catch (error: any) {
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
@@ -88,7 +87,7 @@ handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
 
     try {
       const {
-        body: { email, hash }
+        body: { email, hash },
       }: { body: LoginPayload } = req;
       let user = await models.User.findOne({ email }, "+password");
 
@@ -97,8 +96,8 @@ handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
           .status(404)
           .json(
             createEndpointError(
-              new Error(`L'utilisateur n'a pas pu être trouvé`)
-            )
+              new Error(`L'utilisateur n'a pas pu être trouvé`),
+            ),
           );
 
       if (user.password !== hash)
@@ -107,18 +106,18 @@ handler.post<NextApiRequest & { body: LoginPayload }, NextApiResponse>(
       const userToken = {
         email,
         userId: user._id,
-        userName: user.userName
+        userName: user.userName,
       };
       const token = await seal(userToken, process.env.SECRET, sealOptions);
       res.setHeader("Set-Cookie", [
         createCookie(TOKEN_NAME, token),
-        createCookie("authed", "true", { httpOnly: false })
+        createCookie("authed", "true", { httpOnly: false }),
       ]);
       return res.status(200).json({ authenticated: true });
     } catch (error: any) {
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export default handler;

@@ -24,13 +24,11 @@ export interface IEntityCategory {
 }
 
 export enum EEntityCategoryKey {
-  eventTopicCategories = "eventTopicCategories",
-  orgEventCategories = "orgEventCategories",
-  orgTopicCategories = "orgTopicCategories"
+  orgTopicCategories = "orgTopicCategories",
 }
 
 export enum EEntityTab {
-  TOPICS = "discussions"
+  TOPICS = "discussions",
 }
 
 export interface IEntityEmail {

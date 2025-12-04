@@ -10,23 +10,21 @@ import {
   Select,
   Stack,
   useColorMode,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useEditEventMutation } from "features/api/eventsApi";
 import {
   Button,
   DeleteButton,
   ErrorMessageText,
   Input,
-  UrlControl
+  UrlControl,
 } from "features/common";
-import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { IEntity, isEvent, isOrg } from "models/Entity";
+import { IEntity, isOrg } from "models/Entity";
 import { orgTypeFull } from "models/Org";
 import { bannerWidth } from "features/layout/theme";
 import { handleError } from "utils/form";
@@ -36,25 +34,19 @@ import { MB } from "utils/string";
 
 export const BannerForm = ({
   query,
-  toggleVisibility
-}: (EventConfigVisibility | OrgConfigVisibility) & {
+  toggleVisibility,
+}: OrgConfigVisibility & {
   query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isE ? editEvent : editOrg;
-  const entityBanner = isE
-    ? entity.eventBanner
-    : isO
-      ? entity.orgBanner
-      : undefined;
-  const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
+  const edit = editOrg;
+  const entityBanner = isO ? entity.orgBanner : undefined;
+  const entityName = isO ? entity.orgName : entity._id;
 
   //#region form
   const {
@@ -65,9 +57,9 @@ export const BannerForm = ({
     errors,
     clearErrors,
     setValue,
-    watch
+    watch,
   } = useForm({
-    mode: "onChange"
+    mode: "onChange",
   });
 
   //#region form state
@@ -79,7 +71,7 @@ export const BannerForm = ({
   const [heights, setHeights] = useState([
     { label: "Petit", height: 140 },
     { label: "Moyen", height: 240 },
-    { label: "Grand", height: 340 }
+    { label: "Grand", height: 340 },
   ]);
   const { height: defaultHeight } =
     heights.find(({ height }) => height === entityBanner?.headerHeight) ||
@@ -98,7 +90,7 @@ export const BannerForm = ({
     setIsLoading(true);
 
     try {
-      const key = `${isE ? "event" : "org"}Banner`;
+      const key = `${"org"}Banner`;
       let payload = {};
 
       if (form.url) {
@@ -109,15 +101,15 @@ export const BannerForm = ({
             url: form.url,
             headerHeight: form.height,
             height,
-            width
-          }
+            width,
+          },
         };
       } else if (image) {
         payload = {
           [key]: {
             ...image,
-            headerHeight: form.height
-          }
+            headerHeight: form.height,
+          },
         };
 
         setImage(undefined);
@@ -125,14 +117,14 @@ export const BannerForm = ({
 
       await edit({
         payload,
-        [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id
+        [isO ? "orgId" : "entityId"]: entity._id,
       }).unwrap();
       setIsLoading(false);
       toast({
         title: `La bannière ${
-          isE ? "de l'événement" : isO ? orgTypeFull(entity.orgType) : ""
+          isO ? orgTypeFull(entity.orgType) : ""
         } a été modifiée !`,
-        status: "success"
+        status: "success",
       });
       toggleVisibility("banner");
     } catch (error) {
@@ -140,8 +132,8 @@ export const BannerForm = ({
       handleError(error, (message) =>
         setError("formErrorMessage", {
           type: "manual",
-          message
-        })
+          message,
+        }),
       );
     }
   };
@@ -171,32 +163,24 @@ export const BannerForm = ({
               try {
                 setIsLoading(true);
                 await edit({
-                  payload: isE ? ["eventBanner"] : ["orgBanner"],
-                  [isE ? "eventId" : "orgId"]: entity._id
+                  payload: ["orgBanner"],
+                  ["orgId"]: entity._id,
                 }).unwrap();
                 setIsLoading(false);
                 toast({
                   title: `La bannière ${
-                    isE
-                      ? "de l'événement"
-                      : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                    isO ? orgTypeFull(entity.orgType) : ""
                   } a été supprimée !`,
-                  status: "success"
+                  status: "success",
                 });
                 toggleVisibility("banner");
               } catch (error) {
                 setIsLoading(false);
                 toast({
                   title: `La bannière ${
-                    isE
-                      ? "de l'événement"
-                      : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                    isO ? orgTypeFull(entity.orgType) : ""
                   } n'a pas pu être supprimée`,
-                  status: "error"
+                  status: "error",
                 });
               }
             }}
@@ -288,7 +272,7 @@ export const BannerForm = ({
                       return "L'image ne doit pas dépasser 1Mo.";
                     }
                     return true;
-                  }
+                  },
                 })}
               />
               <FormErrorMessage>

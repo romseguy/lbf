@@ -9,8 +9,7 @@ import {
   IEntityStyles,
   IEntityWeb,
 } from "models/Entity";
-import { IEvent } from "models/Event";
-import { IProject } from "models/Project";
+
 import { ETopicsListOrder, ITopic } from "models/Topic";
 import { AppIcon } from "utils/types";
 
@@ -40,9 +39,6 @@ export interface IOrg extends IEntity {
   orgEmail: IEntityEmail[];
   orgPhone: IEntityPhone[];
   orgWeb: IEntityWeb[];
-  orgEventCategories: IOrgEventCategory[];
-  orgEvents: IEvent[];
-  orgProjects: IProject[];
   orgTopicCategories: IOrgTopicCategory[];
   orgTopicOrder?: ETopicsListOrder;
   orgTopics: ITopic[];

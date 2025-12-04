@@ -1,34 +1,14 @@
-import {
-  Flex,
-  Heading,
-  HStack,
-  Select,
-  Spinner,
-  Switch,
-  useColorMode,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { Flex, Spinner, Switch } from "@chakra-ui/react";
 import { getRunningQueriesThunk } from "features/api";
 import { getOrgs, useGetOrgsQuery } from "features/api/orgsApi";
-import {
-  Column,
-  EntityAddButton,
-  AppHeading,
-  Delimiter,
-} from "features/common";
+import { AppHeading, Column, EntityAddButton } from "features/common";
 import { Layout } from "features/layout";
-import { MapModal } from "features/modals/MapModal";
 import { EOrderKey, OrgsList } from "features/orgs/OrgsList";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { EOrgType, EOrgVisibility } from "models/Org";
-import { hasItems } from "utils/array";
+import React, { useState } from "react";
 import { wrapper } from "store";
-import { useGetUsersQuery } from "features/api/usersApi";
-import { getRefId } from "models/Entity";
-import { StarIcon } from "@chakra-ui/icons";
 
 const initialOrgsQueryParams = {
   orgType: EOrgType.NETWORK,

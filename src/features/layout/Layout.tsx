@@ -15,7 +15,7 @@ import { AppHeading, ContactLink, Link } from "features/common";
 import { Header, Nav, NavProps } from "features/layout";
 import theme, { breakpoints } from "features/layout/theme";
 import { PageProps } from "main";
-import { EEntityTab, IEntity, isEvent, isOrg, isUser } from "models/Entity";
+import { EEntityTab, IEntity, isOrg, isUser } from "models/Entity";
 import { OrgTypes } from "models/Org";
 import { Base64Image } from "utils/image";
 import { capitalize, normalize } from "utils/string";
@@ -98,7 +98,6 @@ export const Layout = ({
   const router = useRouter();
 
   let subtitle = "";
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
   if (isO) {
     if (tab === EEntityTab.TOPICS) {
@@ -119,8 +118,6 @@ export const Layout = ({
   const title = `${
     isO
       ? `${OrgTypes[entity.orgType]} – ${entity.orgName}${subtitle}`
-      : isE
-      ? `Événement – ${entity.eventName}`
       : isU
       ? `Utilisateur – ${entity.userName}`
       : pageTitle

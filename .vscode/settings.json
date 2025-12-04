@@ -1,6 +1,7 @@
 {
   "files.exclude": {
     "yarn.lock": true,
+    "pnpm-lock.yaml": true,
     "LICENSE": true,
     "**/.git": true,
     "**/public/tinymce": true

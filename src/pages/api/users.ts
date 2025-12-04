@@ -28,7 +28,7 @@ handler.get<
 
   try {
     let {
-      query: { populate = "", select = "" }
+      query: { populate = "", select = "" },
     } = req;
 
     let selector: GetUsersParams = {};
@@ -47,7 +47,7 @@ handler.get<
 
       console.log(`GET /users unhandled keys: ${populate}`);
       users = await Promise.all(
-        users.map((user) => user.populate(populate).execPopulate())
+        users.map((user) => user.populate(populate).execPopulate()),
       );
     }
 
@@ -76,24 +76,23 @@ handler.post<NextApiRequest & { body: AddUserPayload }, NextApiResponse>(
           .status(400)
           .json(
             createEndpointError(
-              new Error(`Ce nom d'utilisateur n'est pas autorisé`)
-            )
+              new Error(`Ce nom d'utilisateur n'est pas autorisé`),
+            ),
           );
       }
 
       let newUser = {
         ...body,
-        userName
+        userName,
       };
 
-      const event = await models.Event.findOne({ eventUrl: userName });
       const org = await models.Org.findOne({ orgUrl: userName });
       const user = await models.User.findOne({ userName });
-      if (event || org || user) {
+      if (org || user) {
         const uid = (await getCurrentId()) + 1;
         newUser = {
           ...newUser,
-          userName: userName + "-" + uid
+          userName: userName + "-" + uid,
         };
       }
 
@@ -104,7 +103,7 @@ handler.post<NextApiRequest & { body: AddUserPayload }, NextApiResponse>(
     } catch (error: any) {
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export default handler;

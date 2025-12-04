@@ -4,7 +4,7 @@ import {
   FlexProps,
   Icon,
   Tooltip,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -15,29 +15,25 @@ import {
   FaTwitter,
   FaYoutube,
   FaLink,
-  FaTelegram
+  FaTelegram,
 } from "react-icons/fa";
 import { CollapsibleLink, Link } from "features/common";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { MapModal } from "features/modals/MapModal";
 
-export const EntityInfo = ({
-  event,
-  org,
-  ...props
-}: FlexProps & { org?: IOrg; event?: IEvent<string | Date> }) => {
+export const EntityInfo = ({ org, ...props }: FlexProps & { org?: IOrg }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [emailCollapsed, setEmailCollapsed] = useState<{
     [key: number]: boolean;
   }>({});
   const [webCollapsed, setWebCollapsed] = useState<{ [key: number]: boolean }>(
-    {}
+    {},
   );
-  const entityAddress = event ? event.eventAddress : org?.orgAddress;
-  const entityEmail = event ? event.eventEmail : org?.orgEmail;
-  const entityPhone = event ? event.eventPhone : org?.orgPhone;
-  const entityWeb = event ? event.eventWeb : org?.orgWeb;
+  const entityAddress = org?.orgAddress;
+  const entityEmail = org?.orgEmail;
+  const entityPhone = org?.orgPhone;
+  const entityWeb = org?.orgWeb;
 
   if (!event && !org) return null;
 
@@ -96,7 +92,7 @@ export const EntityInfo = ({
                         onClick={() =>
                           setEmailCollapsed({
                             ...emailCollapsed,
-                            [index]: false
+                            [index]: false,
                           })
                         }
                       />
@@ -139,14 +135,14 @@ export const EntityInfo = ({
             const icon = url.includes("facebook")
               ? FaFacebook
               : url.includes("instagram")
-                ? FaInstagram
-                : url.includes("twitter")
-                  ? FaTwitter
-                  : url.includes("youtube")
-                    ? FaYoutube
-                    : url.includes("t.me") || url.includes("telegram")
-                      ? FaTelegram
-                      : FaLink;
+              ? FaInstagram
+              : url.includes("twitter")
+              ? FaTwitter
+              : url.includes("youtube")
+              ? FaYoutube
+              : url.includes("t.me") || url.includes("telegram")
+              ? FaTelegram
+              : FaLink;
 
             return (
               <CollapsibleLink
@@ -166,8 +162,8 @@ export const EntityInfo = ({
         events={event ? [event] : undefined}
         orgs={org ? [org] : undefined}
         center={{
-          lat: event ? event.eventLat : org?.orgLat,
-          lng: event ? event.eventLng : org?.orgLng
+          lat: org?.orgLat,
+          lng: org?.orgLng,
         }}
         zoomLevel={16}
         onClose={onClose}

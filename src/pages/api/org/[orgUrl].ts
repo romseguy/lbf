@@ -6,7 +6,6 @@ import {
   GetOrgParams,
 } from "features/api/orgsApi";
 import { getRefId, isUser } from "models/Entity";
-import { EEventVisibility } from "models/Event";
 import {
   EOrgType,
   EOrgVisibility,
@@ -137,15 +136,7 @@ handler.get<
     for (const modelKey of populate
       .split(/(\s+)/)
       .filter((e) => e.trim().length > 0)) {
-      if (
-        [
-          "orgs",
-          "orgEvents",
-          "orgProjects",
-          "orgTopics",
-          "orgSubscriptions",
-        ].includes(modelKey)
-      ) {
+      if (["orgs", "orgTopics", "orgSubscriptions"].includes(modelKey)) {
         //console.log(prefix + `populating ${modelKey} with custom behavior`);
         populate = populate.replace(modelKey, "");
       }
@@ -160,38 +151,6 @@ handler.get<
               select:
                 "topicName topicMessages.createdAt topicMessages.updatedAt",
             },
-          ],
-        });
-      }
-
-      if (modelKey === "orgEvents") {
-        org = await org
-          .populate({
-            path: "orgEvents",
-            populate: { path: "eventOrgs" },
-          })
-          .execPopulate();
-
-        for (const orgEvent of org.orgEvents) {
-          if (orgEvent.forwardedFrom?.eventId) {
-            const event = await models.Event.findOne({
-              _id: orgEvent.forwardedFrom.eventId,
-            });
-            if (event) {
-              orgEvent.forwardedFrom.eventUrl = orgEvent._id;
-              orgEvent.eventName = event.eventName;
-              orgEvent.eventUrl = event.eventUrl;
-            }
-          }
-        }
-      }
-
-      if (modelKey === "orgProjects") {
-        org = org.populate({
-          path: "orgProjects",
-          populate: [
-            { path: "projectOrgs" },
-            { path: "createdBy", select: "_id userName" },
           ],
         });
       }
@@ -468,14 +427,6 @@ handler.delete<
         );
     }
 
-    if (req.query.isDeleteOrgEvents) {
-      /*const { deletedCount, n, ok } = */ await models.Event.deleteMany({
-        _id: { $in: org.orgEvents },
-      });
-    }
-    /*const { deletedCount, n, ok } = */ await models.Project.deleteMany({
-      _id: { $in: org.orgProjects },
-    });
     /*const { deletedCount, n, ok } = */ await models.Topic.deleteMany({
       _id: { $in: org.orgTopics },
     });

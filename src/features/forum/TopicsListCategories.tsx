@@ -10,38 +10,34 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { DeleteButton } from "features/common";
-import { useEditEventMutation } from "features/api/eventsApi";
 import { CategoriesModal } from "features/modals/CategoriesModal";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   EEntityCategoryKey,
   IEntity,
   IEntityCategory,
-  isEvent,
-  isOrg
+  isOrg,
 } from "models/Entity";
-import { IEvent, IEventTopicCategory } from "models/Event";
 import { IOrg, IOrgTopicCategory } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
 const TopicsListCategoriesSettings = ({
   categories,
-  query
+  query,
 }: {
-  categories: IEventTopicCategory[] | IOrgTopicCategory[];
+  categories: IOrgTopicCategory[];
   query: AppQueryWithData<IEntity>;
 }) => {
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
   const {
     isOpen: isCategoriesModalOpen,
     onOpen: openCategoriesModal,
-    onClose: closeCategoriesModal
+    onClose: closeCategoriesModal,
   } = useDisclosure();
   const label = "Gérer les catégories de discussions";
 
@@ -61,11 +57,7 @@ const TopicsListCategoriesSettings = ({
 
       <CategoriesModal
         categories={categories}
-        categoryKey={
-          isE
-            ? EEntityCategoryKey.eventTopicCategories
-            : EEntityCategoryKey.orgTopicCategories
-        }
+        categoryKey={EEntityCategoryKey.orgTopicCategories}
         isOpen={isCategoriesModalOpen}
         query={query}
         onClose={closeCategoriesModal}
@@ -90,19 +82,13 @@ export const TopicsListCategories = ({
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isE ? editEvent : editOrg;
+  const edit = editOrg;
   const topicCategories: IEntityCategory[] =
-    entity[
-      isE
-        ? EEntityCategoryKey.eventTopicCategories
-        : EEntityCategoryKey.orgTopicCategories
-    ];
-  const topics = isE ? entity.eventTopics : isO ? entity.orgTopics : [];
+    entity[EEntityCategoryKey.orgTopicCategories];
+  const topics = entity.orgTopics;
 
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
@@ -110,8 +96,8 @@ export const TopicsListCategories = ({
       setIsLoading(
         Object.keys(isLoading).reduce(
           (obj, key) => ({ ...obj, [key]: false }),
-          {}
-        )
+          {},
+        ),
       );
     }
   }, [query.isFetching]);
@@ -127,10 +113,10 @@ export const TopicsListCategories = ({
 
       {topicCategories.map(({ catId, label }, index) => {
         const isSelected = selectedCategories?.find(
-          (selectedCategory) => selectedCategory === catId
+          (selectedCategory) => selectedCategory === catId,
         );
         const topicsCount = topics.filter(
-          (topic) => topic.topicCategory === catId
+          (topic) => topic.topicCategory === catId,
         ).length;
 
         return (
@@ -157,19 +143,19 @@ export const TopicsListCategories = ({
                   : "pink.600"
                 : isDark
                 ? "#4FD1C5"
-                : "#2C7A7B"
+                : "#2C7A7B",
             }}
             onClick={() => {
               selectedCategories?.find(
-                (selectedCategory) => selectedCategory === catId
+                (selectedCategory) => selectedCategory === catId,
               )
                 ? setSelectedCategories(
                     selectedCategories.filter(
-                      (selectedCategory) => selectedCategory !== catId
-                    )
+                      (selectedCategory) => selectedCategory !== catId,
+                    ),
                   )
                 : setSelectedCategories(
-                    (selectedCategories || []).concat([catId])
+                    (selectedCategories || []).concat([catId]),
                   );
             }}
           >
@@ -217,12 +203,8 @@ export const TopicsListCategories = ({
                       setIsLoading({ [`category-${index}`]: true });
                       try {
                         await edit({
-                          [isE ? "eventId" : "orgId"]: entity._id,
-                          payload: [
-                            isE
-                              ? `eventTopicCategories.catId=${catId}`
-                              : `orgTopicCategories.catId=${catId}`
-                          ]
+                          ["orgId"]: entity._id,
+                          payload: [`orgTopicCategories.catId=${catId}`],
                         });
                       } catch (error) {
                         setIsLoading({ [`category-${index}`]: false });

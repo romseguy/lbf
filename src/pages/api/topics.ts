@@ -5,7 +5,7 @@ import database, { models } from "server/database";
 import { AddTopicPayload } from "features/api/topicsApi";
 import { getSession } from "server/auth";
 import { getRefId } from "models/Entity";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { getCurrentId } from "store/utils";
@@ -93,14 +93,11 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         body: AddTopicPayload;
       } = req;
 
-      let event: (IEvent & Document<any, IEvent>) | null | undefined;
       let org: (IOrg & Document<any, IOrg>) | null | undefined;
 
-      if (body.event)
-        event = await models.Event.findOne({ _id: body.event._id });
-      else if (body.org) org = await models.Org.findOne({ _id: body.org._id });
+      if (body.org) org = await models.Org.findOne({ _id: body.org._id });
 
-      if (!event && !org) {
+      if (!org) {
         return res
           .status(400)
           .json(
@@ -186,11 +183,7 @@ handler.post<NextApiRequest & { body: AddTopicPayload }, NextApiResponse>(
         });
 
         //#region add topic to entity and notify entity subscribers
-        if (event) {
-          event.eventTopics.push(topic);
-          await event.save();
-          //log(`POST /topics: event`, event);
-        } else if (org) {
+        if (org) {
           await models.Org.updateOne(
             { _id: org._id },
             {

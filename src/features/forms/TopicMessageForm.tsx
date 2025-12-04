@@ -6,7 +6,7 @@ import {
   useToast,
   Flex,
   Alert,
-  AlertIcon
+  AlertIcon,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import { useRouter } from "next/router";
@@ -17,8 +17,8 @@ import { AddTopicPayload, useAddTopicMutation } from "features/api/topicsApi";
 import { ErrorMessageText, RTEditor } from "features/common";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import { useSession } from "hooks/useSession";
-import { IEntity, isEvent, isOrg } from "models/Entity";
-import { IEvent } from "models/Event";
+import { IEntity, isOrg } from "models/Entity";
+
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
@@ -48,9 +48,7 @@ export const TopicMessageForm = ({
   const { data: session } = useSession();
   const toast = useToast({ position: "top" });
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const event = isE ? (query.data as IEvent) : undefined;
   const org = isO ? (query.data as IOrg) : undefined;
 
   const [addTopic, addTopicMutation] = useAddTopicMutation();
@@ -69,12 +67,12 @@ export const TopicMessageForm = ({
     setError,
     clearErrors,
     setValue,
-    formState
+    formState,
   } = useFormPersist(
     useForm<{ formErrorMessage: string; topicMessage: string }>({
       mode: "onChange",
-      defaultValues: { topicMessage: "" }
-    })
+      defaultValues: { topicMessage: "" },
+    }),
   );
   useLeaveConfirm({ formState });
 
@@ -95,20 +93,20 @@ export const TopicMessageForm = ({
           {
             message: form.topicMessage,
             //messageHtml: form.topicMessage,
-            createdBy: session!.user.userId
-          }
-        ]
-      }
+            createdBy: session!.user.userId,
+          },
+        ],
+      },
     };
 
     try {
       await addTopic({
-        payload
+        payload,
       }).unwrap();
 
       toast({
         title: "Votre message a été ajouté !",
-        status: "success"
+        status: "success",
       });
 
       setIsLoading(false);
@@ -210,8 +208,8 @@ export const TopicMessageForm = ({
             {isDisabled
               ? "Réponses désactivées"
               : props.topicMessage
-                ? "Modifier"
-                : "Ajouter un message"}
+              ? "Modifier"
+              : "Ajouter un message"}
           </Button>
         )}
       </Flex>

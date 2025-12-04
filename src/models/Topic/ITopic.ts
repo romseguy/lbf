@@ -1,5 +1,5 @@
 import { IEntity } from "models/Entity";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { ITopicMessage } from "models/TopicMessage";
 
@@ -11,7 +11,6 @@ export enum ETopicsListOrder {
 }
 
 export interface ITopic extends IEntity {
-  event?: IEvent;
   org?: IOrg;
   isPinned?: boolean;
   topicCategory?: string | null;

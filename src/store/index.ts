@@ -4,7 +4,6 @@ import { createWrapper } from "next-redux-wrapper";
 import { useDispatch } from "react-redux";
 import { Action } from "redux";
 
-import event from "./eventSlice";
 import modal from "./modalSlice";
 import org from "./orgSlice";
 import session from "./sessionSlice";
@@ -19,7 +18,6 @@ const { getEnv } = require("utils/env");
 export const makeStore = () =>
   configureStore({
     reducer: {
-      event,
       modal,
       org,
       session,

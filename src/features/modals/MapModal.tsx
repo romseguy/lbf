@@ -8,26 +8,25 @@ import {
   ModalBody,
   ModalCloseButton,
   Spinner,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { LatLon } from "use-places-autocomplete";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { Map, MapProps, defaultZoomLevel } from "features/map/Map";
 import { MapSearch } from "features/map/MapSearch";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { SizeMap } from "utils/maps";
 
 export const MapModal = withGoogleApi({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
 })(
   ({
     isOpen,
     isSearch = true,
     header,
-    events,
     orgs,
     mapProps,
     ...props
@@ -37,7 +36,6 @@ export const MapModal = withGoogleApi({
     isOpen: boolean;
     isSearch?: boolean;
     header?: React.ReactNode | React.ReactNodeArray;
-    events?: IEvent[];
     orgs?: IOrg[];
     mapProps: Partial<MapProps>;
     center?: LatLon;
@@ -46,17 +44,16 @@ export const MapModal = withGoogleApi({
   }) => {
     const isOffline = props.loaded && !props.google;
 
-    const canDisplay =
-      props.loaded && props.google && hasItems(events || orgs || []);
+    const canDisplay = props.loaded && props.google && hasItems(orgs || []);
     const [center, setCenter] = useState<LatLon | undefined>(props.center);
 
     const divRef = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState<SizeMap>({
       defaultSize: { enabled: true },
-      fullSize: { enabled: false }
+      fullSize: { enabled: false },
     });
     const [zoomLevel, setZoomLevel] = useState<number>(
-      props.zoomLevel || defaultZoomLevel
+      props.zoomLevel || defaultZoomLevel,
     );
     let title = "Carte";
 
@@ -76,10 +73,10 @@ export const MapModal = withGoogleApi({
               !canDisplay
                 ? 0
                 : !isOffline && size.defaultSize.enabled
-                  ? "calc(100vh - 180px)"
-                  : size.fullSize.enabled
-                    ? "100vh"
-                    : undefined
+                ? "calc(100vh - 180px)"
+                : size.fullSize.enabled
+                ? "100vh"
+                : undefined
             }
             width={canDisplay ? undefined : "auto"}
           >
@@ -104,13 +101,6 @@ export const MapModal = withGoogleApi({
                 <>
                   {isSearch && (
                     <MapSearch
-                      entityAddress={
-                        events
-                          ? events.length === 1 && events[0].eventAddress
-                            ? events[0].eventAddress[0].address
-                            : undefined
-                          : undefined
-                      }
                       isVisible={size.defaultSize.enabled}
                       setCenter={setCenter}
                       setZoomLevel={setZoomLevel}
@@ -118,7 +108,6 @@ export const MapModal = withGoogleApi({
                   )}
                   <Map
                     center={center}
-                    events={events}
                     orgs={orgs}
                     size={size}
                     zoomLevel={zoomLevel}
@@ -126,7 +115,7 @@ export const MapModal = withGoogleApi({
                     onFullscreenControlClick={(isFull: boolean) => {
                       setSize({
                         defaultSize: { enabled: !isFull },
-                        fullSize: { enabled: isFull }
+                        fullSize: { enabled: isFull },
                       });
                     }}
                     {...mapProps}
@@ -151,7 +140,7 @@ export const MapModal = withGoogleApi({
         </ModalOverlay>
       </Modal>
     );
-  }
+  },
 );
 
 {

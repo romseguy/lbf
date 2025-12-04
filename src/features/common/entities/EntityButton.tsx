@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { FaGlobeEurope, FaTree } from "react-icons/fa";
 import { IoIosPeople, IoIosPerson } from "react-icons/io";
-import { IEvent } from "models/Event";
+
 import {
   IOrg,
   EOrgType,
@@ -23,7 +23,6 @@ import { useRouter } from "next/router";
 
 export const EntityButton = ({
   children,
-  event,
   org,
   topic,
   user,
@@ -31,7 +30,6 @@ export const EntityButton = ({
   tooltipProps,
   ...props
 }: Omit<ButtonProps, "onClick"> & {
-  event?: Partial<IEvent<any>>;
   org?: Partial<IOrg>;
   topic?: ITopic;
   user?: Partial<IUser>;
@@ -44,8 +42,6 @@ export const EntityButton = ({
   const router = useRouter();
   let entityUrl = org
     ? org.orgUrl
-    : event
-    ? event.eventUrl
     : typeof user === "object"
     ? user.userName
     : "";
@@ -113,8 +109,6 @@ export const EntityButton = ({
                   ? OrgTypes[org.orgType] + " : "
                   : ""
               }${org.orgName}`
-          : event
-          ? event.eventName
           : user
           ? user.userName
           : "")}

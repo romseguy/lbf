@@ -9,9 +9,8 @@ import {
   GridHeader,
   GridItem,
   AppHeading as AppHeading,
-  Link
+  Link,
 } from "features/common";
-import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { CategoryForm } from "features/forms/CategoryForm";
 import { breakpoints } from "features/layout/theme";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
@@ -32,12 +31,10 @@ export const EntityConfigCategoriesPanel = ({
   isVisible,
   toggleVisibility,
   ...props
-}: GridProps &
-  (EventConfigVisibility | OrgConfigVisibility) &
-  EntityConfigCategoriesPanelProps) => {
+}: GridProps & OrgConfigVisibility & EntityConfigCategoriesPanelProps) => {
   const [isAdd, setIsAdd] = useState(false);
   const visibilityKey = ["eventTopicCategories", "orgTopicCategories"].includes(
-    categoryKey
+    categoryKey,
   )
     ? "topicCategories"
     : "eventCategories";
@@ -47,7 +44,7 @@ export const EntityConfigCategoriesPanel = ({
     function onCategoriesChange() {
       if (!hasItems(categories)) toggleVisibility(visibilityKey, false);
     },
-    [categories]
+    [categories],
   );
 
   return (
@@ -63,13 +60,13 @@ export const EntityConfigCategoriesPanel = ({
           borderBottomRadius={isAdd || isOpen ? undefined : "lg"}
           dark={{
             _hover: {
-              bg: "whiteAlpha.400"
-            }
+              bg: "whiteAlpha.400",
+            },
           }}
           light={{
             _hover: {
-              bg: "orange.200"
-            }
+              bg: "orange.200",
+            },
           }}
         >
           <Grid templateColumns="1fr auto" alignItems="center">

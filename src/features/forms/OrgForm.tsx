@@ -1,4 +1,3 @@
-import type { UrlControlValue } from "features/common/forms/UrlControl";
 import {
   Alert,
   AlertIcon,
@@ -19,58 +18,59 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import bcrypt from "bcryptjs";
-import { useRouter } from "next/router";
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import useFormPersist from "hooks/useFormPersist";
-import { FaTree } from "react-icons/fa";
-import Creatable from "react-select/creatable";
-import { Suggestion } from "use-places-autocomplete";
-import {
-  AddressControl,
-  EmailControl,
-  PhoneControl,
-  UrlControl,
-  Button,
-  ErrorMessageText,
-  RTEditor,
-  PasswordControl,
-  PasswordConfirmControl,
-  EntityTag,
-  Link
-} from "features/common";
-import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import {
   AddOrgPayload,
   useAddOrgMutation,
   useEditOrgMutation,
-  useGetOrgsQuery
+  useGetOrgsQuery,
 } from "features/api/orgsApi";
+import {
+  AddressControl,
+  Button,
+  EmailControl,
+  EntityTag,
+  ErrorMessageText,
+  Link,
+  PasswordConfirmControl,
+  PasswordControl,
+  PhoneControl,
+  RTEditor,
+  UrlControl,
+} from "features/common";
+import type { UrlControlValue } from "features/common/forms/UrlControl";
 import { formBoxProps } from "features/layout/theme";
+import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { IsEditConfig } from "features/orgs/OrgPage";
+import useFormPersist from "hooks/useFormPersist";
 import { useLeaveConfirm } from "hooks/useLeaveConfirm";
 import {
+  IEntityAddress,
   IEntityEmail,
   IEntityPhone,
   IEntityWeb,
-  IEntityAddress
 } from "models/Entity";
 import {
+  EOrgType,
+  EOrgVisibility,
+  getOrgDescriptionByType,
   IOrg,
   IOrgPermissions,
   orgTypeFull,
-  orgTypeFull5,
-  EOrgType,
-  EOrgVisibility,
-  OrgVisibilities,
   orgTypeFull2,
+  orgTypeFull5,
   OrgTypes,
-  getOrgDescriptionByType
+  OrgVisibilities,
 } from "models/Org";
+import { useRouter } from "next/router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { FaTree } from "react-icons/fa";
+import Creatable from "react-select/creatable";
+import { Suggestion } from "use-places-autocomplete";
 import { hasItems } from "utils/array";
 import { Session } from "utils/auth";
 import { handleError } from "utils/form";
@@ -92,7 +92,7 @@ type FormValues = {
   orgWeb?: IEntityWeb[];
 };
 export const OrgForm = withGoogleApi({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
 })(
   ({
     isCreator,
@@ -118,20 +118,20 @@ export const OrgForm = withGoogleApi({
     const [editOrg] = useEditOrgMutation();
     const org = orgQuery?.data;
     const allowedChildrenTypes = Object.keys(
-      org?.orgPermissions?.allowedChildrenTypes || {}
+      org?.orgPermissions?.allowedChildrenTypes || {},
     );
     const [orgTrees, setOrgTrees] = useState(
       org
         ? org.orgs.filter((org) =>
-            [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(org.orgType)
+            [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(org.orgType),
           )
-        : []
+        : [],
     );
 
     const orgsQuery = useGetOrgsQuery();
     const myOrgsQuery = useGetOrgsQuery(
       {
-        createdBy: session.user.userId
+        createdBy: session.user.userId,
       },
       {
         selectFromResult: (query) => {
@@ -141,29 +141,29 @@ export const OrgForm = withGoogleApi({
 
           return {
             ...query,
-            data
+            data,
           };
-        }
-      }
+        },
+      },
     );
     const myOrgs = myOrgsQuery.data;
     const trees = session.user.isAdmin
       ? orgsQuery.data?.filter(
-          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum"
+          (org) => org.orgType === EOrgType.GENERIC && org.orgUrl !== "forum",
         )
       : myOrgs?.filter((myOrg) => {
           if (myOrg.orgUrl === "forum") return false;
 
           if (!allowedChildrenTypes.length)
             return [EOrgType.GENERIC, EOrgType.TREETOOLS].includes(
-              myOrg.orgType
+              myOrg.orgType,
             );
 
           return allowedChildrenTypes.includes(myOrg.orgType);
         });
     const orgsOptions = trees
       ? trees.filter(
-          (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id)
+          (tree) => !orgTrees?.find((orgTree) => orgTree._id === tree._id),
         )
       : [];
     const orgsPlaceholder = `Sélectionner ou créer ${
@@ -176,13 +176,13 @@ export const OrgForm = withGoogleApi({
     const containerProps = {
       backgroundColor: isDark ? "gray.700" : "white",
       _hover: {
-        borderColor: isDark ? "#5F6774" : "#CBD5E0"
+        borderColor: isDark ? "#5F6774" : "#CBD5E0",
       },
       borderColor: isDark ? "#677080" : "gray.200",
       borderWidth: "1px",
       borderRadius: "lg",
       mt: 3,
-      p: 3
+      p: 3,
     };
     const [isLoading, setIsLoading] = useState(false);
     const [isPassword, setIsPassword] = useState(false);
@@ -196,7 +196,7 @@ export const OrgForm = withGoogleApi({
       orgAddress: org?.orgAddress,
       orgEmail: org?.orgEmail,
       orgPhone: org?.orgPhone,
-      orgWeb: org?.orgWeb
+      orgWeb: org?.orgWeb,
     };
     const {
       control,
@@ -207,12 +207,12 @@ export const OrgForm = withGoogleApi({
       clearErrors,
       formState,
       getValues,
-      setValue
+      setValue,
     } = useFormPersist(
       useForm<FormValues>({
         defaultValues,
-        mode: "onChange"
-      })
+        mode: "onChange",
+      }),
     );
     useLeaveConfirm({ formState });
     const refs = useMemo(
@@ -222,9 +222,9 @@ export const OrgForm = withGoogleApi({
             acc[fieldName] = React.createRef();
             return acc;
           },
-          {}
+          {},
         ),
-      [defaultValues]
+      [defaultValues],
     );
     useEffect(() => {
       if (Object.keys(errors).length > 0) {
@@ -233,16 +233,11 @@ export const OrgForm = withGoogleApi({
         if (fieldRef)
           fieldRef.scrollIntoView({
             behavior: "smooth",
-            block: "start"
+            block: "start",
           });
       }
     }, [errors]);
 
-    const hasSelectedChildrenTypes = useWatch<string>({
-      control,
-      name: "hasSelectedChildrenTypes"
-    });
-    const orgName = useWatch<string>({ control, name: "orgName" });
     const orgAddress = useWatch<string>({ control, name: "orgAddress" });
     const orgEmail = useWatch<string>({ control, name: "orgEmail" });
     const orgPhone = useWatch<string>({ control, name: "orgPhone" });
@@ -269,7 +264,7 @@ export const OrgForm = withGoogleApi({
     }, [orgType]);
     const orgVisibility = useWatch<EOrgVisibility>({
       control,
-      name: "orgVisibility"
+      name: "orgVisibility",
     });
     useEffect(() => {
       if (orgVisibility !== EOrgVisibility.PRIVATE) setIsPassword(false);
@@ -311,28 +306,28 @@ export const OrgForm = withGoogleApi({
         const orgDescription = form.orgDescription || "";
         const orgs = orgTrees;
         const orgAddress = (form.orgAddress || []).filter(
-          ({ address }) => address !== ""
+          ({ address }) => address !== "",
         );
         const orgEmail = (form.orgEmail || []).filter(
-          ({ email }) => email !== ""
+          ({ email }) => email !== "",
         );
         const orgPhone = (form.orgPhone || []).filter(
-          ({ phone }) => phone !== ""
+          ({ phone }) => phone !== "",
         );
         const orgWeb = (form.orgWeb || []).filter(({ url }) => url !== "");
 
         let permissions: IOrgPermissions = {
-          anyoneCanAddChildren: form.anyoneCanAddChildren
+          anyoneCanAddChildren: form.anyoneCanAddChildren,
         };
         if (form.hasSelectedChildrenTypes) {
           permissions.allowedChildrenTypes = {
-            [form.allowedChildrenTypes]: true
+            [form.allowedChildrenTypes]: true,
           };
         } else permissions.allowedChildrenTypes = {};
         const orgPermissions = org?.orgPermissions
           ? {
               ...org?.orgPermissions,
-              ...permissions
+              ...permissions,
             }
           : permissions;
 
@@ -348,7 +343,7 @@ export const OrgForm = withGoogleApi({
           orgEmail,
           orgPhone,
           orgWeb,
-          orgPermissions
+          orgPermissions,
         };
 
         if (form.orgPassword) {
@@ -368,7 +363,7 @@ export const OrgForm = withGoogleApi({
             const {
               lat: orgLat,
               lng: orgLng,
-              city: orgCity
+              city: orgCity,
             } = await unwrapSuggestion(suggestion);
             payload = { ...payload, orgLat, orgLng, orgCity };
           }
@@ -388,7 +383,7 @@ export const OrgForm = withGoogleApi({
             if (myNetwork) {
               await editOrg({
                 orgId: myNetwork._id,
-                payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) }
+                payload: { ...myNetwork, orgs: myNetwork.orgs.concat([org]) },
               }).unwrap();
 
               const url = myNetwork.orgUrl;
@@ -398,7 +393,7 @@ export const OrgForm = withGoogleApi({
           } else if (isEditConfig?.isAddingDescription) {
             await editOrg({
               orgId: org._id,
-              payload: { orgDescription }
+              payload: { orgDescription },
             }).unwrap();
           } else if (isEditConfig?.isAddingInfo) {
             await editOrg({
@@ -410,8 +405,8 @@ export const OrgForm = withGoogleApi({
                 orgWeb,
                 orgCity: payload.orgCity,
                 orgLat: payload.orgLat,
-                orgLng: payload.orgLng
-              }
+                orgLng: payload.orgLng,
+              },
             }).unwrap();
           } else if (
             form.orgVisibility === EOrgVisibility.PUBLIC &&
@@ -419,7 +414,7 @@ export const OrgForm = withGoogleApi({
           ) {
             await editOrg({
               orgId: org._id,
-              payload: ["orgPassword"]
+              payload: ["orgPassword"],
             }).unwrap();
             await editOrg({ orgId: org._id, payload }).unwrap();
           } else {
@@ -428,7 +423,7 @@ export const OrgForm = withGoogleApi({
 
           toast({
             title: `La modification a été effectuée !`,
-            status: "success"
+            status: "success",
           });
         } else {
           const org = await addOrg(payload).unwrap();
@@ -438,7 +433,7 @@ export const OrgForm = withGoogleApi({
             title: `Vous allez être redirigé vers ${orgTypeFull5(orgType)} ${
               org.orgName
             }...`,
-            status: "success"
+            status: "success",
           });
         }
 
@@ -449,7 +444,7 @@ export const OrgForm = withGoogleApi({
         handleError(error, (message, field) => {
           setError(field || "formErrorMessage", {
             type: "manual",
-            message
+            message,
           });
         });
       }
@@ -493,7 +488,7 @@ export const OrgForm = withGoogleApi({
                       isCreator
                         ? () => {
                             setOrgTrees(
-                              orgTrees.filter(({ _id }) => _id !== orgTree._id)
+                              orgTrees.filter(({ _id }) => _id !== orgTree._id),
                             );
                           }
                         : undefined
@@ -524,13 +519,13 @@ export const OrgForm = withGoogleApi({
                   instanceId="nana"
                   options={orgsOptions.map(({ _id, orgName }) => ({
                     label: orgName,
-                    value: _id
+                    value: _id,
                   }))}
                   value={renderProps.value}
                   onChange={(options, { action, option }) => {
                     if (action === "select-option") {
                       const tree = trees?.find(
-                        ({ _id }) => _id === option.value
+                        ({ _id }) => _id === option.value,
                       );
                       if (tree) setOrgTrees([...orgTrees, tree]);
                     } else renderProps.onChange(option);
@@ -538,7 +533,7 @@ export const OrgForm = withGoogleApi({
                   onCreateOption={async (inputValue: string) => {
                     try {
                       const allowedChildrenTypes = Object.keys(
-                        org?.orgPermissions?.allowedChildrenTypes || {}
+                        org?.orgPermissions?.allowedChildrenTypes || {},
                       );
                       const payload: AddOrgPayload = {
                         orgName: inputValue,
@@ -551,7 +546,7 @@ export const OrgForm = withGoogleApi({
                         orgAddress: [],
                         orgEmail: [],
                         orgPhone: [],
-                        orgWeb: []
+                        orgWeb: [],
                       };
 
                       const addedOrg = await addOrg(payload).unwrap();
@@ -574,7 +569,7 @@ export const OrgForm = withGoogleApi({
                       console.error(error);
                       toast({
                         status: "error",
-                        title: error.message
+                        title: error.message,
                       });
                     }
                   }}
@@ -604,14 +599,14 @@ export const OrgForm = withGoogleApi({
                     control: (defaultStyles: any) => {
                       return {
                         ...defaultStyles,
-                        borderColor: "#e2e8f0"
+                        borderColor: "#e2e8f0",
                       };
                     },
                     placeholder: () => {
                       return {
-                        color: "#A0AEC0"
+                        color: "#A0AEC0",
                       };
-                    }
+                    },
                   }}
                   //#endregion
                 />
@@ -646,7 +641,7 @@ export const OrgForm = withGoogleApi({
                     ?.filter(({ orgType }) => orgType === EOrgType.NETWORK)
                     .map(({ _id, orgName }) => ({
                       label: orgName,
-                      value: _id
+                      value: _id,
                     }))}
                   value={renderProps.value}
                   onChange={(options, { action, option }) => {
@@ -664,19 +659,19 @@ export const OrgForm = withGoogleApi({
                     try {
                       const payload: AddOrgPayload = {
                         orgName: inputValue,
-                        orgType: EOrgType.NETWORK
+                        orgType: EOrgType.NETWORK,
                       };
 
                       const addedOrg = await addOrg(payload).unwrap();
                       renderProps.onChange({
                         label: addedOrg.orgName,
-                        value: addedOrg._id
+                        value: addedOrg._id,
                       });
                     } catch (error: any) {
                       console.error(error);
                       toast({
                         status: "error",
-                        title: error.message
+                        title: error.message,
                       });
                     }
                   }}
@@ -697,14 +692,14 @@ export const OrgForm = withGoogleApi({
                     control: (defaultStyles: any) => {
                       return {
                         ...defaultStyles,
-                        borderColor: "#e2e8f0"
+                        borderColor: "#e2e8f0",
                       };
                     },
                     placeholder: () => {
                       return {
-                        color: "#A0AEC0"
+                        color: "#A0AEC0",
                       };
-                    }
+                    },
                   }}
                   //#endregion
                 />
@@ -865,7 +860,7 @@ export const OrgForm = withGoogleApi({
         <Select
           name="orgVisibility"
           ref={register({
-            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`
+            required: `Veuillez sélectionner la visibilité ${orgTypeLabel}`,
           })}
           color={isDark ? "whiteAlpha.400" : "gray.400"}
           defaultValue={org?.orgVisibility || EOrgVisibility.PUBLIC}
@@ -919,45 +914,6 @@ export const OrgForm = withGoogleApi({
         </form>
       );
 
-    if (capitalize(orgName) === "Forum")
-      return (
-        <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
-          <FormControl
-            ref={refs.orgName}
-            isInvalid={!!errors["orgName"]}
-            mb={getValues("orgName") ? 0 : 3}
-          >
-            <FormLabel>Nom {orgTypeLabel}</FormLabel>
-            <Input
-              name="orgName"
-              ref={register({
-                required: `Veuillez saisir le nom ${orgTypeLabel}`
-                // pattern: {
-                //   value: /^[A-zÀ-ú0-9 ]+$/i,
-                //   message:
-                //     "Veuillez saisir un nom composé de lettres et de chiffres uniquement"
-                // }
-              })}
-              autoComplete="off"
-              placeholder={`Saisir le nom ${orgTypeLabel}`}
-            />
-            {getValues("orgName") && (
-              <Tooltip label={`Adresse de la page de ${orgTypeLabel}`}>
-                <Tag mt={3} alignSelf="flex-end" cursor="help">
-                  {process.env.NEXT_PUBLIC_URL}/
-                  {normalize(getValues("orgName"))}
-                </Tag>
-              </Tooltip>
-            )}
-            <FormErrorMessage>
-              <ErrorMessage errors={errors} name="orgName" />
-            </FormErrorMessage>
-          </FormControl>
-
-          {FooterFormControl}
-        </form>
-      );
-
     return (
       <form onChange={onChange} onSubmit={handleSubmit(onSubmit)}>
         <FormControl
@@ -969,7 +925,7 @@ export const OrgForm = withGoogleApi({
           <Input
             name="orgName"
             ref={register({
-              required: `Veuillez saisir le nom ${orgTypeLabel}`
+              required: `Veuillez saisir le nom ${orgTypeLabel}`,
               // pattern: {
               //   value: /^[A-zÀ-ú0-9 ]+$/i,
               //   message:
@@ -1070,96 +1026,5 @@ export const OrgForm = withGoogleApi({
         {FooterFormControl}
       </form>
     );
-  }
+  },
 );
-
-{
-  /*
-    <FormControl isInvalid={!!errors["orgType"]} mb={3}>
-      <FormLabel>Type de l'organisation</FormLabel>
-      <Select
-        name="orgType"
-        ref={register()}
-        defaultValue={org?.orgType || orgType}
-        placeholder={`Type de l'organisation`}
-        color={isDark ? "whiteAlpha.400" : "gray.400"}
-      >
-        {Object.keys(EOrgType).map((k) => {
-          const orgType = k as EOrgType;
-          return (
-            <option key={orgType} value={orgType}>
-              {OrgTypes[orgType]}
-            </option>
-          );
-        })}
-      </Select>
-      <FormErrorMessage>
-        <ErrorMessage errors={errors} name="orgType" />
-      </FormErrorMessage>
-    </FormControl>
-*/
-}
-
-{
-  /*
-    <Controller
-      name="orgs"
-      as={ReactSelect}
-      control={control}
-      defaultValue={[]}
-      closeMenuOnSelect
-      isClearable
-      isMulti
-      isSearchable
-      menuPlacement="top"
-      noOptionsMessage={() => "Aucun arbre trouvé"}
-      options={orgTrees}
-      getOptionLabel={(option: any) => option.orgName}
-      getOptionValue={(option: any) => option._id}
-      placeholder="Rechercher un arbre..."
-      styles={{
-        control: (defaultStyles: any) => {
-          return {
-            ...defaultStyles,
-            borderColor: "#e2e8f0",
-            paddingLeft: "8px"
-          };
-        }
-      }}
-      className="react-select-container"
-      classNamePrefix="react-select"
-      onChange={(newValue: any) => newValue._id}
-    />
-*/
-}
-
-{
-  /* {props.orgType === EOrgType.GENERIC && (
-          <FormControl mb={3}>
-            <FormLabel>Type de l'arbre</FormLabel>
-            <Select name="orgType" ref={register()}>
-              <option value={EOrgType.GENERIC}>-</option>
-              <option value={EOrgType.TREETOOLS}>
-                {OrgTypes[EOrgType.TREETOOLS]}
-              </option>
-            </Select>
-          </FormControl>
-        )} */
-}
-
-{
-  /* Réseau auquel l'organisation est rattachée */
-}
-
-{
-  /* {orgType === EOrgType.GENERIC && (
-          <FormControl>
-            <FormLabel>Planter cet arbre sur une planète ?</FormLabel>
-            <Select ref={register()}>
-              {[].map(() => {
-                return <option></option>;
-              })}
-            </Select>
-          </FormControl>
-        )} */
-}

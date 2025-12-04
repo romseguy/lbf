@@ -9,7 +9,7 @@ import {
   RadioGroup,
   Stack,
   useColorMode,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -19,13 +19,11 @@ import {
   DeleteButton,
   ErrorMessageText,
   Input,
-  UrlControl
+  UrlControl,
 } from "features/common";
-import { EventConfigVisibility } from "features/events/EventConfigPanel";
-import { useEditEventMutation } from "features/api/eventsApi";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { useEditOrgMutation } from "features/api/orgsApi";
-import { isEvent, IEntity, isOrg } from "models/Entity";
+import { IEntity, isOrg } from "models/Entity";
 import { orgTypeFull } from "models/Org";
 import { logoHeight } from "features/layout/theme";
 import { handleError } from "utils/form";
@@ -35,21 +33,19 @@ import { MB } from "utils/string";
 
 export const LogoForm = ({
   query,
-  toggleVisibility
-}: (EventConfigVisibility | OrgConfigVisibility) & {
+  toggleVisibility,
+}: OrgConfigVisibility & {
   query: AppQueryWithData<IEntity>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const toast = useToast({ position: "top" });
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isE ? editEvent : editOrg;
-  const entityLogo = isE ? entity.eventLogo : isO ? entity.orgLogo : undefined;
-  const entityName = isE ? entity.eventName : isO ? entity.orgName : entity._id;
+  const edit = editOrg;
+  const entityLogo = entity.orgLogo;
+  const entityName = entity.orgName || entity._id;
 
   //#region form
   const {
@@ -60,9 +56,9 @@ export const LogoForm = ({
     setError,
     errors,
     clearErrors,
-    watch
+    watch,
   } = useForm({
-    mode: "onChange"
+    mode: "onChange",
   });
 
   //#region form state
@@ -79,7 +75,7 @@ export const LogoForm = ({
     setIsLoading(true);
 
     try {
-      const key = `${isE ? "event" : "org"}Logo`;
+      const key = `${"org"}Logo`;
       let payload = {};
 
       if (form.url) {
@@ -89,12 +85,12 @@ export const LogoForm = ({
           [key]: {
             url: form.url,
             height,
-            width
-          }
+            width,
+          },
         };
       } else if (image) {
         payload = {
-          [key]: image
+          [key]: image,
         };
 
         setImage(undefined);
@@ -102,14 +98,14 @@ export const LogoForm = ({
 
       await edit({
         payload,
-        [isE ? "eventId" : "orgId"]: entity._id
+        ["orgId"]: entity._id,
       }).unwrap();
       setIsLoading(false);
       toast({
         title: `Le logo ${
-          isE ? "de l'événement" : isO ? orgTypeFull(entity.orgType) : ""
+          isO ? orgTypeFull(entity.orgType) : ""
         } a été modifié !`,
-        status: "success"
+        status: "success",
       });
       toggleVisibility("logo");
     } catch (error) {
@@ -117,8 +113,8 @@ export const LogoForm = ({
       handleError(error, (message) =>
         setError("formErrorMessage", {
           type: "manual",
-          message
-        })
+          message,
+        }),
       );
     }
   };
@@ -145,32 +141,24 @@ export const LogoForm = ({
               try {
                 setIsLoading(true);
                 await edit({
-                  payload: isE ? ["eventLogo"] : ["orgLogo"],
-                  [isE ? "eventId" : "orgId"]: entity._id
+                  payload: ["orgLogo"],
+                  ["orgId"]: entity._id,
                 }).unwrap();
                 setIsLoading(false);
                 toast({
                   title: `Le logo ${
-                    isE
-                      ? "de l'événement"
-                      : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                    isO ? orgTypeFull(entity.orgType) : ""
                   } a été supprimé !`,
-                  status: "success"
+                  status: "success",
                 });
                 toggleVisibility("logo");
               } catch (error) {
                 setIsLoading(false);
                 toast({
                   title: `Le logo ${
-                    isE
-                      ? "de l'événement"
-                      : isO
-                        ? orgTypeFull(entity.orgType)
-                        : ""
+                    isO ? orgTypeFull(entity.orgType) : ""
                   } n'a pas pu être supprimé`,
-                  status: "error"
+                  status: "error",
                 });
               }
             }}
@@ -245,7 +233,7 @@ export const LogoForm = ({
                       return "L'image ne doit pas dépasser 1Mo.";
                     }
                     return true;
-                  }
+                  },
                 })}
               />
               <FormErrorMessage>

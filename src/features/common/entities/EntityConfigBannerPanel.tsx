@@ -2,7 +2,6 @@ import { Box, Flex, GridProps, Heading } from "@chakra-ui/react";
 import React from "react";
 import { FaMinusSquare, FaPlusSquare } from "react-icons/fa";
 import { Grid, GridHeader, GridItem, Link } from "features/common";
-import { EventConfigVisibility } from "features/events/EventConfigPanel";
 import { BannerForm } from "features/forms/BannerForm";
 import { OrgConfigVisibility } from "features/orgs/OrgConfigPanel";
 import { IEntity } from "models/Entity";
@@ -14,7 +13,7 @@ export const EntityConfigBannerPanel = ({
   toggleVisibility,
   ...props
 }: GridProps &
-  (EventConfigVisibility | OrgConfigVisibility) & {
+  OrgConfigVisibility & {
     query: AppQueryWithData<IEntity>;
   }) => {
   return (
@@ -26,13 +25,13 @@ export const EntityConfigBannerPanel = ({
           borderBottomRadius={!isVisible.banner ? "lg" : undefined}
           dark={{
             _hover: {
-              bg: "whiteAlpha.400"
-            }
+              bg: "whiteAlpha.400",
+            },
           }}
           light={{
             _hover: {
-              bg: "orange.200"
-            }
+              bg: "orange.200",
+            },
           }}
         >
           <Flex flexDirection="row" alignItems="center">

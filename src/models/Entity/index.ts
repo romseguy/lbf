@@ -1,6 +1,4 @@
-import { IEvent } from "models/Event";
 import { IOrg } from "models/Org";
-import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 import { IUser } from "models/User";
 import { IEntity, IEntityCategory } from "./IEntity";
@@ -9,7 +7,7 @@ export * from "./IEntity";
 
 export const getCategoryLabel = (
   categories: IEntityCategory[],
-  catId: string
+  catId: string,
 ) => {
   const category = categories.find((category) => category.catId === catId);
   if (!category) return "";
@@ -18,7 +16,7 @@ export const getCategoryLabel = (
 
 export const getRefId = (
   entity?: string | Record<string, any> | null,
-  key?: string
+  key?: string,
 ) => {
   if (!entity) return "";
 
@@ -37,16 +35,8 @@ export const getRefId = (
   return "";
 };
 
-export const isEvent = (entity?: any): entity is IEvent => {
-  return !!entity && (entity as IEvent).eventUrl !== undefined;
-};
-
 export const isOrg = (entity?: any): entity is IOrg => {
   return !!entity && (entity as IOrg).orgUrl !== undefined;
-};
-
-export const isProject = (entity?: any): entity is IProject => {
-  return !!entity && (entity as IProject).projectName !== undefined;
 };
 
 export const isTopic = (entity?: any): entity is ITopic => {

@@ -1,9 +1,8 @@
 import { addHours, parseISO } from "date-fns";
 import { toDateRange } from "features/common";
 import { isUser } from "models/Entity";
-import { IEvent } from "models/Event";
+
 import { IOrg, orgTypeFull, orgTypeFull5, OrgTypes } from "models/Org";
-import { IProject } from "models/Project";
 import { ITopic } from "models/Topic";
 const { getEnv } = require("utils/env");
 
@@ -31,32 +30,8 @@ const title = `
 
 export const emailR = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
-export const getProjectUrl = ({
-  org,
-  event,
-  project
-}: {
-  org?: IOrg | null;
-  event?: IEvent<string | Date>;
-  project: IProject;
-}) => {
-  return `${process.env.NEXT_PUBLIC_URL}/${
-    org ? org.orgUrl : event?.eventUrl
-  }/projets/${project.projectName}`;
-};
-
-export const getTopicUrl = ({
-  org,
-  event,
-  topic
-}: {
-  org?: IOrg | null;
-  event?: IEvent<string | Date>;
-  topic: ITopic;
-}) => {
-  let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${
-    org ? org.orgUrl : event?.eventUrl
-  }`;
+export const getTopicUrl = ({ org, topic }: { org: IOrg; topic: ITopic }) => {
+  let topicUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
   topicUrl +=
     org && org.orgUrl === "forum"
       ? `/${topic.topicName}`
@@ -64,195 +39,24 @@ export const getTopicUrl = ({
   return topicUrl;
 };
 
-export const createEventEmailNotif = ({
-  email,
-  event,
-  org,
-  subscriptionId
-}: {
-  email: string;
-  event: IEvent<string | Date>;
-  org: IOrg;
-  subscriptionId: string;
-}) => {
-  const orgUrl = `${process.env.NEXT_PUBLIC_URL}/${org.orgUrl}`;
-  const eventUrl = `${process.env.NEXT_PUBLIC_URL}/${event.eventUrl}`;
-  const eventDescription = event.eventDescriptionHtml
-    ? event.eventDescriptionHtml
-    : undefined;
-  const eventMinDate =
-    typeof event.eventMinDate === "string"
-      ? parseISO(event.eventMinDate)
-      : event.eventMinDate;
-  const eventMaxDate =
-    typeof event.eventMaxDate === "string"
-      ? parseISO(event.eventMaxDate)
-      : event.eventMaxDate || new Date();
-
-  return {
-    from: process.env.EMAIL_FROM,
-    to: `<${email}>`,
-    subject: `${org.orgName} vous invite à un événement : ${event.eventName}`,
-    html: `
-      <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tbody>
-          <tr>
-            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-              <strong>${process.env.NEXT_PUBLIC_SHORT_URL}</strong>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 0px 0px 0px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2>
-              <a href="${orgUrl}">${
-      org.orgName
-    }</a> vous invite à un événement : ${event.eventName}
-            </h2>
-            <h3>
-            ${
-              getEnv() === "production"
-                ? toDateRange(
-                    addHours(eventMinDate, 2),
-                    addHours(eventMaxDate, 2)
-                  )
-                : toDateRange(eventMinDate, eventMaxDate)
-            }
-            </h3>
-            ${
-              eventDescription
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${eventDescription}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p>Rendez-vous sur <a href="${eventUrl}?email=${email}">la page de l'événement</a> pour indiquer si vous souhaitez y participer.</p>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            ${`<a href="${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}">Se désabonner de ${org.orgName}</a>`}
-          </td>
-        </tr>
-      </table>
-    </body>
-    `
-  };
-};
-
-export const createProjectEmailNotif = ({
-  email,
-  event,
-  org,
-  subscriptionId,
-  project
-}: {
-  email: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
-  project: IProject;
-  subscriptionId: string;
-}) => {
-  const entityName = event ? event.eventName : org?.orgName;
-  const entityUrl = event ? event.eventUrl : org?.orgUrl;
-  const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const projectUrl = getProjectUrl({ event, org, project });
-  const subject = `Vous êtes invité à un projet : ${project.projectName}`;
-  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-    org ? org.orgUrl : event?.eventUrl
-  }?subscriptionId=${subscriptionId}`;
-
-  return {
-    from: process.env.EMAIL_FROM,
-    to: `<${email}>`,
-    subject,
-    html: `
-      <body style="background: ${backgroundColor};">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tbody>
-          <tr>
-            <td align="center" style="padding: 10px 0px 20px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-              ${title}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${mainBackgroundColor}; max-width: 600px; margin: auto; border-radius: 10px;">
-        <tr>
-          <td align="center" style="padding: 0px 12px; font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${textColor};">
-            <h2 style="font-weight: bold; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em;">${subject}</h2>
-            ${
-              project.projectDescription
-                ? `
-                  <table width="100%" border="0" cellspacing="20" cellpadding="0" style="background: ${descriptionBackgroundColor}; border-radius: 10px;">
-                    <tr>
-                      <td>
-                        ${project.projectDescription}
-                      </td>
-                    </tr>
-                  </table>
-                `
-                : ""
-            }
-            <p style="margin-block-start: 1em; margin-block-end: 1em;">
-              ${`${`<a href="${projectUrl}" style="${linkStyle(
-                false
-              )}">Cliquez ici</a>`} pour participer à la discussion.`}
-            </p>
-          </td>
-        </tr>
-      </table>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td align="center" style="padding: 10px 0px 20px 0px; font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: ${textColor}; text-decoration: underline;">
-            <a href="${footerLink}" style="${linkStyle(false)}">
-            Se désabonner ${
-              entityUrl === "forum"
-                ? `du forum ${process.env.NEXT_PUBLIC_SHORT_URL}`
-                : `${entityType} ${entityName}`
-            }
-            </a>
-          </td>
-        </tr>
-      </table>
-    </body>
-    `
-  };
-};
-
 export const createTopicEmailNotif = ({
   email,
-  event,
   org,
   subscriptionId,
-  topic
+  topic,
 }: {
   email: string;
-  event?: IEvent<string | Date>;
-  org?: IOrg;
+  org: IOrg;
   topic: ITopic;
   subscriptionId: string;
 }) => {
   console.log("🚀 ~ topic:", topic);
-  const entityName = event ? event.eventName : org?.orgName;
-  const entityUrl = event ? event.eventUrl : org?.orgUrl;
+  const entityName = org?.orgName;
+  const entityUrl = org?.orgUrl;
   const entityType = org ? orgTypeFull(org.orgType) : "de l'événement";
-  const topicUrl = getTopicUrl({ event, org, topic });
+  const topicUrl = getTopicUrl({ org, topic });
   const subject = `Nouvelle discussion : ${topic.topicName}`;
-  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${
-    org ? org.orgUrl : event?.eventUrl
-  }?subscriptionId=${subscriptionId}`;
+  const footerLink = `${process.env.NEXT_PUBLIC_URL}/unsubscribe/${org.orgUrl}?subscriptionId=${subscriptionId}`;
 
   return {
     from: process.env.EMAIL_FROM,
@@ -287,7 +91,7 @@ export const createTopicEmailNotif = ({
               }
               <p style="margin-block-start: 1em; margin-block-end: 1em;">
                 ${`${`<a href="${topicUrl}" style="${linkStyle(
-                  false
+                  false,
                 )}">Cliquez ici</a>`} pour participer à la discussion.`}
               </p>
             </td>
@@ -310,13 +114,13 @@ export const createTopicEmailNotif = ({
         </tbody>
       </table>
     </body>
-    `
+    `,
   };
 };
 
 export const createUserPasswordResetMail = ({
   email,
-  securityCode
+  securityCode,
 }: {
   email: string;
   securityCode: string;
@@ -348,6 +152,6 @@ export const createUserPasswordResetMail = ({
           </tr>
         </table>
       </body>
-      `
+      `,
   };
 };

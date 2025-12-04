@@ -8,18 +8,16 @@ import {
   Td,
   Text,
   Tr,
-  Input
+  Input,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { DeleteButton } from "features/common";
-import { useEditEventMutation } from "features/api/eventsApi";
 import { useEditOrgMutation } from "features/api/orgsApi";
 import {
   IEntity,
   IEntityCategory,
   EEntityCategoryKey,
-  isEvent,
-  isOrg
+  isOrg,
 } from "models/Entity";
 import { AppQueryWithData } from "utils/types";
 import { useSelector } from "react-redux";
@@ -29,21 +27,19 @@ const EntityCategoriesListItem = ({
   category,
   //categoryKey,
   query,
-  onDeleteClick
+  onDeleteClick,
 }: {
   category: IEntityCategory;
   //categoryKey: EEntityCategoryKey;
   query: AppQueryWithData<IEntity>;
   onDeleteClick: (label: string) => void;
 }) => {
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const isMobile = useSelector(selectIsMobile);
 
   const { catId, label } = category;
 
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
 
   const [isEdit, setIsEdit] = useState(false);
@@ -59,13 +55,13 @@ const EntityCategoriesListItem = ({
             mr={3}
             {...(isMobile
               ? {
-                  colorScheme: "green"
+                  colorScheme: "green",
                   //variant: "outline"
                 }
               : {
                   bgColor: "transparent",
                   height: "auto",
-                  _hover: { color: "green" }
+                  _hover: { color: "green" },
                 })}
             onClick={(e) => {
               setIsEdit(true);
@@ -87,10 +83,10 @@ const EntityCategoriesListItem = ({
           placement="bottom"
           {...(isMobile
             ? {
-                isSmall: false
+                isSmall: false,
               }
             : {
-                label: "Supprimer la catégorie"
+                label: "Supprimer la catégorie",
               })}
           onClick={() => onDeleteClick(label)}
         />
@@ -101,29 +97,27 @@ const EntityCategoriesListItem = ({
 export const EntityCategoriesList = ({
   categories,
   categoryKey,
-  query
+  query,
 }: {
   categories: IEntityCategory[];
   categoryKey: EEntityCategoryKey;
   query: AppQueryWithData<IEntity>;
 }) => {
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
   const isMobile = useSelector(selectIsMobile);
 
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isE ? editEvent : editOrg;
+  const edit = editOrg;
 
   const onDeleteClick = async (label: string) => {
     await edit({
-      [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
+      [isO ? "orgId" : "entityId"]: entity._id,
       payload: {
         [categoryKey]: categories.filter(
-          (categoryToDelete) => categoryToDelete.label !== label
-        )
-      }
+          (categoryToDelete) => categoryToDelete.label !== label,
+        ),
+      },
     });
   };
 

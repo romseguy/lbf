@@ -2,7 +2,7 @@ import {
   AddIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  Icon
+  Icon,
 } from "@chakra-ui/icons";
 import {
   Badge,
@@ -13,7 +13,7 @@ import {
   Heading,
   Progress,
   Text,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -26,7 +26,7 @@ import {
   HostTag,
   TabContainer,
   TabContainerContent,
-  TabContainerHeader
+  TabContainerHeader,
 } from "features/common";
 import { DocumentsList } from "features/documents/DocumentsList";
 import { DocumentsListMasonry } from "features/documents/DocumentsListMasonry";
@@ -35,7 +35,7 @@ import { DocumentForm } from "features/forms/DocumentForm";
 import { useDiskUsage } from "hooks/useDiskUsage";
 import { useSession } from "hooks/useSession";
 import { isOrg } from "models/Entity";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { IUser } from "models/User";
 import { selectIsMobile } from "store/uiSlice";
@@ -44,10 +44,10 @@ import { AppQueryWithData } from "utils/types";
 
 export const EntityPageDocuments = ({
   isCreator,
-  query
+  query,
 }: {
   isCreator?: boolean;
-  query: AppQueryWithData<IEvent | IOrg | IUser>;
+  query: AppQueryWithData<IOrg | IUser>;
 }) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -58,7 +58,7 @@ export const EntityPageDocuments = ({
   const badgeProps: BadgeProps = {
     colorScheme: "teal",
     variant: "solid",
-    ml: 2
+    ml: 2,
   };
   // const columnProps: ColumnProps = {
   //   bg: isDark ? "gray.700" : "lightblue"
@@ -72,7 +72,7 @@ export const EntityPageDocuments = ({
   const documentsQuery = useGetDocumentsQuery({
     eventId: entity._id,
     orgId: entity._id,
-    userId: entity._id
+    userId: entity._id,
   });
   useEffect(() => {
     documentsQuery.refetch();

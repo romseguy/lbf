@@ -1,68 +1,46 @@
-import {
-  ChevronRightIcon,
-  ChevronUpIcon,
-  CopyIcon,
-  EditIcon,
-  EmailIcon,
-} from "@chakra-ui/icons";
+import { ChevronRightIcon, ChevronUpIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Badge,
+  Box,
   BoxProps,
   Button,
+  Flex,
+  HStack,
   Icon,
   IconButton,
   Link,
+  Spinner,
   Table,
   Tbody,
-  Tr,
   Td,
-  Tooltip,
-  Box,
-  Flex,
-  Spinner,
   Text,
+  Tooltip,
+  Tr,
   useToast,
-  HStack,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
 import {
-  FaBellSlash,
-  FaBell,
-  FaChevronDown,
-  FaCircle,
-  FaSlash,
-  FaFolder,
-  FaFolderOpen,
-  FaThumbtack,
-  FaRetweet,
-} from "react-icons/fa";
-import { css } from "twin.macro";
-import {
-  DeleteButton,
-  EditIconButton,
-  GridItem,
-  PushPinIcon,
-  PushPinSlashIcon,
-} from "features/common";
+  useDeleteTopicMutation,
+  useEditTopicMutation,
+} from "features/api/topicsApi";
+import { DeleteButton } from "features/common";
 import { TopicMessageForm } from "features/forms/TopicMessageForm";
 import { useScroll } from "hooks/useScroll";
-import { getCategoryLabel, IEntity, isEvent, isOrg } from "models/Entity";
-import { ITopic, isEdit } from "models/Topic";
+import { getCategoryLabel, IEntity, isOrg } from "models/Entity";
+import { isEdit, ITopic } from "models/Topic";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { FaFolder, FaFolderOpen } from "react-icons/fa";
+import { css } from "twin.macro";
 import { Session } from "utils/auth";
 import * as dateUtils from "utils/date";
 import { ServerError } from "utils/errors";
 import { normalize } from "utils/string";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { TopicMessagesList } from "./TopicMessagesList";
 import { TopicsListItemShare } from "./TopicsListItemShare";
-import {
-  useEditTopicMutation,
-  useDeleteTopicMutation,
-} from "features/api/topicsApi";
 
-import { TopicModalState } from "./TopicsList";
 import { removeProps } from "utils/object";
+import { TopicModalState } from "./TopicsList";
 
 interface TopicsListItemProps {
   baseUrl?: string;
@@ -127,16 +105,10 @@ export const TopicsListItem = ({
 
   //#region entity
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
   const baseUrl =
-    props.baseUrl ||
-    `/${isE ? entity.eventUrl : isO ? entity.orgUrl : entity._id}/discussions`;
-  const topicCategories = isE
-    ? entity.eventTopicCategories
-    : isO
-    ? entity.orgTopicCategories
-    : [];
+    props.baseUrl || `/${isO ? entity.orgUrl : entity._id}/discussions`;
+  const topicCategories = isO ? entity.orgTopicCategories : [];
   //#endregion
 
   //#region topic

@@ -5,14 +5,12 @@ import {
   TagCloseButton,
   TagProps,
   Text,
-  useColorMode
+  useColorMode,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { DeleteButton } from "features/common";
-import { useDeleteEventMutation } from "features/api/eventsApi";
 import { useDeleteOrgMutation } from "features/api/orgsApi";
-import { IEntity, isEvent } from "models/Entity";
-import { orgTypeFull5, IOrg } from "models/Org";
+import { IEntity } from "models/Entity";
+import { IOrg } from "models/Org";
+import React, { useState } from "react";
 
 export const EntityTag = ({
   body,
@@ -28,20 +26,13 @@ export const EntityTag = ({
 } & TagProps) => {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
-  const isE = isEvent(entity);
   const [isLoading, setIsLoading] = useState(false);
   const canDelete = !!onCloseClick;
 
   const [deleteOrg, _] = useDeleteOrgMutation();
-  const [deleteEvent, __] = useDeleteEventMutation();
-  const deleteEntity = isE ? deleteEvent : deleteOrg;
   const index = entity._id;
   const isSelected = false;
-  const label = props.label
-    ? props.label
-    : isE
-      ? entity.eventName
-      : (entity as IOrg).orgName;
+  const label = props.label ? props.label : (entity as IOrg).orgName;
 
   return (
     <Tag
@@ -51,8 +42,8 @@ export const EntityTag = ({
             ? "pink.200"
             : "pink.500"
           : isDark
-            ? "#81E6D9"
-            : "#319795"
+          ? "#81E6D9"
+          : "#319795"
       }
       color={isDark ? "black" : "white"}
       cursor="pointer"
@@ -65,8 +56,8 @@ export const EntityTag = ({
             ? "pink.300"
             : "pink.600"
           : isDark
-            ? "#4FD1C5"
-            : "#2C7A7B"
+          ? "#4FD1C5"
+          : "#2C7A7B",
       }}
       onClick={(e) => {
         onClick && onClick(e);

@@ -1,3 +1,4 @@
+import { ChevronUpIcon, HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
   Drawer,
@@ -8,21 +9,17 @@ import {
   DrawerOverlay,
   Flex,
   IconButton,
-  Tooltip,
   useColorMode,
   useDisclosure,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
-import { ChevronUpIcon, HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
+import { DarkModeSwitch, OfflineIcon } from "features/common";
+import { NavButtonsList } from "features/layout/NavButtonsList";
+import { ContactFormModal } from "features/modals/ContactFormModal";
 import { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-//import { css } from "twin.macro";
-import { DarkModeSwitch, IconFooter, OfflineIcon } from "features/common";
-import { ContactFormModal } from "features/modals/ContactFormModal";
 import { selectIsOffline } from "store/sessionSlice";
-import { NavButtonsList } from "features/layout/NavButtonsList";
-import { PaypalButton } from "features/common/forms/PaypalButton";
 
 interface customWindow extends Window {
   console: { [key: string]: (...args: any[]) => void };
@@ -47,7 +44,7 @@ export const Main = ({
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
-    onClose: onDrawerClose
+    onClose: onDrawerClose,
   } = useDisclosure();
 
   const isOffline = useSelector(selectIsOffline);
@@ -68,7 +65,7 @@ export const Main = ({
           args[0].includes("maps")
         )
           notify(
-            "Vous avez dépassé le quota de chargement de cartes, veuillez réessayer plus tard."
+            "Vous avez dépassé le quota de chargement de cartes, veuillez réessayer plus tard.",
           );
         original.apply
           ? original.apply(window.console, args)
@@ -81,7 +78,7 @@ export const Main = ({
         isNotified = true;
         toast({
           status: "error",
-          title
+          title,
         });
       }
     }
@@ -176,7 +173,7 @@ export const Main = ({
               cursor="pointer"
               mb={3}
               _hover={{
-                background: isDark ? "whiteAlpha.800" : "blackAlpha.500"
+                background: isDark ? "whiteAlpha.800" : "blackAlpha.500",
               }}
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -193,27 +190,3 @@ export const Main = ({
     </>
   );
 };
-
-{
-  /*
-    {isLoginModalOpen && (
-      <LoginFormModal
-        onClose={() => {
-          setIsLoginModalOpen(false);
-          const path = localStorage.getItem("path") || "/";
-          const protectedRoutes = [
-            "/arbres/ajouter",
-            "/evenements/ajouter",
-            "/planetes/ajouter"
-          ];
-          if (protectedRoutes.includes(path))
-            router.push("/", "/", { shallow: true });
-          else router.push(path, path, { shallow: true });
-        }}
-        onSubmit={async () => {
-          dispatch(resetUserEmail());
-        }}
-      />
-    )}
-  */
-}

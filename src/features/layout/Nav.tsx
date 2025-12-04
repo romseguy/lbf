@@ -17,13 +17,14 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { DarkModeSwitch, Delimiter, Link, LoginButton } from "features/common";
-import { EventPopover, OrgPopover, TopicPopover } from "features/layout";
+import { OrgPopover, TopicPopover } from "features/layout";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
 import { IEntity } from "models/Entity";
 import { EOrgType } from "models/Org";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { FaHome } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { selectUserEmail } from "store/userSlice";
 import { NavButtonsList } from "./NavButtonsList";
@@ -83,19 +84,13 @@ export const Nav = ({
                       }
                       shallow
                     >
-                      Accueil
-                    </Link>
-                  </Heading>
-                  <Delimiter fontSize="xxx-large" />
-                  <Heading {...headingProps}>
-                    <Link
-                      href="/blog"
-                      variant={
-                        router.pathname === "/blog" ? "underline" : undefined
-                      }
-                      shallow
-                    >
-                      Blog
+                      <IconButton
+                        aria-label="Accueil"
+                        icon={<FaHome />}
+                        borderRadius={"9999px"}
+                        colorScheme={"red"}
+                        size="lg"
+                      />
                     </Link>
                   </Heading>
                 </HStack>
@@ -213,12 +208,6 @@ export const Nav = ({
                     isMobile={isMobile}
                     session={session}
                     offset={[isMobile ? 20 : 140, 15]}
-                    iconProps={iconProps}
-                  />
-                  <EventPopover
-                    isMobile={isMobile}
-                    session={session}
-                    offset={[isMobile ? -45 : 140, 15]}
                     iconProps={iconProps}
                   />
                   <TopicPopover

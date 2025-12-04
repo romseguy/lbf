@@ -23,20 +23,20 @@ handler.get<
 
   try {
     let {
-      query: { createdBy, orgType, populate = "" }
+      query: { createdBy, orgType, populate = "" },
     } = req;
 
     let selector: Partial<IOrg> = {
       $or: [
         { orgVisibility: EOrgVisibility.PUBLIC },
-        { orgVisibility: EOrgVisibility.FRONT }
-      ]
+        { orgVisibility: EOrgVisibility.FRONT },
+      ],
     };
 
     if (createdBy && typeof createdBy === "string") {
       selector = {
         ...selector,
-        createdBy
+        createdBy,
       };
 
       if (session && equals(session.user.userId, selector.createdBy))
@@ -61,7 +61,7 @@ handler.get<
             org = await org
               .populate({
                 path: "orgTopics",
-                populate: { path: "org" }
+                populate: { path: "org" },
               })
               .execPopulate();
           }
@@ -73,7 +73,7 @@ handler.get<
             await org
               .populate({
                 path: "orgTopics",
-                select: "topicName topicMessages.createdAt"
+                select: "topicName topicMessages.createdAt",
                 //populate: [{ path: "topicMessages", select: "-message" }]
               })
               .execPopulate();
@@ -83,7 +83,7 @@ handler.get<
 
       //console.log(`GET /orgs unhandled keys: ${populate}`);
       orgs = await Promise.all(
-        orgs.map((org) => org.populate(populate).execPopulate())
+        orgs.map((org) => org.populate(populate).execPopulate()),
       );
     }
 
@@ -113,8 +113,8 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
           .status(400)
           .json(
             createEndpointError(
-              new Error(`Ce nom d'organisation n'est pas autorisé`)
-            )
+              new Error(`Ce nom d'organisation n'est pas autorisé`),
+            ),
           );
       }
 
@@ -123,18 +123,17 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
         createdBy: session.user.userId,
         orgName,
         orgUrl,
-        isApproved: session.user.isAdmin
+        isApproved: session.user.isAdmin,
       };
 
-      const event = await models.Event.findOne({ eventUrl: orgUrl });
       const org = await models.Org.findOne({ orgUrl });
       const user = await models.User.findOne({ userName: orgUrl });
-      if (event || org || user) {
+      if (org || user) {
         const uid = (await getCurrentId()) + 1;
         newOrg = {
           ...newOrg,
           orgName: orgName + "-" + uid,
-          orgUrl: orgUrl + "-" + uid
+          orgUrl: orgUrl + "-" + uid,
         };
       }
 
@@ -145,15 +144,15 @@ handler.post<NextApiRequest & { body: AddOrgPayload }, NextApiResponse>(
     } catch (error: any) {
       res.status(500).json(createEndpointError(error));
     }
-  }
+  },
 );
 
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: "50mb"
-    }
-  }
+      sizeLimit: "50mb",
+    },
+  },
 };
 
 export default handler;

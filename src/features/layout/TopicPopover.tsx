@@ -116,7 +116,6 @@ const TopicPopoverContent = ({
             <EntityButton
               topic={topic}
               org={topic.org}
-              event={topic.event}
               p={1}
               onClick={() => {
                 onClose();
@@ -140,7 +139,7 @@ const TopicPopoverContent = ({
                 <Text fontSize="smaller" mx={1}>
                   dans
                 </Text>
-                <EntityButton event={topic.event} org={topic.org} p={1} />
+                <EntityButton org={topic.org} p={1} />
               </Box>
               <Box
                 display="flex"
@@ -244,7 +243,7 @@ const TopicPopoverContent = ({
                       <Text fontSize="smaller" mx={1}>
                         dans
                       </Text>
-                      <EntityButton event={topic.event} org={topic.org} p={1} />
+                      <EntityButton org={topic.org} p={1} />
                     </Box>
                   )}
                 </Box>

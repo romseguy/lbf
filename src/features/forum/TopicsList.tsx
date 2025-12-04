@@ -3,8 +3,8 @@ import {
   Alert,
   AlertIcon,
   Box,
-  Flex,
   BoxProps,
+  Flex,
   HStack,
   IconButton,
   List,
@@ -13,34 +13,26 @@ import {
   Spinner,
   Text,
   useColorMode,
-  VStack,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import { Button, AppHeading } from "features/common";
+import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
+import { AppHeading, Button } from "features/common";
 import {
   TopicCopyFormModal,
   TopicFormModal,
 } from "features/modals/TopicFormModal";
 import { useSession } from "hooks/useSession";
-import {
-  getCategoryLabel,
-  getRefId,
-  IEntity,
-  isEvent,
-  isOrg,
-} from "models/Entity";
+import { getCategoryLabel, getRefId, IEntity, isOrg } from "models/Entity";
 import { ETopicsListOrder, ITopic } from "models/Topic";
+import { useRouter } from "next/router";
+import React, { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectIsMobile } from "store/uiSlice";
 import { hasItems } from "utils/array";
 import { normalize } from "utils/string";
-import { AppQuery, AppQueryWithData } from "utils/types";
+import { AppQueryWithData } from "utils/types";
 import { TopicCategoryTag } from "./TopicCategoryTag";
 import { TopicsListCategories } from "./TopicsListCategories";
 import { TopicsListItem } from "./TopicsListItem";
-import { selectIsMobile } from "store/uiSlice";
-import { EditOrgPayload, useEditOrgMutation } from "features/api/orgsApi";
-import { useEditEventMutation } from "features/api/eventsApi";
 
 export type TopicModalState = {
   isOpen: boolean;
@@ -86,34 +78,23 @@ export const TopicsList = ({
   const { data: session } = useSession();
 
   const [editOrg] = useEditOrgMutation();
-  const [editEvent] = useEditEventMutation();
 
   //#region local state
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isO ? editOrg : editEvent;
+  const edit = editOrg;
   const [selectedCategories, setSelectedCategories] = useState<string[]>();
-  const defaultOrder = isO
-    ? entity.orgTopicOrder
-    : isE
-    ? entity.eventTopicOrder
-    : ETopicsListOrder.NEWEST;
+  const defaultOrder = isO ? entity.orgTopicOrder : ETopicsListOrder.NEWEST;
   const [selectedOrder, setSelectedOrder] = useState<ETopicsListOrder>(
     defaultOrder || ETopicsListOrder.NEWEST,
   );
   const topicCategories = useMemo(
-    () =>
-      isE
-        ? entity.eventTopicCategories
-        : isO
-        ? entity.orgTopicCategories
-        : [] || [],
+    () => (isO ? entity.orgTopicCategories : [] || []),
     [entity],
   );
   const topics = useMemo(() => {
     return (
-      (isE ? entity.eventTopics : isO ? entity.orgTopics : [])
+      (isO ? entity.orgTopics : [])
         .filter((topic: ITopic) => {
           if (hasItems(selectedCategories)) {
             let belongsToCategory = false;
@@ -131,9 +112,6 @@ export const TopicsList = ({
               )
                 belongsToCategory = true;
             }
-
-            if (isE || (isO && entity.orgUrl === "forum"))
-              return belongsToCategory;
 
             return belongsToCategory;
           }
@@ -265,7 +243,7 @@ export const TopicsList = ({
                     [isO ? "orgTopicOrder" : "eventTopicOrder"]: selectedOrder,
                   };
                   const res = await edit({
-                    [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
+                    [isO ? "orgId" : "entityId"]: entity._id,
                     payload,
                   }).unwrap();
                 } catch (error) {}

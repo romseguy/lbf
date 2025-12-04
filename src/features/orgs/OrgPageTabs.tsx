@@ -26,9 +26,7 @@ import {
   EntityPageTabList,
   EntityPageTopics,
 } from "features/common";
-import { EventsList } from "features/events/EventsList";
 import { scrollbarCss } from "features/layout/theme";
-import { ProjectsList } from "features/projects/ProjectsList";
 import { useSession } from "hooks/useSession";
 import {
   defaultTabs,
@@ -130,12 +128,6 @@ export const OrgPageTabs = ({
     setCurrentTabIndex(getCurrentTabIndex());
   }, [router.asPath]);
 
-  //#endregion
-
-  //#region events TabPanel
-  const [title = "Événements des 7 prochains jours", setTitle] = useState<
-    string | undefined
-  >();
   //#endregion
 
   //#region parameters TabPanel
@@ -269,41 +261,6 @@ export const OrgPageTabs = ({
                 isCreator={isCreator}
                 query={orgQuery}
               />
-            </TabPanel>
-          )}
-
-          {!!tabs.find(({ label }) => belongs(label, "Événements")) && (
-            <TabPanel aria-hidden>
-              <Flex alignItems="center" mb={3}>
-                <CalendarIcon boxSize={6} mr={3} />
-                <AppHeading>{title}</AppHeading>
-              </Flex>
-
-              <Column {...columnProps}>
-                <EventsList
-                  events={org.orgEvents}
-                  orgQuery={orgQuery}
-                  isCreator={isCreator}
-                  setTitle={setTitle}
-                />
-              </Column>
-            </TabPanel>
-          )}
-
-          {!!tabs.find(({ label }) => belongs(label, "Projets")) && (
-            <TabPanel aria-hidden>
-              <Flex alignItems="center" mb={3}>
-                <Icon as={FaTools} boxSize={6} mr={3} />
-                <AppHeading>Projets</AppHeading>
-              </Flex>
-
-              <Column {...columnProps}>
-                <ProjectsList
-                  org={org}
-                  orgQuery={orgQuery}
-                  isCreator={isCreator}
-                />
-              </Column>
             </TabPanel>
           )}
 

@@ -1,5 +1,4 @@
 import { Base64Image } from "utils/image";
-import { IProject } from "models/Project";
 
 export interface IUser {
   _id: string;
@@ -24,5 +23,4 @@ export interface IUser {
   isOnline: boolean;
   suggestedCategoryAt?: string;
   userDescription?: string;
-  userProjects: IProject[];
 }

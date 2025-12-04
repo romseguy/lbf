@@ -11,7 +11,7 @@ import {
   ModalHeader,
   ModalOverlay,
   useColorMode,
-  UseDisclosureProps
+  UseDisclosureProps,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { IoIosPeople } from "react-icons/io";
@@ -21,10 +21,9 @@ import {
   IEntity,
   IEntityCategory,
   EEntityCategoryKey,
-  isEvent,
-  isOrg
+  isOrg,
 } from "models/Entity";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { AppQueryWithData } from "utils/types";
 
@@ -43,12 +42,8 @@ export const CategoriesModal = ({
   const isDark = colorMode === "dark";
 
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const label =
-    categoryKey === EEntityCategoryKey.orgEventCategories
-      ? "d'événements"
-      : "de discussions";
+  const label = "de discussions";
 
   const [isAdd, setIsAdd] = useState(false);
   const defaultTitle = `Catégories ${label}`;
@@ -66,7 +61,7 @@ export const CategoriesModal = ({
         <ModalHeader display="flex" flexDirection="column">
           <Flex alignItems="center">
             <Icon as={IoIosPeople} color="green" mr={3} boxSize={6} />
-            {isE ? entity.eventName : isO ? entity.orgName : entity._id}
+            {isO ? entity.orgName : entity._id}
           </Flex>
           <Flex alignItems="center">
             <SettingsIcon mr={3} />

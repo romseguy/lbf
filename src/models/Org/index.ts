@@ -84,8 +84,8 @@ export const defaultTabs: IOrgTabWithMetadata[] = [
     icon: ChatIcon,
     url: ["/discussions", "/d"],
   },
-  { order: 2, label: "Événements", icon: CalendarIcon, url: "/evenements" },
-  { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
+  // { order: 2, label: "Événements", icon: CalendarIcon, url: "/evenements" },
+  // { order: 3, label: "Projets", icon: FaTools, url: "/projets" },
   { order: 4, label: "Galerie", icon: FaImages, url: "/galerie" },
   { order: 5, label: "", icon: SettingsIcon, url: "/parametres" },
 ];

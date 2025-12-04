@@ -6,7 +6,7 @@ import {
   FaGlobeEurope,
   FaRegCalendarCheck,
   FaRegCalendarTimes,
-  FaTree
+  FaTree,
 } from "react-icons/fa";
 import { EntityButton, Link, AppHeading, LinkShare } from "features/common";
 import { useSession } from "hooks/useSession";
@@ -14,9 +14,8 @@ import {
   IEntity,
   IEntityBanner,
   IEntityLogo,
-  isEvent,
   isOrg,
-  isUser
+  isUser,
 } from "models/Entity";
 import { EOrgType, getNetworks, IOrg, orgTypeFull } from "models/Org";
 import { AppIcon } from "utils/types";
@@ -40,7 +39,6 @@ export const HeaderTitle = ({
   const { data: session } = useSession();
 
   //#region entity
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
   const isU = isUser(entity);
   let banner: IEntityBanner | undefined;
@@ -49,14 +47,7 @@ export const HeaderTitle = ({
   let entityUrl: string | undefined;
   let icon: AppIcon | undefined;
   let iconColor = banner ? "white" : isDark ? "green.100" : "green";
-  if (isE) {
-    banner = entity.eventBanner;
-    logo = entity.eventLogo;
-    name = entity.eventName;
-    entityUrl = entity.eventUrl;
-    icon = entity.isApproved ? FaRegCalendarCheck : FaRegCalendarTimes;
-    iconColor = entity.isApproved ? "green" : "red";
-  } else if (isO) {
+  if (isO) {
     banner = entity.orgBanner;
     logo = entity.orgLogo;
     name = entity.orgName;
@@ -65,8 +56,8 @@ export const HeaderTitle = ({
       entityUrl === "forum"
         ? ChatIcon
         : entity.orgType === EOrgType.NETWORK
-          ? FaGlobeEurope
-          : FaTree;
+        ? FaGlobeEurope
+        : FaTree;
     iconColor =
       entity.orgType === EOrgType.NETWORK
         ? entityUrl === "forum"
@@ -109,11 +100,6 @@ export const HeaderTitle = ({
           color={iconColor}
           //mt={3}
           mr={2}
-          title={
-            isE && !entity.isApproved
-              ? "Événement en attente de modération"
-              : undefined
-          }
         />
       )}
 
@@ -130,11 +116,7 @@ export const HeaderTitle = ({
           url={`${process.env.NEXT_PUBLIC_URL}/${entityUrl}`}
           colorScheme="blue"
           label={`Copier le lien ${
-            isE
-              ? "de l'événement"
-              : isO
-                ? orgTypeFull(entity.orgType)
-                : "du soleil"
+            isO ? orgTypeFull(entity.orgType) : "du soleil"
           }`}
           ml={2}
           tooltipProps={{ placement: "right" }}
@@ -154,8 +136,8 @@ export const HeaderTitle = ({
             ? "black"
             : "white"
           : isDark
-            ? "whiteAlpha.400"
-            : "blackAlpha.100"
+          ? "whiteAlpha.400"
+          : "blackAlpha.100"
       }
       borderRadius="lg"
       pb={4}
@@ -174,13 +156,13 @@ export const HeaderTitle = ({
                 <EntityButton
                   org={orgNetwork}
                   tooltipProps={{
-                    label: `Cet arbre a été planté sur la planète ${orgNetwork.orgName}`
+                    label: `Cet arbre a été planté sur la planète ${orgNetwork.orgName}`,
                   }}
                   mb={index !== orgNetworks.length - 1 ? 3 : 0}
                   onClick={(e) => {
                     e.stopPropagation();
                     router.push(orgNetwork.orgUrl, orgNetwork.orgUrl, {
-                      shallow: true
+                      shallow: true,
                     });
                   }}
                 />

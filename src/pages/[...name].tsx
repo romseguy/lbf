@@ -5,12 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getRunningQueriesThunk } from "features/api";
 import {
-  getEvent,
-  GetEventParams,
-  //getRunningQueriesThunk as eventApiThunk,
-  useGetEventQuery,
-} from "features/api/eventsApi";
-import {
   getOrg,
   GetOrgParams,
   //getRunningQueriesThunk as orgApiThunk,
@@ -28,13 +22,12 @@ import {
   NotFound,
 } from "features/common";
 import { Layout } from "features/layout";
-import { EventPage } from "features/events/EventPage";
 import { OrgPage } from "features/orgs/OrgPage";
 import { OrgPageLogin } from "features/orgs/OrgPageLogin";
 import { UserPage } from "features/users/UserPage";
 import { useSession } from "hooks/useSession";
 import { PageProps } from "main";
-import { IEvent } from "models/Event";
+
 import { defaultTabs, EOrgType, IOrg } from "models/Org";
 
 import { IUser } from "models/User";
@@ -118,9 +111,6 @@ const HashPage = ({ ...props }: PageProps) => {
   //#endregion
 
   //#region queries
-  const [eventQueryParams, setEventQueryParams] = useState<GetEventParams>(
-    initialEventQueryParams(entityUrl),
-  );
   const [orgQueryParams, setOrgQueryParams] = useState<GetOrgParams>(
     initialOrgQueryParams(entityUrl),
   );
@@ -128,9 +118,6 @@ const HashPage = ({ ...props }: PageProps) => {
   //   initialUserQueryParams(entityUrl)
   // );
   const [skip, setSkip] = useState(false);
-  const eventQuery = useGetEventQuery(eventQueryParams, {
-    skip,
-  }) as AppQuery<IEvent>;
   const orgQuery = useGetOrgQuery(orgQueryParams, { skip }) as AppQuery<IOrg>;
   const userQuery = useGetUserQuery(
     {
@@ -140,7 +127,6 @@ const HashPage = ({ ...props }: PageProps) => {
     },
     { skip },
   ) as AppQuery<IUser>;
-  const eventQueryStatus = eventQuery.error?.status || 200;
   const orgQueryStatus = orgQuery.error?.status || 200;
   const userQueryStatus = userQuery.error?.status || 200;
   //#endregion
@@ -160,7 +146,6 @@ const HashPage = ({ ...props }: PageProps) => {
     function onNavigate() {
       if (entityUrl !== orgQueryParams.orgUrl) {
         setOrgQueryParams({ ...orgQueryParams, orgUrl: entityUrl });
-        setEventQueryParams({ ...eventQueryParams, eventUrl: entityUrl });
         //setUserQueryParams({ ...userQueryParams, slug: entityUrl });
       }
     },
@@ -197,32 +182,12 @@ const HashPage = ({ ...props }: PageProps) => {
     );
   }
 
-  if (
-    eventQueryStatus === 404 &&
-    orgQueryStatus === 404 &&
-    userQueryStatus === 404
-  ) {
+  if (orgQueryStatus === 404 && userQueryStatus === 404) {
     return <NotFound {...props} />;
   }
 
-  if (eventQuery.data && eventQueryStatus === 200) {
-    return (
-      <EventPage
-        {...props}
-        eventQuery={eventQuery as AppQueryWithData<IEvent>}
-        tab={currentTabLabel}
-        tabItem={entityTabItem}
-      />
-    );
-  }
-
-  if (
-    eventQuery.error &&
-    eventQueryStatus !== 404 &&
-    userQuery.error &&
-    orgQuery.error
-  ) {
-    return <ErrorPage {...props} query={eventQuery} />;
+  if (userQuery.error && orgQuery.error) {
+    return <ErrorPage {...props} query={orgQuery} />;
   }
 
   if (userQuery.data && userQueryStatus === 200) {
@@ -260,7 +225,7 @@ const HashPage = ({ ...props }: PageProps) => {
     );
   }
 
-  if (orgQuery.error && userQuery.error && eventQuery.error) {
+  if (orgQuery.error && userQuery.error) {
     return <ErrorPage {...props} query={orgQuery} />;
   }
   //#endregion
@@ -309,7 +274,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
       // todo: pass ctx.req.headers.cookie
       store.dispatch(getOrg.initiate(initialOrgQueryParams(entityUrl)));
-      store.dispatch(getEvent.initiate(initialEventQueryParams(entityUrl)));
       store.dispatch(getUser.initiate(initialUserQueryParams(entityUrl)));
       const [orgQuery, eventQuery, userQuery] = await Promise.all(
         store.dispatch(getRunningQueriesThunk()),

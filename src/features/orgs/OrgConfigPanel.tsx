@@ -121,18 +121,6 @@ export const OrgConfigPanel = ({
               toggleVisibility={toggleVisibility}
             />
           </Column>
-
-          <Column pt={1}>
-            <AppHeading>Événements</AppHeading>
-
-            <EntityConfigCategoriesPanel
-              categories={getEventCategories(org)}
-              categoryKey={EEntityCategoryKey.orgEventCategories}
-              query={orgQuery}
-              isVisible={isVisible}
-              toggleVisibility={toggleVisibility}
-            />
-          </Column>
         </>
       )}
     </>

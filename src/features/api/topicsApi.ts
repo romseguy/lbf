@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { ITopic } from "models/Topic";
 import { ITopicMessage } from "models/TopicMessage";
@@ -17,7 +17,6 @@ export interface AddTopicPayload {
   // >;
   topic: Partial<ITopic>;
   org?: Partial<IOrg>;
-  event?: Partial<IEvent>;
 }
 
 export interface EditTopicPayload {

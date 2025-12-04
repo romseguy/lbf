@@ -4,32 +4,30 @@ import { css } from "twin.macro";
 import { LatLon } from "use-places-autocomplete";
 import { withGoogleApi } from "features/map/GoogleApiWrapper";
 import { Map } from "features/map/Map";
-import { IEvent } from "models/Event";
+
 import { IOrg } from "models/Org";
 import { hasItems } from "utils/array";
 import { SizeMap } from "utils/maps";
 
 export const MapContainer = withGoogleApi({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
 })(
   ({
-    events,
     orgs,
     ...props
   }: {
     google: typeof google;
     loaded: boolean;
-    events?: IEvent[];
     orgs?: IOrg[];
     center: LatLon;
   }) => {
     //#region local state
-    const canDisplay = props.loaded && props.google && hasItems(events || orgs);
+    const canDisplay = props.loaded && props.google && hasItems(orgs);
     const isOffline = props.loaded && !props.google;
     const [center, setCenter] = useState<LatLon>(props.center);
     const [size, setSize] = useState<SizeMap>({
       defaultSize: { enabled: true },
-      fullSize: { enabled: false }
+      fullSize: { enabled: false },
     });
     //#endregion
 
@@ -67,14 +65,13 @@ export const MapContainer = withGoogleApi({
           >
             <Map
               center={center}
-              events={events}
               orgs={orgs}
               size={size}
               style={{}}
               onFullscreenControlClick={(isFull: boolean) => {
                 setSize({
                   defaultSize: { enabled: !isFull },
-                  fullSize: { enabled: isFull }
+                  fullSize: { enabled: isFull },
                 });
               }}
             />
@@ -86,21 +83,20 @@ export const MapContainer = withGoogleApi({
     return (
       <Map
         center={center}
-        events={events}
         orgs={orgs}
         size={size}
         style={{
           position: "relative",
           height: "340px",
-          flex: 1
+          flex: 1,
         }}
         onFullscreenControlClick={(isFull: boolean) => {
           setSize({
             defaultSize: { enabled: !isFull },
-            fullSize: { enabled: isFull }
+            fullSize: { enabled: isFull },
           });
         }}
       />
     );
-  }
+  },
 );

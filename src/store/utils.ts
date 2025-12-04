@@ -11,8 +11,6 @@ export const getCurrentId = async () => {
     }
   };
 
-  const events = await models.Event.find({});
-  for (const currentEvent of events) pushIds(currentEvent.eventName);
   const orgs = await models.Org.find({});
   for (const currentOrg of orgs) pushIds(currentOrg.orgName);
   const users = await models.User.find({});

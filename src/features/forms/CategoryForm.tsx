@@ -7,7 +7,7 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
-  useToast
+  useToast,
 } from "@chakra-ui/react";
 import { ErrorMessage } from "@hookform/error-message";
 import React, { useState } from "react";
@@ -23,11 +23,8 @@ import {
   IEntity,
   IEntityCategory,
   EEntityCategoryKey,
-  isEvent,
-  isOrg
+  isOrg,
 } from "models/Entity";
-import { IEvent } from "models/Event";
-import { useEditEventMutation } from "features/api/eventsApi";
 
 export const CategoryForm = ({
   categories,
@@ -43,13 +40,11 @@ export const CategoryForm = ({
   onSubmit: () => void;
 }) => {
   const toast = useToast({ position: "top" });
-  const [editEvent] = useEditEventMutation();
   const [editOrg] = useEditOrgMutation();
 
   const entity = query.data;
-  const isE = isEvent(entity);
   const isO = isOrg(entity);
-  const edit = isE ? editEvent : editOrg;
+  const edit = editOrg;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -62,11 +57,11 @@ export const CategoryForm = ({
     setError,
     formState,
     watch,
-    setValue
+    setValue,
   } = useFormPersist(
     useForm({
-      mode: "onChange"
-    })
+      mode: "onChange",
+    }),
   );
   useLeaveConfirm({ formState });
 
@@ -75,13 +70,13 @@ export const CategoryForm = ({
     setIsLoading(true);
     try {
       await edit({
-        [isE ? "eventId" : isO ? "orgId" : "entityId"]: entity._id,
+        [isO ? "orgId" : "entityId"]: entity._id,
         payload: {
           [categoryKey]: categories.concat({
             catId: `${categories.length}`,
-            label: form.category
-          })
-        }
+            label: form.category,
+          }),
+        },
       });
       setIsLoading(false);
       toast({ status: "success", title: "La catégorie a été ajoutée !" });
@@ -91,7 +86,7 @@ export const CategoryForm = ({
       handleError(error, (message, field) => {
         setError(field || "formErrorMessage", {
           type: "manual",
-          message
+          message,
         });
       });
     }
@@ -105,7 +100,7 @@ export const CategoryForm = ({
         <Input
           name="category"
           ref={register({
-            required: "Veuillez saisir un nom de catégorie"
+            required: "Veuillez saisir un nom de catégorie",
           })}
           autoComplete="false"
         />
